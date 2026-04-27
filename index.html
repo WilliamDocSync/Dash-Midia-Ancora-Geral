@@ -201,10 +201,13 @@
     <script>
         Chart.register(ChartDataLabels);
 
-        // --- LINKS DAS PLANILHAS GOOGLE ---
+        // --- LINKS DAS PLANILHAS GOOGLE (ATUALIZADOS) ---
         const SHEET_URLS = [
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=1227414686&single=true&output=csv",
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=0&single=true&output=csv"
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=574214236&single=true&output=csv", // Vendas
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=1227414686&single=true&output=csv", // Planejados
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=0&single=true&output=csv", // Meta
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1254441910&single=true&output=csv", // Google
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1347821527&single=true&output=csv" // TikTok
         ];
 
         let allData = [];
@@ -250,6 +253,8 @@
             try {
                 for (let i = 0; i < SHEET_URLS.length; i++) {
                     const url = SHEET_URLS[i];
+                    if (url.includes("COLE_O_LINK_")) continue; 
+
                     await new Promise((resolve) => {
                         let headerCounts = {};
                         Papa.parse(url, {
