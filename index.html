@@ -95,14 +95,72 @@
         </div>
 
         <div id="mainDashboard" class="hidden">
+            
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="font-bold text-slate-700 uppercase text-sm flex items-center gap-2">🤖 Copiar Dados para IA Manual</h3>
+                    <p class="text-xs text-slate-500 mt-1">Gere um resumo em texto para colar no ChatGPT ou Gemini e obter insights sem precisar de API Key.</p>
+                </div>
+                <button id="btnCopyData" class="bg-indigo-600 text-white px-6 py-2.5 rounded font-bold hover:bg-indigo-700 transition shadow flex items-center gap-2 text-sm">
+                    <span>📋</span> COPIAR RESUMO PARA IA
+                </button>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm mb-8 border border-blue-100 flex flex-col md:flex-row gap-6">
+                <div class="flex-1 bg-white p-5 rounded-lg shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xl">✨</span>
+                        <h3 class="font-bold text-slate-700 uppercase tracking-wide text-sm">Insight Automático (API)</h3>
+                    </div>
+                    <div id="aiAutoInsight" class="text-sm text-slate-600 leading-relaxed h-32 overflow-y-auto custom-scrollbar pr-2">
+                        Se a chave estiver inserida, a análise aparecerá aqui...
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🤖</span>
+                        <h3 class="font-bold text-slate-700 uppercase tracking-wide text-sm">Fale com os Dados (API)</h3>
+                    </div>
+                    <div id="aiChatResponse" class="flex-1 bg-white p-4 rounded-lg shadow-sm border border-slate-100 text-sm text-slate-700 overflow-y-auto custom-scrollbar h-24">
+                        Faça uma pergunta sobre o desempenho.
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="aiUserInput" placeholder="Ex: Qual foi a frente com melhor CPL?" class="flex-1 border border-blue-200 rounded p-2 text-sm outline-none focus:border-blue-500">
+                        <button id="btnAskAi" class="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 transition flex items-center justify-center min-w-[80px]">Enviar</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8"></div>
+            
             <div class="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-200">
                 <div class="flex flex-wrap justify-between items-center mb-6 pb-4 border-b">
                     <h3 class="font-bold text-slate-700 uppercase tracking-wide">Análise Visual Evolutiva</h3>
-                    <div class="flex flex-wrap gap-4 mt-4 md:mt-0 bg-slate-50 p-2 rounded-lg">
-                        <select id="metricSelector" class="border rounded p-1 text-sm bg-white outline-none"><option value="leads">Leads</option><option value="gasto">Investimento</option><option value="cpl">CPL</option><option value="vendas">Vendas</option></select>
-                        <select id="chartTypeSelector" class="border rounded p-1 text-sm bg-white outline-none"><option value="line">Linhas</option><option value="bar">Barras</option></select>
-                        <select id="dimensionSelector" class="border-2 border-blue-200 rounded p-1 text-sm bg-white outline-none"><option value="frente">Frentes</option><option value="plataforma">Canal</option></select>
+                    <div class="flex flex-wrap gap-4 mt-4 md:mt-0 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Métrica</label>
+                            <select id="metricSelector" class="border rounded p-1 text-sm bg-white outline-none font-medium">
+                                <option value="leads">Leads</option>
+                                <option value="gasto">Investimento (R$)</option>
+                                <option value="cpl">CPL Médio (R$)</option>
+                                <option value="vendas">Vendas</option>
+                                <option value="cpa">CPA Médio (R$)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Visualização</label>
+                            <select id="chartTypeSelector" class="border rounded p-1 text-sm bg-white outline-none font-medium">
+                                <option value="line">Linhas</option>
+                                <option value="bar">Barras</option>
+                            </select>
+                        </div>
+                        <div class="border-l pl-4 border-gray-300">
+                            <label class="text-[10px] font-bold text-blue-600 uppercase block mb-1">Agrupar Linhas Por:</label>
+                            <select id="dimensionSelector" class="border-2 border-blue-200 rounded p-1 text-sm bg-white outline-none font-bold text-blue-700 shadow-sm">
+                                <option value="frente">Frentes da Agência (Marcas)</option>
+                                <option value="plataforma">Canal (Google/Meta/TikTok)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="w-full max-w-6xl mx-auto"><canvas id="customChart" height="120"></canvas></div>
@@ -111,22 +169,26 @@
             <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border border-gray-200">
                 <div class="p-6 border-b flex justify-between items-center bg-slate-50">
                     <h3 class="font-bold text-slate-800 uppercase tracking-wide">Desempenho Detalhado</h3>
-                    <select id="tableGroupSelector" class="border rounded p-2 text-sm bg-white outline-none font-bold"><option value="frente">Consolidar por Frentes</option><option value="canal">Consolidar por Canal</option><option value="conta">Contas Individuais</option></select>
+                    <select id="tableGroupSelector" class="border-2 border-slate-300 rounded p-2 text-sm bg-white outline-none font-bold shadow-sm">
+                        <option value="frente">Consolidar por Frentes</option>
+                        <option value="canal">Consolidar por Canal</option>
+                        <option value="conta">Contas Individuais</option>
+                    </select>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="min-w-full text-left border-collapse">
                         <thead class="table-header">
                             <tr>
-                                <th class="px-6 py-4 text-xs font-bold uppercase">Origem</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right">Investimento</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right">Impressões</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right">Cliques</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right">CTR</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right text-blue-700">Leads</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right text-purple-600">CVR</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right text-orange-600">CPL</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right text-green-700">Vendas</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase text-right bg-blue-50">CPA</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600">Origem / Nome</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right">Investimento</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right">Impressões</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right">Cliques</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right">CTR</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right text-blue-700">Leads</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right text-purple-600">CVR</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right text-orange-600">CPL</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right text-green-700">Vendas</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-slate-600 text-right bg-blue-50">CPA</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y text-sm"></tbody>
@@ -151,7 +213,23 @@
         let currentChart = null;
         let loadedFiles = {};
 
-        // Inicia carregando as planilhas do Google automaticamente
+        // VARIÁVEIS DE CORES E FORMATADORES
+        const palette = [
+            { bg: 'rgba(59, 130, 246, 0.7)', border: '#3b82f6' }, 
+            { bg: 'rgba(16, 185, 129, 0.7)', border: '#10b981' }, 
+            { bg: 'rgba(249, 115, 22, 0.7)', border: '#f97316' }, 
+            { bg: 'rgba(139, 92, 246, 0.7)', border: '#8b5cf6' }, 
+            { bg: 'rgba(239, 68, 68, 0.7)', border: '#ef4444' },  
+            { bg: 'rgba(31, 41, 55, 0.7)', border: '#1f2937' }
+        ];
+
+        const fmt = {
+            m: (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0),
+            n: (v) => new Intl.NumberFormat('pt-BR').format(Math.round(v || 0)),
+            p: (v) => (v || 0).toFixed(2) + '%'
+        };
+
+        // INICIA CARREGANDO DO GOOGLE SHEETS
         window.addEventListener('DOMContentLoaded', () => {
             carregarGoogleSheets();
             if (localStorage.getItem('geminiApiKey')) {
@@ -159,18 +237,41 @@
             }
         });
 
+        document.getElementById('geminiApiKey').addEventListener('change', (e) => {
+            localStorage.setItem('geminiApiKey', e.target.value);
+        });
+
         async function carregarGoogleSheets() {
             const status = document.getElementById('googleStatus');
+            status.innerText = "Sincronizando Planilhas...";
+            status.classList.replace('text-green-600', 'text-orange-500');
+            status.classList.replace('text-red-600', 'text-orange-500');
+            
             try {
                 for (let i = 0; i < SHEET_URLS.length; i++) {
                     const url = SHEET_URLS[i];
                     await new Promise((resolve) => {
+                        let headerCounts = {};
                         Papa.parse(url, {
                             download: true,
                             header: true,
                             skipEmptyLines: true,
+                            transformHeader: function(h) {
+                                let safe = h ? String(h).trim() : 'Unnamed';
+                                if (headerCounts[safe]) {
+                                    headerCounts[safe]++;
+                                    return safe + "_" + headerCounts[safe];
+                                } else {
+                                    headerCounts[safe] = 1;
+                                    return safe;
+                                }
+                            },
                             complete: (res) => {
                                 processarDadosPapa(res, `GoogleSheet_${i}`);
+                                resolve();
+                            },
+                            error: (err) => {
+                                console.error("Erro Papa Parse:", err);
                                 resolve();
                             }
                         });
@@ -184,43 +285,142 @@
             }
         }
 
+        // CARREGAMENTO MANUAL DE ARQUIVOS LOCAIS (Fallback)
+        document.getElementById('csvFiles').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            document.getElementById('fileStatus').innerText = "PROCESSANDO...";
+            let filesProcessed = 0;
+
+            files.forEach(file => {
+                let headerCounts = {};
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: function(h) {
+                        let safe = h ? String(h).trim() : 'Unnamed';
+                        if (headerCounts[safe]) {
+                            headerCounts[safe]++;
+                            return safe + "_" + headerCounts[safe];
+                        } else {
+                            headerCounts[safe] = 1;
+                            return safe;
+                        }
+                    },
+                    complete: function(res) {
+                        let baseName = file.name;
+                        let fileKey = baseName;
+                        let counter = 1;
+                        while(loadedFiles[fileKey]) {
+                            fileKey = baseName.replace(/(\.[\w\d_-]+)$/i, `(${counter})$1`);
+                            if(fileKey === baseName) fileKey = baseName + `(${counter})`; 
+                            counter++;
+                        }
+                        
+                        processarDadosPapa(res, fileKey);
+                        filesProcessed++;
+                        
+                        if (filesProcessed === files.length) {
+                            document.getElementById('fileStatus').innerText = `${Object.keys(loadedFiles).length} arquivo(s)`;
+                        }
+                    }
+                });
+            });
+            e.target.value = '';
+        });
+
+        document.getElementById('btnClearFiles').addEventListener('click', () => {
+            loadedFiles = {};
+            allData = [];
+            document.getElementById('mainDashboard').classList.add('hidden');
+            document.getElementById('csvFiles').value = '';
+        });
+
+        // -----------------------------------------------------
+        // LÓGICA CENTRAL DE TRATAMENTO DE DADOS (PAPA PARSE)
+        // -----------------------------------------------------
         function processarDadosPapa(res, fileKey) {
-            let headerCounts = {};
             let parsedData = [];
             let firstRow = res.data[0] || {};
             let keys = Object.keys(firstRow);
 
-            // LOGICA DE DISTRIBUIÇÃO DE METAS / VENDAS / MÍDIA (Conforme as versões anteriores)
-            if (keys.includes('Planejado Meta')) {
-                let mStr = '04', yStr = '2026';
+            // 1. DETECTAR ARQUIVO DE PLANEJADO (Distribuindo a meta proporcionalmente)
+            if (keys.includes('Planejado Meta') || keys.includes('Leads Planejados')) {
+                let mStr = '04'; 
+                let yStr = '2026';
                 let daysInMonth = new Date(parseInt(yStr), parseInt(mStr), 0).getDate();
+
                 res.data.forEach(d => {
-                    if (!d.Conta) return;
-                    let totalGastoPlan = parseBRNumber(d['Planejado Meta']) + parseBRNumber(d['Planejado Google']) + parseBRNumber(d['Planejado Tik Tok']);
-                    let totalLeadsPlan = parseBRNumber(d['CPL Planejado']) > 0 ? (totalGastoPlan / parseBRNumber(d['CPL Planejado'])) : parseBRNumber(d['Leads Planejados']);
+                    let conta = d.Conta;
+                    if (!conta) return;
+                    
+                    let gastoPlanMeta = parseBRNumber(d['Planejado Meta']);
+                    let gastoPlanGoogle = parseBRNumber(d['Planejado Google']);
+                    let gastoPlanTiktok = parseBRNumber(d['Planejado Tik Tok']);
+                    let totalGastoPlan = gastoPlanMeta + gastoPlanGoogle + gastoPlanTiktok;
+                    
+                    let cplPlan = parseBRNumber(d['CPL Planejado']);
+                    let totalLeadsPlan = cplPlan > 0 ? (totalGastoPlan / cplPlan) : parseBRNumber(d['Leads Planejados']);
+                    
+                    let dailyGasto = totalGastoPlan / daysInMonth;
+                    let dailyLeads = totalLeadsPlan / daysInMonth;
+
                     for(let day=1; day<=daysInMonth; day++) {
                         let dayStr = day < 10 ? '0'+day : day;
-                        parsedData.push({ Data: `${yStr}-${mStr}-${dayStr}`, Plataforma: 'Todas', Conta: d.Conta, Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: 0, GastoPlan: totalGastoPlan / daysInMonth, LeadsPlan: totalLeadsPlan / daysInMonth, VendasPlan: 0 });
+                        parsedData.push({
+                            Data: `${yStr}-${mStr}-${dayStr}`,
+                            Plataforma: 'Todas', 
+                            Conta: conta,
+                            Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: 0,
+                            GastoPlan: dailyGasto,
+                            LeadsPlan: dailyLeads,
+                            VendasPlan: 0
+                        });
                     }
                 });
             }
-            else if (keys.includes('Meta') && keys.includes('Google')) {
+            // 2. DETECTAR ARQUIVO DE VENDAS CONSOLIDADO
+            else if (keys.includes('Data') && keys.includes('Meta') && keys.includes('Google') && keys.includes('Tik tok')) {
                 res.data.forEach(d => {
                     let rawDate = normalizarData(d.Data);
-                    if (!rawDate) return;
+                    if (!rawDate) return; 
+
                     let conta = d.Conta || d.Frente || 'Desconhecida';
-                    if (parseBRNumber(d.Meta) > 0) parsedData.push({ Data: rawDate, Plataforma: 'Facebook Ads', Conta: conta, Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: parseBRNumber(d.Meta), GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
-                    if (parseBRNumber(d.Google) > 0) parsedData.push({ Data: rawDate, Plataforma: 'Google Ads', Conta: conta, Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: parseBRNumber(d.Google), GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
-                    if (parseBRNumber(d['Tik tok']) > 0) parsedData.push({ Data: rawDate, Plataforma: 'TikTok', Conta: conta, Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: parseBRNumber(d['Tik tok']), GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
+                    let vMeta = parseBRNumber(d.Meta);
+                    let vGoogle = parseBRNumber(d.Google);
+                    let vTiktok = parseBRNumber(d['Tik tok']);
+
+                    if (vMeta > 0) parsedData.push({ Data: rawDate, Plataforma: 'Facebook Ads', Conta: conta, Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: vMeta, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
+                    if (vGoogle > 0) parsedData.push({ Data: rawDate, Plataforma: 'Google Ads', Conta: conta, Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: vGoogle, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
+                    if (vTiktok > 0) parsedData.push({ Data: rawDate, Plataforma: 'TikTok', Conta: conta, Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: vTiktok, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
                 });
             }
+            // 3. DETECTAR ARQUIVO PADRÃO DE MÍDIA
             else {
                 parsedData = res.data.map(d => {
                     let rawDate = normalizarData(d.Data || d.Date || d['Date (Segment)']);
                     if (!rawDate) return null;
-                    let finalLeads = parseBRNumber(d.Leads || d.Lead || d['Action Leads']) + parseBRNumber(d['Action Messaging Conversations Started (Onsite Conversion)']);
+
+                    let spendVal = d.Gasto || d.Spend || d['Spend (Cost, Amount Spent)'] || d['Cost (Spend, Amount Spent)'] || d['Amount Spent'] || d['"Spend (Cost'] || d['"Cost (Spend'];
+                    let leadsVal = d.Leads || d.Lead || d['Action Leads'] || 0;
+                    let msgVal = d['Action Messaging Conversations Started (Onsite Conversion)'] || 0;
+                    
+                    let finalLeads = parseBRNumber(leadsVal) + parseBRNumber(msgVal);
                     if (finalLeads === 0) finalLeads = parseBRNumber(d.Conversions) || parseBRNumber(d['Generate Lead']);
-                    return { Data: rawDate, Plataforma: normalizarPlataforma(d.Plataforma || d['Platform Name']), Conta: d.Conta || d['Account Name'] || d['Advertiser Name'], Gasto: parseBRNumber(d.Gasto || d.Spend || d['Spend (Cost, Amount Spent)'] || d['Cost (Spend, Amount Spent)']), Leads: finalLeads, Impressoes: parseBRNumber(d.Impressoes || d.Impressions), Cliques: parseBRNumber(d.Cliques || d.Clicks), Vendas: parseBRNumber(d.Vendas), GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 };
+
+                    return {
+                        Data: rawDate,
+                        Plataforma: normalizarPlataforma(d.Plataforma || d.Platform || d['Platform Name']),
+                        Conta: d.Conta || d.Account || d['Account Name'] || d['Advertiser Name'] || 'Desconhecido',
+                        Gasto: parseBRNumber(spendVal),
+                        Leads: finalLeads,
+                        Impressoes: parseBRNumber(d.Impressoes || d.Impressions),
+                        Cliques: parseBRNumber(d.Cliques || d.Clicks),
+                        Vendas: parseBRNumber(d.Vendas || d['Vendas CRM'] || d['Vendas Realizadas']),
+                        GastoPlan: parseBRNumber(d['Gasto Planejado'] || d.Orcamento || d['Investimento Planejado']),
+                        LeadsPlan: parseBRNumber(d['Leads Planejado'] || d['Meta Leads']),
+                        VendasPlan: parseBRNumber(d['Vendas Planejado'] || d['Meta Vendas'] || 0)
+                    };
                 }).filter(d => d !== null);
             }
 
@@ -231,9 +431,10 @@
             processAndRender();
         }
 
-        // Funções de Apoio
+        // Funções de Limpeza de Dados
         function normalizarData(d) {
             let s = String(d || '').trim();
+            if(s.toLowerCase() === 'data' || s === 'nan') return null;
             if (s.match(/^\d{2}\/\d{2}\/\d{4}/)) { let p = s.split('/'); return `${p[2]}-${p[1]}-${p[0]}`; }
             if (s.match(/^\d{4}-\d{2}-\d{2}/)) return s.substring(0,10);
             return null;
@@ -250,10 +451,11 @@
 
         function normalizarPlataforma(n) {
             let s = String(n || '').toLowerCase();
-            if (s.includes('tiktok')) return 'TikTok';
-            if (s.includes('facebook') || s.includes('meta')) return 'Facebook Ads';
-            if (s.includes('google')) return 'Google Ads';
-            return n;
+            if (s.includes('tiktok') || s.includes('tik tok')) return 'TikTok';
+            if (s.includes('facebook') || s.includes('meta') || s.includes('ig') || s.includes('instagram')) return 'Facebook Ads';
+            if (s.includes('google') || s.includes('youtube')) return 'Google Ads';
+            if (s === 'todas') return 'Todas';
+            return n || 'Desconhecida';
         }
 
         function extrairFrente(nomeConta) {
@@ -261,10 +463,17 @@
             let n = String(nomeConta).toLowerCase();
             if (n.includes("ckb")) return "CKB";
             if (n.includes("bajaj")) return "Bajaj";
+            if (n.includes("noma")) return "Noma";
+            if (n.includes("dafra")) return "Dafra";
+            if (n.includes("xcmg")) return "XCMG";
             if (n.includes("shineray")) return "Shineray";
             if (n.includes("carros")) return "Carros";
             if (n.includes("imoveis") || n.includes("imóveis")) return "Imóveis";
-            return "OUTROS";
+            if (n.includes("beijar")) return "Beijar Flor";
+            let partes = n.split(/[\s\-\|]+/);
+            let primeiraPalavra = partes[0];
+            if (primeiraPalavra === 'ancora' || primeiraPalavra === 'âncora') return (partes[1] || 'Ancora').toUpperCase();
+            return primeiraPalavra.toUpperCase();
         }
 
         function rebuildAllData() {
@@ -272,126 +481,458 @@
             Object.values(loadedFiles).forEach(rows => { allData = allData.concat(rows); });
         }
 
-        // LÓGICA DE UI E RENDERIZAÇÃO (Mantida conforme V8.5)
-        // [Aqui continuam as funções renderKpis, renderTable, renderCustomChart e Listeners...]
-        // Para economizar espaço e garantir que o código funcione, o restante segue a estrutura de filtros e gráficos anterior.
+
+        // -----------------------------------------------------
+        // LÓGICA DOS MENUS SUSPENSOS (DROPDOWNS E FILTROS)
+        // -----------------------------------------------------
+        const btnDropdownFrente = document.getElementById('btnDropdownFrente');
+        const menuFrente = document.getElementById('menuFrente');
+        const btnDropdownConta = document.getElementById('btnDropdownConta');
+        const menuConta = document.getElementById('menuConta');
+
+        btnDropdownFrente.addEventListener('click', (e) => { e.stopPropagation(); menuFrente.classList.toggle('hidden'); menuConta.classList.add('hidden'); });
+        btnDropdownConta.addEventListener('click', (e) => { e.stopPropagation(); menuConta.classList.toggle('hidden'); menuFrente.classList.add('hidden'); });
+        document.addEventListener('click', (e) => { if (!e.target.closest('#dropdownFrenteContainer')) menuFrente.classList.add('hidden'); if (!e.target.closest('#dropdownContaContainer')) menuConta.classList.add('hidden'); });
+        menuFrente.addEventListener('click', e => e.stopPropagation());
+        menuConta.addEventListener('click', e => e.stopPropagation());
+
+        function getSelectedCheckboxes(className) {
+            return Array.from(document.querySelectorAll(`.${className}:checked`)).map(chk => chk.value);
+        }
+
+        function updateDropdownLabels() {
+            const frentes = getSelectedCheckboxes('chk-frente');
+            const btnSpanFrente = btnDropdownFrente.querySelector('span');
+            if (frentes.length === 0) { btnSpanFrente.textContent = 'Todas'; btnSpanFrente.className = 'truncate text-gray-400 text-[12px]'; }
+            else if (frentes.length === 1) { btnSpanFrente.textContent = frentes[0]; btnSpanFrente.className = 'truncate text-blue-700 font-bold text-[12px]'; }
+            else { btnSpanFrente.textContent = `${frentes.length} selecionadas`; btnSpanFrente.className = 'truncate text-blue-700 font-bold text-[12px]'; }
+
+            const contas = getSelectedCheckboxes('chk-conta');
+            const btnSpanConta = btnDropdownConta.querySelector('span');
+            if (contas.length === 0) { btnSpanConta.textContent = 'Todas'; btnSpanConta.className = 'truncate text-gray-400 text-[12px]'; }
+            else if (contas.length === 1) { btnSpanConta.textContent = contas[0]; btnSpanConta.className = 'truncate text-blue-700 font-bold text-[12px]'; }
+            else { btnSpanConta.textContent = `${contas.length} selecionadas`; btnSpanConta.className = 'truncate text-blue-700 font-bold text-[12px]'; }
+        }
 
         function setupFilters() {
-            const getSelected = (id) => Array.from(document.querySelectorAll(`.${id}:checked`)).map(chk => chk.value);
             const pSelect = document.getElementById('platformFilter');
-            const plats = [...new Set(allData.map(d => d.Plataforma))].filter(p => p && p !== 'Todas').sort();
+            const currentPlat = pSelect.value;
+            const plats = [...new Set(allData.map(d => d.Plataforma))].filter(p => Boolean(p) && p !== 'Todas').sort();
             pSelect.innerHTML = '<option value="ALL">Todas as Plataformas</option>';
             plats.forEach(p => pSelect.innerHTML += `<option value="${p}">${p}</option>`);
+            if (currentPlat && plats.includes(currentPlat)) pSelect.value = currentPlat;
 
+            const currentFrentes = getSelectedCheckboxes('chk-frente');
             const frentes = [...new Set(allData.map(d => extrairFrente(d.Conta)))].filter(Boolean).sort();
-            const menuF = document.getElementById('menuFrente');
-            menuF.innerHTML = '';
-            frentes.forEach(f => menuF.innerHTML += `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[12px]"><input type="checkbox" value="${f}" class="chk-frente"> ${f}</label>`);
+            menuFrente.innerHTML = '';
+            frentes.forEach(f => {
+                const isChecked = currentFrentes.includes(f) ? 'checked' : '';
+                menuFrente.innerHTML += `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[12px] text-gray-700 rounded transition"><input type="checkbox" value="${f}" class="chk-frente rounded text-blue-600 focus:ring-blue-500" ${isChecked}><span class="truncate" title="${f}">${f}</span></label>`;
+            });
 
+            const currentContas = getSelectedCheckboxes('chk-conta');
             const contas = [...new Set(allData.map(d => d.Conta))].filter(Boolean).sort();
-            const menuC = document.getElementById('menuConta');
-            menuC.innerHTML = '';
-            contas.forEach(c => menuC.innerHTML += `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[12px]"><input type="checkbox" value="${c}" class="chk-conta"> <span class="truncate">${c}</span></label>`);
+            menuConta.innerHTML = ''; 
+            contas.forEach(c => {
+                const isChecked = currentContas.includes(c) ? 'checked' : '';
+                menuConta.innerHTML += `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[12px] text-gray-700 rounded transition"><input type="checkbox" value="${c}" class="chk-conta rounded text-blue-600 focus:ring-blue-500" ${isChecked}><span class="truncate" title="${c}">${c}</span></label>`;
+            });
 
-            document.querySelectorAll('.chk-frente, .chk-conta').forEach(chk => chk.addEventListener('change', processAndRender));
+            document.querySelectorAll('.chk-frente, .chk-conta').forEach(chk => {
+                chk.addEventListener('change', () => { updateDropdownLabels(); processAndRender(); });
+            });
+
+            updateDropdownLabels();
 
             const dates = allData.map(d => d.Data).filter(Boolean).sort();
-            if (dates.length > 0 && !document.getElementById('p1Start').value) {
-                document.getElementById('p1Start').value = dates[Math.max(0, dates.length - 15)];
+            const p1StartInput = document.getElementById('p1Start');
+            if (dates.length > 0 && !p1StartInput.value) {
+                p1StartInput.value = dates[Math.max(0, dates.length - 15)];
                 document.getElementById('p1End').value = dates[dates.length - 1];
                 document.getElementById('p2Start').value = dates[0];
                 document.getElementById('p2End').value = dates[Math.max(0, dates.length - 16)];
             }
         }
 
-        document.getElementById('btnUpdate').addEventListener('click', processAndRender);
-        document.getElementById('platformFilter').addEventListener('change', processAndRender);
-        document.getElementById('searchFilter').addEventListener('input', processAndRender);
+
+        // -----------------------------------------------------
+        // LISTENERS PRINCIPAIS & PROCESSAMENTO
+        // -----------------------------------------------------
+        document.getElementById('btnUpdate').addEventListener('click', () => { processAndRender(); if(document.getElementById('geminiApiKey').value.trim() !== '') pedirInsightAutomatico(); });
+        document.getElementById('searchFilter').addEventListener('input', () => processAndRender());
+        document.getElementById('searchFilter').addEventListener('keyup', function(e) { if(e.key === 'Enter' && document.getElementById('geminiApiKey').value.trim() !== '') pedirInsightAutomatico(); });
+        document.getElementById('platformFilter').addEventListener('change', () => processAndRender());
+        
+        document.getElementById('metricSelector').addEventListener('change', renderCustomChart);
+        document.getElementById('chartTypeSelector').addEventListener('change', renderCustomChart);
+        document.getElementById('dimensionSelector').addEventListener('change', renderCustomChart);
+        document.getElementById('tableGroupSelector').addEventListener('change', () => {
+            const performanceData = lastDataA.filter(d => d.Plataforma !== 'Todas' || d.Gasto > 0 || d.Leads > 0 || d.Vendas > 0);
+            renderTable(performanceData);
+        });
 
         function processAndRender() {
-            const p1S = document.getElementById('p1Start').value, p1E = document.getElementById('p1End').value;
-            const p2S = document.getElementById('p2Start').value, p2E = document.getElementById('p2End').value;
+            const p1S = document.getElementById('p1Start').value;
+            const p1E = document.getElementById('p1End').value;
+            const p2S = document.getElementById('p2Start').value;
+            const p2E = document.getElementById('p2End').value;
+            
             const plat = document.getElementById('platformFilter').value;
-            const search = document.getElementById('searchFilter').value.toUpperCase();
-            const selF = Array.from(document.querySelectorAll('.chk-frente:checked')).map(c => c.value);
-            const selC = Array.from(document.querySelectorAll('.chk-conta:checked')).map(c => c.value);
+            const searchTerm = document.getElementById('searchFilter').value.toUpperCase().trim();
+            const selectedFrentes = getSelectedCheckboxes('chk-frente');
+            const selectedContas = getSelectedCheckboxes('chk-conta');
 
-            const filter = (d, s, e) => {
-                let passDate = d.Data >= s && d.Data <= e;
-                let passPlat = plat === 'ALL' || d.Plataforma === plat || d.Plataforma === 'Todas';
-                let f = extrairFrente(d.Conta);
-                let passF = selF.length === 0 || selF.includes(f);
-                let passC = selC.length === 0 || selC.includes(d.Conta);
-                let passS = !search || (d.Conta || '').toUpperCase().includes(search);
-                return passDate && passPlat && passF && passC && passS;
+            const filterFn = (d, s, e) => {
+                let passDate = (!s || d.Data >= s) && (!e || d.Data <= e);
+                // "Todas" é incluído invisivelmente para puxar as metas do KPI
+                let passPlat = (plat === 'ALL' || d.Plataforma === plat || d.Plataforma === 'Todas');
+                
+                let frenteAtual = extrairFrente(d.Conta);
+                let passFrente = selectedFrentes.length === 0 || selectedFrentes.includes(frenteAtual);
+                let passConta = selectedContas.length === 0 || selectedContas.includes(d.Conta);
+
+                let passSearch = true;
+                if (searchTerm) {
+                    let nomeConta = (d.Conta || '').toUpperCase();
+                    let frenteDetectada = frenteAtual.toUpperCase();
+                    passSearch = nomeConta.includes(searchTerm) || frenteDetectada.includes(searchTerm);
+                }
+                
+                return passDate && passPlat && passFrente && passConta && passSearch;
             };
 
-            lastDataA = allData.filter(d => filter(d, p1S, p1E));
-            lastDataB = allData.filter(d => filter(d, p2S, p2E));
+            lastDataA = allData.filter(d => filterFn(d, p1S, p1E));
+            lastDataB = allData.filter(d => filterFn(d, p2S, p2E));
+
+            const performanceData = lastDataA.filter(d => d.Plataforma !== 'Todas' || d.Gasto > 0 || d.Leads > 0 || d.Vendas > 0);
 
             renderKpis(lastDataA, lastDataB);
-            renderTable(lastDataA.filter(d => d.Plataforma !== 'Todas'));
-            renderCustomChart();
+            renderTable(performanceData);
+            renderCustomChart(); 
         }
 
         function aggregate(data) {
             return data.reduce((acc, d) => {
-                acc.gasto += d.Gasto; acc.leads += d.Leads; acc.vendas += d.Vendas;
-                acc.gastoPlan += d.GastoPlan; acc.leadsPlan += d.LeadsPlan;
-                acc.impr += d.Impressoes; acc.cliques += d.Cliques;
+                acc.gasto += d.Gasto; acc.leads += d.Leads; acc.impr += d.Impressoes;
+                acc.cliques += d.Cliques; acc.vendas += d.Vendas; acc.gastoPlan += d.GastoPlan;
+                acc.leadsPlan += d.LeadsPlan; acc.vendasPlan += d.VendasPlan;
                 return acc;
-            }, { gasto: 0, leads: 0, vendas: 0, gastoPlan: 0, leadsPlan: 0, impr:0, cliques:0 });
+            }, { gasto: 0, leads: 0, impr: 0, cliques: 0, vendas: 0, gastoPlan: 0, leadsPlan: 0, vendasPlan: 0 });
         }
 
+        // -----------------------------------------------------
+        // RENDERIZAÇÃO: KPIS
+        // -----------------------------------------------------
         function renderKpis(dataA, dataB) {
-            const a = aggregate(dataA), b = aggregate(dataB);
+            const aggA = aggregate(dataA);
+            const aggB = aggregate(dataB);
             const container = document.getElementById('kpiContainer');
             container.innerHTML = '';
 
-            const createKpi = (label, valA, valB, valPlan, isMoney, invert = false) => {
-                const delta = b[label.toLowerCase()] > 0 ? ((valA - valB) / valB) * 100 : 0;
-                const percMeta = valPlan > 0 ? (valA / valPlan) * 100 : 0;
+            let projMultiplier = 1; 
+            const datesInA = [...new Set(dataA.map(d => d.Data))].filter(Boolean).sort();
+            
+            if (datesInA.length > 0) {
+                const daysPassed = datesInA.length; 
+                const maxDateStr = datesInA[datesInA.length - 1];
+                const dateObj = new Date(maxDateStr + "T12:00:00");
+                const totalDaysInMonth = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0).getDate();
+                projMultiplier = totalDaysInMonth / daysPassed;
+            }
+
+            const cplA = aggA.leads > 0 ? aggA.gasto / aggA.leads : 0;
+            const cplB = aggB.leads > 0 ? aggB.gasto / aggB.leads : 0;
+            const cplPlan = aggA.leadsPlan > 0 ? aggA.gastoPlan / aggA.leadsPlan : 0;
+            const cpaA = aggA.vendas > 0 ? aggA.gasto / aggA.vendas : 0;
+            const cpaB = aggB.vendas > 0 ? aggB.gasto / aggB.vendas : 0;
+            const cpaPlan = aggA.vendasPlan > 0 ? aggA.gastoPlan / aggA.vendasPlan : 0;
+
+            const createKpi = (label, valA, valB, valPlan, isMoney, invertDeltaColors = false, isRate = false) => {
+                const delta = valB > 0 ? ((valA - valB) / valB) * 100 : (valA > 0 ? 100 : 0);
+                let deltaClass = delta >= 0 ? 'delta-up' : 'delta-down';
+                if(invertDeltaColors) deltaClass = delta <= 0 ? 'delta-up' : 'delta-down';
+                const deltaIcon = delta >= 0 ? '▲' : '▼';
+                
+                const valProj = isRate ? valA : (valA * projMultiplier);
+
+                const percMeta = valPlan > 0 ? (valA / valPlan) * 100 : null;
+                let percMetaHtml = '';
+                if (percMeta !== null) {
+                    let colorPerc = "text-gray-500";
+                    if (invertDeltaColors) { // Inverso para CPL/CPA
+                        colorPerc = percMeta <= 100 ? "text-green-600 bg-green-100" : "text-red-500 bg-red-100";
+                    } else {
+                        colorPerc = percMeta >= 100 ? "text-green-600 bg-green-100" : "text-orange-500 bg-orange-100";
+                    }
+                    percMetaHtml = `<span class="ml-1.5 text-[9px] font-black ${colorPerc} px-1.5 py-0.5 rounded shadow-sm" title="Atingimento da Meta">${percMeta.toFixed(1)}%</span>`;
+                }
+
                 const div = document.createElement('div');
-                div.className = "bg-white p-4 rounded-xl shadow-sm border-t-4 border-blue-500";
+                div.className = "bg-white p-4 rounded-xl shadow-sm border-t-4 border-blue-500 hover:shadow-md transition flex flex-col justify-between";
                 div.innerHTML = `
-                    <p class="text-[10px] font-bold text-gray-500 uppercase">${label}</p>
-                    <p class="text-2xl font-black">${isMoney ? fmt.m(valA) : fmt.n(valA)}</p>
-                    <div class="mt-2 text-[10px] flex justify-between">
-                        <span>Meta: ${isMoney ? fmt.m(valPlan) : fmt.n(valPlan)}</span>
-                        <span class="font-bold ${percMeta >= 100 ? 'text-green-600' : 'text-orange-500'}">${percMeta.toFixed(1)}%</span>
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">${label}</p>
+                            <div class="flex flex-col items-end">
+                                <span class="${deltaClass} px-1 bg-slate-50 rounded" title="vs Período B">${deltaIcon} ${Math.abs(delta).toFixed(1)}%</span>
+                                <span class="text-[8px] text-gray-400 mt-0.5 font-bold uppercase">vs período ant.</span>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-black text-slate-800">${isMoney ? fmt.m(valA) : fmt.n(valA)}</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-gray-100 flex justify-between items-end text-[10px] text-gray-500">
+                        <div>
+                            <span class="block font-bold" title="Meta Fracionada pelo Período Filtrado">META (Período)</span>
+                            <div class="flex items-center mt-0.5">
+                                <span class="text-gray-800 font-medium">${valPlan > 0 ? (isMoney ? fmt.m(valPlan) : fmt.n(valPlan)) : '-'}</span>
+                                ${percMetaHtml}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="block font-bold text-blue-600">PROJETADO</span>
+                            <span class="text-blue-800 font-bold">${isMoney ? fmt.m(valProj) : fmt.n(valProj)}</span>
+                        </div>
                     </div>
                 `;
                 container.appendChild(div);
             };
 
-            createKpi("Investimento", a.gasto, b.gasto, a.gastoPlan, true);
-            createKpi("Leads", a.leads, b.leads, a.leadsPlan, false);
-            createKpi("Vendas", a.vendas, b.vendas, 0, false);
+            createKpi("Investimento", aggA.gasto, aggB.gasto, aggA.gastoPlan, true, false, false);
+            createKpi("Leads Realizados", aggA.leads, aggB.leads, aggA.leadsPlan, false, false, false);
+            createKpi("CPL Médio", cplA, cplB, cplPlan, true, true, true);
+            createKpi("Vendas", aggA.vendas, aggB.vendas, aggA.vendasPlan, false, false, false);
+            createKpi("CPA Médio", cpaA, cpaB, cpaPlan, true, true, true);
         }
 
-        function renderTable(data) {
+        // -----------------------------------------------------
+        // RENDERIZAÇÃO: TABELA E GRÁFICO
+        // -----------------------------------------------------
+        function renderTable(dataA) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            // Agrupamento simplificado por Frente para exemplo
-            const groups = data.reduce((acc, d) => {
-                let f = extrairFrente(d.Conta);
-                if(!acc[f]) acc[f] = { gasto:0, leads:0, vendas:0 };
-                acc[f].gasto += d.Gasto; acc[f].leads += d.Leads; acc[f].vendas += d.Vendas;
-                return acc;
-            }, {});
+            const groupingMode = document.getElementById('tableGroupSelector').value; 
 
-            Object.keys(groups).forEach(f => {
-                const row = groups[f];
-                tbody.innerHTML += `<tr><td class="px-6 py-4 font-bold">${f}</td><td class="text-right">${fmt.m(row.gasto)}</td><td class="text-right">${fmt.n(row.leads)}</td><td class="text-right">${fmt.n(row.vendas)}</td></tr>`;
+            const group = (data) => {
+                return data.reduce((acc, d) => {
+                    let key;
+                    if(groupingMode === 'frente') key = extrairFrente(d.Conta);
+                    else if(groupingMode === 'canal') key = d.Plataforma || 'Sem Canal';
+                    else key = d.Conta;
+                    
+                    if (!acc[key]) acc[key] = { gasto: 0, leads: 0, impr: 0, cliques: 0, vendas: 0, plats: new Set() };
+                    acc[key].gasto += d.Gasto; acc[key].leads += d.Leads; acc[key].impr += d.Impressoes;
+                    acc[key].cliques += d.Cliques; acc[key].vendas += d.Vendas; acc[key].plats.add(d.Plataforma);
+                    return acc;
+                }, {});
+            };
+
+            const gA = group(dataA);
+
+            Object.keys(gA).sort().forEach(key => {
+                const a = gA[key];
+                const ctr = a.impr > 0 ? (a.cliques / a.impr) * 100 : 0;
+                const cvr = a.cliques > 0 ? (a.leads / a.cliques) * 100 : 0; 
+                const cpl = a.leads > 0 ? a.gasto / a.leads : 0;
+                const cpa = a.vendas > 0 ? a.gasto / a.vendas : 0;
+                const descPlat = Array.from(a.plats).join(' + ');
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-slate-800 text-[15px]">${key}</div>
+                        ${groupingMode !== 'canal' ? `<div class="text-[10px] text-slate-400 uppercase font-bold">${descPlat}</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4 text-right font-medium">${fmt.m(a.gasto)}</td>
+                    <td class="px-6 py-4 text-right text-slate-500">${fmt.n(a.impr)}</td>
+                    <td class="px-6 py-4 text-right text-slate-500">${fmt.n(a.cliques)}</td>
+                    <td class="px-6 py-4 text-right font-bold text-slate-500">${fmt.p(ctr)}</td>
+                    <td class="px-6 py-4 text-right font-black text-blue-700">${fmt.n(a.leads)}</td>
+                    <td class="px-6 py-4 text-right font-bold text-purple-600">${fmt.p(cvr)}</td>
+                    <td class="px-6 py-4 text-right font-bold text-orange-600">${fmt.m(cpl)}</td>
+                    <td class="px-6 py-4 text-right font-black text-green-600">${fmt.n(a.vendas)}</td>
+                    <td class="px-6 py-4 text-right font-black text-blue-800 bg-blue-100/50">${fmt.m(cpa)}</td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
-        function renderCustomChart() { /* Lógica de Chart.js padrão do V8.5 */ }
+        function renderCustomChart() {
+            const combinedData = [...lastDataA, ...lastDataB];
+            if (combinedData.length === 0) return;
 
-        // Dropdowns Toggle
-        document.getElementById('btnDropdownFrente').onclick = () => document.getElementById('menuFrente').classList.toggle('hidden');
-        document.getElementById('btnDropdownConta').onclick = () => document.getElementById('menuConta').classList.toggle('hidden');
-        
+            const metric = document.getElementById('metricSelector').value;
+            const chartType = document.getElementById('chartTypeSelector').value;
+            const dimension = document.getElementById('dimensionSelector').value; 
+
+            const dates = [...new Set(combinedData.map(d => d.Data))].filter(Boolean).sort();
+            const isMoneyMetric = ['gasto', 'cpl', 'cpa'].includes(metric);
+
+            let dimensionsArray = [];
+            if(dimension === 'frente') {
+                dimensionsArray = [...new Set(combinedData.map(d => extrairFrente(d.Conta)))].filter(Boolean);
+            } else {
+                dimensionsArray = [...new Set(combinedData.map(d => d.Plataforma))].filter(p => Boolean(p) && p !== 'Todas');
+            }
+
+            const datasets = dimensionsArray.map((dimName, index) => {
+                const dataValues = dates.map(date => {
+                    const dayData = combinedData.filter(d => {
+                        let isCorrectDate = d.Data === date;
+                        let isCorrectDimension = dimension === 'frente' ? extrairFrente(d.Conta) === dimName : d.Plataforma === dimName;
+                        return isCorrectDate && isCorrectDimension;
+                    });
+                    
+                    const agg = aggregate(dayData);
+                    if (metric === 'cpl') return agg.leads > 0 ? agg.gasto / agg.leads : 0;
+                    if (metric === 'cpa') return agg.vendas > 0 ? agg.gasto / agg.vendas : 0;
+                    return agg[metric] || 0;
+                });
+
+                const colorTheme = palette[index % palette.length];
+
+                return {
+                    label: dimName,
+                    data: dataValues,
+                    backgroundColor: colorTheme.bg,
+                    borderColor: colorTheme.border,
+                    borderWidth: 3,
+                    tension: 0.3, 
+                    pointRadius: 4
+                };
+            });
+
+            const formatDataLabel = (val) => {
+                if (val === 0) return ''; 
+                return isMoneyMetric ? fmt.m(val) : fmt.n(val);
+            };
+
+            const ctx = document.getElementById('customChart').getContext('2d');
+            if(currentChart) currentChart.destroy();
+
+            currentChart = new Chart(ctx, {
+                type: chartType,
+                data: { labels: dates, datasets: datasets },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { weight: 'bold' } } },
+                        datalabels: {
+                            color: '#1e293b', font: { weight: '900', size: 10 },
+                            formatter: formatDataLabel, anchor: 'end', align: 'top', offset: 3,
+                            display: function(context) { return context.dataset.data[context.dataIndex] > 0; }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { callback: function(value) { return isMoneyMetric ? fmt.m(value) : fmt.n(value); } } }
+                    },
+                    layout: { padding: { top: 35 } }
+                }
+            });
+        }
+
+        // -----------------------------------------------------
+        // 📋 EXPORTAÇÃO MANUAL & IA
+        // -----------------------------------------------------
+        document.getElementById('btnCopyData').addEventListener('click', () => {
+            const btn = document.getElementById('btnCopyData');
+            if(lastDataA.length === 0) { alert("Atualize o painel com seus arquivos primeiro."); return; }
+
+            const aggGlobal = aggregate(lastDataA);
+            const cplGlobal = aggGlobal.leads > 0 ? (aggGlobal.gasto / aggGlobal.leads).toFixed(2) : 0;
+            const cpaGlobal = aggGlobal.vendas > 0 ? (aggGlobal.gasto / aggGlobal.vendas).toFixed(2) : 0;
+
+            const frentesData = {};
+            lastDataA.forEach(d => {
+                let f = extrairFrente(d.Conta);
+                if(!frentesData[f]) frentesData[f] = { gasto:0, leads:0, vendas:0 };
+                frentesData[f].gasto += d.Gasto;
+                frentesData[f].leads += d.Leads;
+                frentesData[f].vendas += d.Vendas;
+            });
+
+            let frentesTexto = "";
+            for(let f in frentesData) {
+                let d = frentesData[f];
+                let fcpl = d.leads > 0 ? (d.gasto / d.leads).toFixed(2) : 0;
+                let fcpa = d.vendas > 0 ? (d.gasto / d.vendas).toFixed(2) : 0;
+                frentesTexto += `- FRENTE ${f} | Gasto: R$${d.gasto.toFixed(2)} | Leads: ${d.leads} | CPL: R$${fcpl} | Vendas: ${d.vendas} | CPA: R$${fcpa}\n`;
+            }
+
+            const textoParaCopiar = `
+Analise como Diretor de Mídia. 
+--- RESULTADO GLOBAL DA AGÊNCIA ---
+Investimento: R$ ${aggGlobal.gasto.toFixed(2)}
+Leads Totais: ${aggGlobal.leads} (CPL Médio: R$ ${cplGlobal})
+Vendas Totais: ${aggGlobal.vendas} (CPA Médio: R$ ${cpaGlobal})
+
+--- DESEMPENHO POR FRENTE/MARCA ---
+${frentesTexto}
+
+Por favor:
+1. Faça um diagnóstico rápido de qual frente está puxando o resultado da agência para cima e qual está drenando a verba.
+2. Sugira uma ação focada em otimização de CPL/CPA para a pior frente.
+            `.trim();
+
+            navigator.clipboard.writeText(textoParaCopiar).then(() => {
+                const textoOriginal = btn.innerHTML;
+                btn.innerHTML = "✅ RESUMO COPIADO!";
+                btn.classList.replace('bg-indigo-600', 'bg-green-600');
+                btn.classList.replace('hover:bg-indigo-700', 'hover:bg-green-700');
+                setTimeout(() => {
+                    btn.innerHTML = textoOriginal;
+                    btn.classList.replace('bg-green-600', 'bg-indigo-600');
+                    btn.classList.replace('hover:bg-green-700', 'hover:bg-indigo-700');
+                }, 3000);
+            }).catch(err => {
+                alert("Erro ao copiar. Verifique as permissões do seu navegador.");
+            });
+        });
+
+        async function chamarGemini(prompt, targetId) {
+            const key = document.getElementById('geminiApiKey').value.trim();
+            const div = document.getElementById(targetId);
+            
+            if (!key) { 
+                div.innerHTML = "<span class='text-red-500 font-bold'>⚠️ Insira a Chave da API no topo (ou use a opção manual acima).</span>"; 
+                return; 
+            }
+            
+            div.innerHTML = '<div class="flex items-center gap-2"><div class="loader"></div> <span class="text-blue-600 font-bold text-xs uppercase">Analisando Mídia...</span></div>';
+
+            const agg = aggregate(lastDataA);
+            const cpl = agg.leads > 0 ? (agg.gasto / agg.leads).toFixed(2) : 0;
+            const frentes = [...new Set(lastDataA.map(d=>extrairFrente(d.Conta)))].join(', ');
+            const contexto = `Invest. Total: R$${agg.gasto.toFixed(2)}, Leads: ${agg.leads}, CPL Médio: R$${cpl}. Frentes ativas: ${frentes}.`;
+            
+            const payload = { contents: [{ parts: [{ text: `Você é analista de mídia. Baseado:\n${contexto}\n\nInstruções: ${prompt}\nResponda direto e use negrito.` }] }] };
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                
+                if (res.ok && data.candidates) {
+                    div.innerHTML = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                } else {
+                    let msg = data.error?.message || "Erro desconhecido";
+                    if(msg.includes("Quota")) {
+                        div.innerHTML = `<span class="text-red-600 text-xs font-bold">❌ Cota Esgotada ou Não Faturada no Google Cloud. Use o botão de Copiar Manual acima!</span>`;
+                    } else {
+                        throw new Error(msg);
+                    }
+                }
+            } catch (e) {
+                div.innerHTML = `<span class="text-red-600 text-xs font-bold">❌ ERRO: ${e.message}</span>`;
+            }
+        }
+
+        function pedirInsightAutomatico() { chamarGemini("Dê um insight rápido focado em volume de leads e qual frente está se destacando.", 'aiAutoInsight'); }
+        document.getElementById('btnAskAi').addEventListener('click', () => { const u = document.getElementById('aiUserInput').value; if(u) chamarGemini(u, 'aiChatResponse'); document.getElementById('aiUserInput').value = ''; });
+        document.getElementById('aiUserInput').addEventListener('keyup', (e) => { if(e.key === 'Enter') document.getElementById('btnAskAi').click(); });
+
     </script>
 </body>
 </html>
