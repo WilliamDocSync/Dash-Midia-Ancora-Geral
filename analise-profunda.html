@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Profunda V11 - Master (Live)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        .table-header { background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+        .score-high { color: #15803d; background-color: #dcfce7; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
+        .score-med { color: #b45309; background-color: #fef3c7; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
+        .score-low { color: #b91c1c; background-color: #fee2e2; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
+        .delta-up { color: #10b981; font-size: 0.75rem; font-weight: bold;}
+        .delta-down { color: #ef4444; font-size: 0.75rem; font-weight: bold;}
+        th.sortable { cursor: pointer; user-select: none; }
+        th.sortable:hover { background-color: #f1f5f9; }
+        th.sortable.sort-asc::after  { content: ' ▲'; font-size: 9px; opacity: .7; }
+        th.sortable.sort-desc::after { content: ' ▼'; font-size: 9px; opacity: .7; }
+        .tooltip-score { position: relative; }
+        .tooltip-score .tip { display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+            background: #1e293b; color: #fff; font-size: 10px; padding: 6px 10px; border-radius: 8px;
+            white-space: nowrap; z-index: 50; line-height: 1.6; text-align: left; }
+        .tooltip-score:hover .tip { display: block; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #9333ea; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-gray-800">
+
+    <div class="max-w-[1600px] mx-auto px-4 py-8">
+        
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-6 bg-white p-6 rounded-2xl shadow-sm border-b-4 border-purple-600 gap-4">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Análise Profunda V11</h1>
+                <p class="text-slate-500 text-sm font-medium">Automação Google Sheets + Gemini IA Integrada</p>
+            </div>
+            <div class="flex flex-col gap-2 items-end w-full lg:w-auto">
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input type="password" id="geminiApiKey" placeholder="Chave da API (Gemini)..." class="border border-slate-300 rounded p-2 text-sm outline-none w-full md:w-64 bg-slate-50 focus:border-purple-500">
+                </div>
+                <div class="flex items-center gap-3 flex-wrap justify-end mt-1">
+                    <span id="googleStatus" class="text-[10px] font-bold uppercase text-orange-500">Sincronizando Planilhas...</span>
+                    <input type="file" id="csvFiles" multiple accept=".csv" class="hidden">
+                    <label for="csvFiles" class="bg-purple-600 text-white px-4 py-1.5 rounded cursor-pointer hover:bg-purple-700 font-bold shadow transition text-xs whitespace-nowrap">
+                        📂 ADD CSV EXTRA
+                    </label>
+                    <button id="btnClearFiles" class="hidden bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded font-bold hover:bg-red-100 transition text-xs">🗑 Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm mb-8 border border-slate-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                
+                <div class="bg-purple-50 p-2.5 rounded-xl border border-purple-100">
+                    <label class="text-[9px] font-black text-purple-700 uppercase mb-1 block">Período Atual (A)</label>
+                    <div class="flex gap-1">
+                        <input type="date" id="p1Start" class="w-full border rounded p-1 text-xs outline-none focus:border-purple-500 bg-white">
+                        <input type="date" id="p1End" class="w-full border rounded p-1 text-xs outline-none focus:border-purple-500 bg-white">
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 p-2.5 rounded-xl border border-orange-100">
+                    <label class="text-[9px] font-black text-orange-700 uppercase mb-1 block">Período Anterior (B)</label>
+                    <div class="flex gap-1">
+                        <input type="date" id="p2Start" class="w-full border rounded p-1 text-xs outline-none focus:border-orange-500 bg-white">
+                        <input type="date" id="p2End" class="w-full border rounded p-1 text-xs outline-none focus:border-orange-500 bg-white">
+                    </div>
+                </div>
+
+                <div class="relative" id="dropdownContaContainer">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Contas</label>
+                    <button type="button" id="btnDropdownConta" class="w-full border border-slate-300 rounded p-2 text-xs bg-white text-left flex justify-between items-center focus:border-purple-500 hover:bg-slate-50 h-9">
+                        <span class="truncate text-gray-400">Todas</span><span class="text-[9px] text-gray-400">▼</span>
+                    </button>
+                    <div id="menuConta" class="hidden absolute z-50 w-full left-0 mt-1 bg-white border border-slate-200 rounded shadow-xl max-h-48 overflow-y-auto custom-scrollbar p-2"></div>
+                </div>
+
+                <div class="relative" id="dropdownCampanhaContainer">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Campanhas</label>
+                    <button type="button" id="btnDropdownCampanha" class="w-full border border-slate-300 rounded p-2 text-xs bg-white text-left flex justify-between items-center focus:border-purple-500 hover:bg-slate-50 h-9">
+                        <span class="truncate text-gray-400">Todas</span><span class="text-[9px] text-gray-400">▼</span>
+                    </button>
+                    <div id="menuCampanha" class="hidden absolute z-50 w-[150%] md:w-full right-0 lg:left-0 mt-1 bg-white border border-slate-200 rounded shadow-xl max-h-60 overflow-y-auto custom-scrollbar p-2"></div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Busca (Criativo)</label>
+                    <input type="text" id="filterText" placeholder="Ex: video01..." class="w-full border border-slate-300 rounded p-2 text-xs h-9 outline-none focus:border-purple-500 bg-purple-50 text-purple-800 font-bold">
+                </div>
+            </div>
+            <div class="mt-4 flex justify-center">
+                <button id="btnUpdate" class="bg-slate-800 text-white px-10 py-2.5 rounded-lg font-black hover:bg-black transition shadow-lg text-sm w-full md:w-auto">ATUALIZAR DADOS</button>
+            </div>
+        </div>
+
+        <div id="mainDashboard" class="hidden">
+
+            <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-2xl shadow-sm mb-8 border border-purple-100 flex flex-col lg:flex-row gap-6">
+                <div class="flex-1 bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col">
+                    <div class="flex items-center justify-between mb-3 border-b pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">✨</span>
+                            <h3 class="font-bold text-slate-700 uppercase tracking-wide text-xs">Insight Automático (API)</h3>
+                        </div>
+                        <button id="btnCopyData" class="bg-blue-100 text-blue-700 px-3 py-1 rounded font-bold hover:bg-blue-200 transition text-[10px] uppercase">Copiar Resumo</button>
+                    </div>
+                    <div id="aiAutoInsight" class="text-sm text-slate-600 leading-relaxed overflow-y-auto custom-scrollbar pr-2 flex-1 min-h-[100px]">
+                        Atualize os dados e a inteligência artificial analisará o cenário automaticamente...
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col gap-3">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-lg">🤖</span>
+                        <h3 class="font-bold text-slate-700 uppercase tracking-wide text-xs">Pergunte aos Dados (API)</h3>
+                    </div>
+                    <div id="aiChatResponse" class="flex-1 bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-sm text-slate-700 overflow-y-auto custom-scrollbar min-h-[80px]">
+                        Faça uma pergunta específica sobre campanhas, públicos ou criativos.
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="aiUserInput" placeholder="Ex: Qual criativo está gastando mais sem gerar leads?" class="flex-1 border border-purple-200 rounded-lg p-2 text-sm outline-none focus:border-purple-500 shadow-sm">
+                        <button id="btnAskAi" class="bg-purple-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-purple-700 transition flex items-center justify-center shadow">Enviar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8" id="kpiCards"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-3 bg-slate-50 border-b font-black text-xs uppercase text-slate-600 flex justify-between"><span>🚀 Top Campanhas</span><span class="text-[9px] font-normal">Por Score</span></div>
+                    <table class="w-full text-left text-xs"><tbody id="topCampaignsBody" class="divide-y divide-slate-100"></tbody></table>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-3 bg-slate-50 border-b font-black text-xs uppercase text-slate-600 flex justify-between"><span>🎯 Top Conjuntos</span><span class="text-[9px] font-normal">Por Score</span></div>
+                    <table class="w-full text-left text-xs"><tbody id="topAdsetsBody" class="divide-y divide-slate-100"></tbody></table>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-3 bg-slate-50 border-b font-black text-xs uppercase text-slate-600 flex justify-between"><span>👥 Melhor Público</span><span class="text-[9px] font-normal">Por Score</span></div>
+                    <table class="w-full text-left text-xs"><tbody id="topDemographicsBody" class="divide-y divide-slate-100"></tbody></table>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col">
+                    <h3 class="font-black text-slate-800 uppercase text-center text-sm border-b pb-3 mb-3">🏆 Top 10 Criativos (Família)</h3>
+                    <div class="overflow-x-auto flex-1">
+                        <table class="min-w-full text-left text-sm">
+                            <thead class="text-[10px] text-slate-400 uppercase bg-slate-50">
+                                <tr><th class="py-2 px-2">Anúncio</th><th class="py-2 px-2 text-right">Gasto</th><th class="py-2 px-2 text-right text-blue-600">Leads</th><th class="py-2 px-2 text-right text-orange-600">CPL</th><th class="py-2 px-2 text-center text-purple-700">Score</th></tr>
+                            </thead>
+                            <tbody id="topAdsBody" class="divide-y divide-slate-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col min-h-[350px]">
+                    <h3 class="font-black text-slate-800 uppercase text-center text-sm border-b pb-3 mb-3">Volume vs CPL (Top 5)</h3>
+                    <div class="flex-1 w-full relative"><canvas id="adsChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+                <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                    <h3 class="font-black text-slate-800 uppercase text-sm">Desempenho Geral e Comparativo (A vs B)</h3>
+                    <select id="groupingSelector" class="border border-slate-300 rounded-lg p-2 text-xs font-bold text-slate-600 outline-none focus:ring-1 focus:ring-purple-500 shadow-sm bg-white">
+                        <option value="ad">Agrupar por Anúncio (Família)</option>
+                        <option value="adset">Agrupar por Conjunto</option>
+                        <option value="campaign">Agrupar por Campanha</option>
+                        <option value="demo">Agrupar por Demográfico</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="min-w-full text-left text-sm">
+                        <thead class="bg-white border-b-2 border-slate-200 uppercase text-[10px] font-black text-slate-500">
+                            <tr>
+                                <th class="px-6 py-4 text-left">Nome da Estrutura</th>
+                                <th class="px-6 py-4 text-right sortable" data-col="gasto">Gasto (A)</th>
+                                <th class="px-6 py-4 text-right sortable" data-col="impr">Impressões</th>
+                                <th class="px-6 py-4 text-right sortable" data-col="ctr">CTR</th>
+                                <th class="px-6 py-4 text-right text-blue-600 sortable" data-col="leads">Leads (A)</th>
+                                <th class="px-6 py-4 text-right text-purple-600 sortable" data-col="cvr">CVR</th>
+                                <th class="px-6 py-4 text-right text-orange-600 sortable" data-col="cpl">CPL (A)</th>
+                                <th class="px-6 py-4 text-center sortable" data-col="score">
+                                    <span class="tooltip-score">Score
+                                        <span class="tip">Fórmula: Volume 40% + Eficiência CPL 35% + CVR 25%<br>Ajustado por confiança estatística<br>Verde ≥ 70 · Amarelo ≥ 40 · Vermelho &lt; 40</span>
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="mainTableBody" class="divide-y text-slate-600"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> 
+    </div>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        // --- LISTA DE LINKS DO GOOGLE SHEETS (25 LINKS) ---
+        const SHEET_URLS = [
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=1154341460&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEDPDOvOrnJ8mWBvKF9r_Ky9631vYr5CspOof-fubFa0E_FgQ3x9LPvh5zUjaSllEn5HsUDCb57YWT/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEDPDOvOrnJ8mWBvKF9r_Ky9631vYr5CspOof-fubFa0E_FgQ3x9LPvh5zUjaSllEn5HsUDCb57YWT/pub?gid=1154341460&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFYg-OGSfJMhUpvLomHXHvgczu_avfT3xg9W9ZWOVXVXdz0S1pbVzFSuowPLsb_RYiC5aSD1uORFrx/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFYg-OGSfJMhUpvLomHXHvgczu_avfT3xg9W9ZWOVXVXdz0S1pbVzFSuowPLsb_RYiC5aSD1uORFrx/pub?gid=1154341460&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFYg-OGSfJMhUpvLomHXHvgczu_avfT3xg9W9ZWOVXVXdz0S1pbVzFSuowPLsb_RYiC5aSD1uORFrx/pub?gid=2085806024&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRvJ1FvvWmj3z8RXO04kYj88L6EbJRKcbMSKloS9wtgNh2ZG-8OIKXicqnYKgWN5fjauM_kso5mgPjc/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRvJ1FvvWmj3z8RXO04kYj88L6EbJRKcbMSKloS9wtgNh2ZG-8OIKXicqnYKgWN5fjauM_kso5mgPjc/pub?gid=1616551509&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vSPNtK6CUq9UaMHiSt1fulz6a5JvYIoYHuba5c_NnFuNSKf9TQ91DAbkfjis3GwgPbLbClnW6spu8Qu/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vSPNtK6CUq9UaMHiSt1fulz6a5JvYIoYHuba5c_NnFuNSKf9TQ91DAbkfjis3GwgPbLbClnW6spu8Qu/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vS-suHnz4Kra3M7t-LsXn56-GbTaLG7-WVN_a1OPCQDRDC_I07ec2YLl8jf3fh0JnSqgs7JjpUhCl9G/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vS-suHnz4Kra3M7t-LsXn56-GbTaLG7-WVN_a1OPCQDRDC_I07ec2YLl8jf3fh0JnSqgs7JjpUhCl9G/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnrJTaswtK_FufUhPGpmSGnsKV24Ck1Dvi9r28n4lbbB--xL6Qbm0VTmWgU7jqRvZI4MZAi26Pk2Jn/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnrJTaswtK_FufUhPGpmSGnsKV24Ck1Dvi9r28n4lbbB--xL6Qbm0VTmWgU7jqRvZI4MZAi26Pk2Jn/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vT14kU0_P-ky8zG0T_Oy2Hao4F7L2uaHqzXo3qdq2bGUjB7ryNVJPE7FXHfqdC9stmaddwRepeXVWfH/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vT14kU0_P-ky8zG0T_Oy2Hao4F7L2uaHqzXo3qdq2bGUjB7ryNVJPE7FXHfqdC9stmaddwRepeXVWfH/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vToTpsIsDzm0Idn97GA539egC2x8Ncnxw8n-3nt0q2RUeycrFv-AW5lfIPH_DkKInGq5EjHOmVzNJRY/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vToTpsIsDzm0Idn97GA539egC2x8Ncnxw8n-3nt0q2RUeycrFv-AW5lfIPH_DkKInGq5EjHOmVzNJRY/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vTScb64d_wa4OJHB_GNg-FpQwD2WZTvM6pfw6DLwxTPbgotVpAw9W2m0Mlr2MTdc9UJURo8erOXihy6/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vTScb64d_wa4OJHB_GNg-FpQwD2WZTvM6pfw6DLwxTPbgotVpAw9W2m0Mlr2MTdc9UJURo8erOXihy6/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8wZiq5siaBmXRLk0K0NjTZUwhNxQQWiGbgXs3FjcIYIhKI9Nvy3Y9Ur0OO7u_k6G8Pg5bgIllWuzW/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8wZiq5siaBmXRLk0K0NjTZUwhNxQQWiGbgXs3FjcIYIhKI9Nvy3Y9Ur0OO7u_k6G8Pg5bgIllWuzW/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdkM3xpekqJ2Fp9s38KdyNZtjucHUP1I7G-eOWVC31KJAr2NpATz8lZbAwua9nIMD8l6sKQAaz8L_Y/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdkM3xpekqJ2Fp9s38KdyNZtjucHUP1I7G-eOWVC31KJAr2NpATz8lZbAwua9nIMD8l6sKQAaz8L_Y/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=1289448911&single=true&output=csv"
+        ];
+
+        let allData = [], dataA = [], dataB = [], currentChart = null;
+        let loadedFiles = {};   
+        let sortState = { col: 'score', dir: 'desc' };
+
+        const fmt = { 
+            m: (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0), 
+            n: (v) => new Intl.NumberFormat('pt-BR').format(Math.round(v || 0)), 
+            p: (v) => (v || 0).toFixed(2) + '%' 
+        };
+        
+        function parseBRNumber(val) { 
+            if (!val) return 0; 
+            if (typeof val === 'number') return val; 
+            let s = String(val).trim().replace(/[^\d,.-]/g, '');
+            if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.'); 
+            else if (s.includes(',')) s = s.replace(',', '.'); 
+            let n = parseFloat(s); return isNaN(n) ? 0 : n; 
+        }
+
+        function cleanAdName(rawName) { 
+            if (!rawName) return 'Sem Nome'; 
+            return rawName.replace(/\s*[-—]*\s*(C[oó]pia|Copy).*$/i, '').trim(); 
+        }
+
+        // ─── INIT & SYNC GOOGLE SHEETS ──────────────────────────────────────
+        window.addEventListener('DOMContentLoaded', () => {
+            carregarGoogleSheets();
+            if (localStorage.getItem('geminiApiKeyV11')) {
+                document.getElementById('geminiApiKey').value = localStorage.getItem('geminiApiKeyV11');
+            }
+        });
+
+        document.getElementById('geminiApiKey').addEventListener('change', (e) => {
+            localStorage.setItem('geminiApiKeyV11', e.target.value);
+        });
+
+        async function carregarGoogleSheets() {
+            const status = document.getElementById('googleStatus');
+            status.innerText = `Baixando ${SHEET_URLS.length} planilhas...`;
+            status.classList.replace('text-green-600', 'text-orange-500');
+            status.classList.replace('text-red-600', 'text-orange-500');
+            
+            try {
+                let processadas = 0;
+                for (let i = 0; i < SHEET_URLS.length; i++) {
+                    const url = SHEET_URLS[i];
+                    await new Promise((resolve) => {
+                        let headerCounts = {};
+                        Papa.parse(url, {
+                            download: true, header: true, skipEmptyLines: true,
+                            transformHeader: function(h) {
+                                let safe = h ? String(h).trim() : 'Unnamed';
+                                if (headerCounts[safe]) {
+                                    headerCounts[safe]++;
+                                    return safe + "_" + headerCounts[safe];
+                                } else {
+                                    headerCounts[safe] = 1;
+                                    return safe;
+                                }
+                            },
+                            complete: (res) => { processarDadosExtraidos(res, `Planilha_Auto_${i}`); resolve(); },
+                            error: (err) => { console.error("Erro Papa Parse:", err); resolve(); }
+                        });
+                    });
+                    processadas++;
+                    status.innerText = `Sincronizando... (${processadas}/${SHEET_URLS.length})`;
+                }
+                status.innerText = "✅ Planilhas Sincronizadas";
+                status.classList.replace('text-orange-500', 'text-green-600');
+                
+                if (allData.length > 0) {
+                    document.getElementById('mainDashboard').classList.remove('hidden');
+                    setupFilters();
+                    processAndRender();
+                    if(document.getElementById('geminiApiKey').value.trim() !== '') pedirInsightAutomatico();
+                }
+            } catch (err) {
+                status.innerText = "❌ Erro ao Sincronizar";
+                status.classList.replace('text-orange-500', 'text-red-600');
+            }
+        }
+
+        // ─── PARSE & FILE MANAGEMENT ────────────────────────────────────────
+        function normalizarData(d) {
+            let s = String(d || '').trim();
+            if(s.toLowerCase() === 'data' || s === 'nan' || s === '') return null;
+            
+            let brMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (brMatch) { 
+                let dia = brMatch[1].padStart(2, '0');
+                let mes = brMatch[2].padStart(2, '0');
+                return `${brMatch[3]}-${mes}-${dia}`; 
+            }
+            
+            let isoMatch = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (isoMatch) {
+                let mes = isoMatch[2].padStart(2, '0');
+                let dia = isoMatch[3].padStart(2, '0');
+                return `${isoMatch[1]}-${mes}-${dia}`;
+            }
+            return null;
+        }
+
+        function processarDadosExtraidos(res, fileKey) {
+            const parsedData = res.data.map(d => {
+                let age = d['Age (Breakdown)'] || d.Age || d.Idade || ''; 
+                let gender = d['Gender (Breakdown)'] || d.Gender || d.Gênero || '';
+                if (gender.toLowerCase().includes('male') && !gender.toLowerCase().includes('female')) gender = 'H'; 
+                else if (gender.toLowerCase().includes('female') || gender.toLowerCase().includes('mulher')) gender = 'M';
+                
+                const leadsVal = parseBRNumber(d['Action Leads'] || d.Leads || d.Lead || d.Resultados || d.Results || 0);
+                const msgConv  = parseBRNumber(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0);
+                const convs    = parseBRNumber(d.Conversions || d['Generate Lead'] || d.Conversões || 0);
+                const leads = leadsVal > 0 ? leadsVal : (convs + msgConv);
+
+                let rawDate = d.Date || d.Data || d['Date (Segment)'] || d.Day || d['Reporting Starts'] || d['Stat time'] || d.Dia;
+
+                return {
+                    Data: normalizarData(rawDate),
+                    Conta: d['Account Name'] || d.Account || d.Conta || d['Advertiser Name'] || 'Desconhecida',
+                    Campanha: d['Campaign Name'] || d.Campaign || d.Campanha || 'Sem Campanha',
+                    Conjunto: d['Adset Name'] || d['Ad Set Name'] || d['Ad group name'] || d['Ad group'] || d.Conjunto || 'Sem Conjunto',
+                    Anuncio: cleanAdName(d['Ad Name'] || d.Ad || d['Ad name'] || d.Anuncio), 
+                    Link: d['Instagram Permalink URL'] || '', 
+                    ImageURL: d['Image URL'] || d['Adcreative Video Data Image URL'] || d['Thumbnail URL'] || '',
+                    Demografico: (age || gender) ? `${age} | ${gender}` : 'N/A',
+                    Gasto: parseBRNumber(d['Spend (Cost, Amount Spent)'] || d['Cost (Spend, Amount Spent)'] || d.Gasto || d.Spend || d['Amount Spent'] || d.Cost || d.Custo),
+                    Leads: leads,
+                    Impressoes: parseBRNumber(d.Impressions || d.Impressoes || d.Impressões), 
+                    Cliques: parseBRNumber(d['Action Link Clicks'] || d['Link Clicks'] || d.Clicks || d.Cliques)
+                };
+            }).filter(d => d.Data !== null);
+
+            loadedFiles[fileKey] = parsedData;
+            rebuildAllData();
+        }
+
+        function rebuildAllData() {
+            allData = [];
+            Object.values(loadedFiles).forEach(rows => { allData = allData.concat(rows); });
+        }
+
+        document.getElementById('csvFiles').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            files.forEach(file => {
+                let headerCounts = {};
+                Papa.parse(file, { 
+                    header: true, skipEmptyLines: true, 
+                    transformHeader: function(h) {
+                        let safe = h ? String(h).trim() : 'Unnamed';
+                        if (headerCounts[safe]) {
+                            headerCounts[safe]++;
+                            return safe + "_" + headerCounts[safe];
+                        } else {
+                            headerCounts[safe] = 1;
+                            return safe;
+                        }
+                    },
+                    complete: function(res) {
+                        processarDadosExtraidos(res, file.name);
+                        document.getElementById('mainDashboard').classList.remove('hidden');
+                        setupFilters(); processAndRender();
+                    }
+                });
+            });
+            e.target.value = '';
+        });
+
+        document.getElementById('btnClearFiles').addEventListener('click', () => {
+            loadedFiles = {}; allData = [];
+            document.getElementById('mainDashboard').classList.add('hidden');
+            document.getElementById('googleStatus').innerText = "Vazio";
+        });
+
+        // ─── CHECKBOX FILTERS LOGIC ───────────────────────────────────────
+        const btnDropdownConta = document.getElementById('btnDropdownConta');
+        const menuConta = document.getElementById('menuConta');
+        const btnDropdownCampanha = document.getElementById('btnDropdownCampanha');
+        const menuCampanha = document.getElementById('menuCampanha');
+
+        btnDropdownConta.addEventListener('click', (e) => { e.stopPropagation(); menuConta.classList.toggle('hidden'); menuCampanha.classList.add('hidden'); });
+        btnDropdownCampanha.addEventListener('click', (e) => { e.stopPropagation(); menuCampanha.classList.toggle('hidden'); menuConta.classList.add('hidden'); });
+        document.addEventListener('click', (e) => { 
+            if (!e.target.closest('#dropdownContaContainer')) menuConta.classList.add('hidden'); 
+            if (!e.target.closest('#dropdownCampanhaContainer')) menuCampanha.classList.add('hidden'); 
+        });
+        menuConta.addEventListener('click', e => e.stopPropagation());
+        menuCampanha.addEventListener('click', e => e.stopPropagation());
+
+        function getSelectedCheckboxes(className) {
+            return Array.from(document.querySelectorAll(`.${className}:checked`)).map(chk => chk.value);
+        }
+
+        function updateDropdownLabels() {
+            const contas = getSelectedCheckboxes('chk-conta');
+            const btnSpanConta = btnDropdownConta.querySelector('span:first-child');
+            if (contas.length === 0) { btnSpanConta.textContent = 'Todas'; btnSpanConta.className = 'truncate text-gray-400'; }
+            else if (contas.length === 1) { btnSpanConta.textContent = contas[0]; btnSpanConta.className = 'truncate text-purple-700 font-bold'; }
+            else { btnSpanConta.textContent = `${contas.length} selecionadas`; btnSpanConta.className = 'truncate text-purple-700 font-bold'; }
+
+            const camps = getSelectedCheckboxes('chk-campanha');
+            const btnSpanCamp = btnDropdownCampanha.querySelector('span:first-child');
+            if (camps.length === 0) { btnSpanCamp.textContent = 'Todas'; btnSpanCamp.className = 'truncate text-gray-400'; }
+            else if (camps.length === 1) { btnSpanCamp.textContent = camps[0]; btnSpanCamp.className = 'truncate text-purple-700 font-bold'; }
+            else { btnSpanCamp.textContent = `${camps.length} selecionadas`; btnSpanCamp.className = 'truncate text-purple-700 font-bold'; }
+        }
+
+        function setupFilters() {
+            const currentContas = getSelectedCheckboxes('chk-conta');
+            const contas = [...new Set(allData.map(d => d.Conta))].filter(Boolean).sort();
+            menuConta.innerHTML = ''; 
+            contas.forEach(c => {
+                const isChecked = currentContas.includes(c) ? 'checked' : '';
+                menuConta.innerHTML += `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[11px] text-gray-700 rounded transition"><input type="checkbox" value="${c}" class="chk-conta rounded text-purple-600 focus:ring-purple-500" ${isChecked}><span class="truncate" title="${c}">${c}</span></label>`;
+            });
+
+            const currentCamps = getSelectedCheckboxes('chk-campanha');
+            const camps = [...new Set(allData.map(d => d.Campanha))].filter(Boolean).sort();
+            menuCampanha.innerHTML = '';
+            camps.forEach(c => {
+                const isChecked = currentCamps.includes(c) ? 'checked' : '';
+                menuCampanha.innerHTML += `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[11px] text-gray-700 rounded transition"><input type="checkbox" value="${c}" class="chk-campanha rounded text-purple-600 focus:ring-purple-500" ${isChecked}><span class="truncate" title="${c}">${c}</span></label>`;
+            });
+
+            document.querySelectorAll('.chk-conta, .chk-campanha').forEach(chk => {
+                chk.addEventListener('change', () => { updateDropdownLabels(); processAndRender(); });
+            });
+
+            updateDropdownLabels();
+
+            const dates = [...new Set(allData.map(d => d.Data))].filter(Boolean).sort();
+            if (dates.length > 0 && !document.getElementById('p1Start').value) { 
+                document.getElementById('p1Start').value = dates[Math.max(0, dates.length - 15)]; 
+                document.getElementById('p1End').value = dates[dates.length - 1]; 
+                document.getElementById('p2Start').value = dates[Math.max(0, dates.length - 30)]; 
+                document.getElementById('p2End').value = dates[Math.max(0, dates.length - 16)]; 
+            }
+        }
+
+        // ─── SORTING & LISTENERS ──────────────────────────────────────────
+        document.getElementById('btnUpdate').addEventListener('click', () => { processAndRender(); if(document.getElementById('geminiApiKey').value.trim() !== '') pedirInsightAutomatico(); });
+        document.getElementById('filterText').addEventListener('input', () => processAndRender());
+        document.getElementById('filterText').addEventListener('keyup', function(e) { if(e.key === 'Enter' && document.getElementById('geminiApiKey').value.trim() !== '') pedirInsightAutomatico(); });
+        document.getElementById('groupingSelector').addEventListener('change', () => renderMainTable(dataA, dataB));
+
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.dataset.col;
+                if (sortState.col === col) { sortState.dir = sortState.dir === 'desc' ? 'asc' : 'desc'; } 
+                else { sortState.col = col; sortState.dir = 'desc'; }
+                document.querySelectorAll('th.sortable').forEach(t => t.classList.remove('sort-asc','sort-desc'));
+                th.classList.add(sortState.dir === 'desc' ? 'sort-desc' : 'sort-asc');
+                renderMainTable(dataA, dataB);
+            });
+        });
+
+        // ─── DATA PROCESSING ──────────────────────────────────────────────
+        function processAndRender() {
+            const p1S = document.getElementById('p1Start').value, p1E = document.getElementById('p1End').value,
+                  p2S = document.getElementById('p2Start').value, p2E = document.getElementById('p2End').value,
+                  txt = document.getElementById('filterText').value.toLowerCase();
+            
+            const selContas = getSelectedCheckboxes('chk-conta');
+            const selCamps  = getSelectedCheckboxes('chk-campanha');
+
+            const filter = (d, s, e) => {
+                let passDate = d.Data && (!s || d.Data >= s) && (!e || d.Data <= e);
+                let passConta = selContas.length === 0 || selContas.includes(d.Conta);
+                let passCamp  = selCamps.length === 0 || selCamps.includes(d.Campanha);
+                let passTxt   = !txt || `${d.Campanha}${d.Anuncio}`.toLowerCase().includes(txt);
+                return passDate && passConta && passCamp && passTxt;
+            };
+            
+            dataA = allData.filter(d => filter(d, p1S, p1E)); 
+            dataB = allData.filter(d => filter(d, p2S, p2E));
+
+            renderKpiCards(dataA, dataB);
+
+            const aggAd  = agg(dataA, 'Anuncio');
+            const aggCam = agg(dataA, 'Campanha');
+            const aggAds = agg(dataA, 'Conjunto');
+            const aggDem = agg(dataA, 'Demografico').filter(i => i.name !== 'N/A' && i.name !== ' | ');
+
+            renderSmallRanking('topCampaignsBody', aggCam, 3); 
+            renderSmallRanking('topAdsetsBody', aggAds, 3); 
+            renderSmallRanking('topDemographicsBody', aggDem, 3);
+            
+            renderTop10(aggAd); 
+            renderChart(aggAd); 
+            renderMainTable(dataA, dataB);
+        }
+
+        function agg(data, field) {
+            const g = data.reduce((acc, d) => {
+                const k = d[field] || 'Sem Nome';
+                if (!acc[k]) acc[k] = { name: k, gasto: 0, leads: 0, impr: 0, cliques: 0, camps: new Set(), link: '', thumb: '' };
+                acc[k].gasto += d.Gasto; acc[k].leads += d.Leads; acc[k].impr += d.Impressoes; acc[k].cliques += d.Cliques;
+                if (d.Campanha) acc[k].camps.add(d.Campanha); 
+                if (field==='Anuncio') {
+                    if (d.Link && !acc[k].link) acc[k].link = d.Link;
+                    if (d.ImageURL && !acc[k].thumb) acc[k].thumb = d.ImageURL;
+                }
+                return acc;
+            }, {});
+            
+            return Object.values(g).map(i => { 
+                i.ctr = i.impr > 0 ? (i.cliques / i.impr) * 100 : 0; 
+                i.cvr = i.cliques > 0 ? (i.leads / i.cliques) * 100 : 0; 
+                i.cpl = i.leads > 0 ? i.gasto / i.leads : 0; 
+                return i; 
+            });
+        }
+
+        function score(arr) {
+            const valid = arr.filter(i => i.gasto > 5 && i.leads > 0); 
+            if (!valid.length) return arr;
+            const maxL = Math.max(...valid.map(i => i.leads));
+            const maxCVR = Math.max(...valid.map(i => i.cvr));
+            const minCPL = Math.min(...valid.filter(i => i.cpl > 0).map(i => i.cpl));
+            
+            arr.forEach(i => {
+                if (i.gasto <= 5 || i.leads === 0) { i.score = 0; return; }
+                let conf = Math.min(1, i.leads / (maxL * 0.08)); 
+                i.score = parseFloat(((i.leads/maxL)*40 + (minCPL/i.cpl)*35*conf + (i.cvr/maxCVR)*25*conf).toFixed(1));
+            });
+            return arr.sort((a,b) => b.score - a.score);
+        }
+
+        function sortArr(arr) {
+            const col = sortState.col, dir = sortState.dir;
+            return [...arr].sort((a,b) => {
+                let av = a[col] ?? 0, bv = b[col] ?? 0;
+                return dir === 'desc' ? bv - av : av - bv;
+            });
+        }
+
+        function getScoreClass(s) {
+            if (s >= 70) return 'score-high';
+            if (s >= 40) return 'score-med';
+            return 'score-low';
+        }
+
+        // ─── RENDERS HTML ─────────────────────────────────────────────────
+        function renderKpiCards(dA, dB) {
+            const sum = (d) => d.reduce((acc, r) => {
+                acc.gasto+=r.Gasto; acc.leads+=r.Leads; acc.impr+=r.Impressoes; acc.cliques+=r.Cliques; return acc;
+            }, {gasto:0, leads:0, impr:0, cliques:0});
+
+            const aA = sum(dA), aB = sum(dB);
+
+            const cplA = aA.leads > 0 ? aA.gasto / aA.leads : 0;
+            const cplB = aB.leads > 0 ? aB.gasto / aB.leads : 0;
+            const ctrA = aA.impr > 0 ? (aA.cliques / aA.impr) * 100 : 0;
+            const ctrB = aB.impr > 0 ? (aB.cliques / aB.impr) * 100 : 0;
+            const cvrA = aA.cliques > 0 ? (aA.leads / aA.cliques) * 100 : 0;
+            const cvrB = aB.cliques > 0 ? (aB.leads / aB.cliques) * 100 : 0;
+
+            const container = document.getElementById('kpiCards');
+            container.innerHTML = '';
+
+            const createCard = (label, valA, valB, isMoney, isPercent, invertDelta) => {
+                const delta = valB > 0 ? ((valA - valB) / valB) * 100 : (valA > 0 ? 100 : 0);
+                let deltaClass = delta >= 0 ? 'delta-up' : 'delta-down';
+                if(invertDelta) deltaClass = delta <= 0 ? 'delta-up' : 'delta-down';
+                const deltaIcon = delta >= 0 ? '▲' : '▼';
+                
+                let displayVal = isMoney ? fmt.m(valA) : (isPercent ? fmt.p(valA) : fmt.n(valA));
+                
+                return `
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col justify-between hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${label}</div>
+                        <div class="flex flex-col items-end">
+                            <span class="${deltaClass} px-1 bg-slate-50 rounded" title="vs Período Anterior">${deltaIcon} ${Math.abs(delta).toFixed(1)}%</span>
+                        </div>
+                    </div>
+                    <div class="text-xl font-black text-slate-800">${displayVal}</div>
+                </div>`;
+            };
+
+            container.innerHTML += createCard("💸 Gasto (A)", aA.gasto, aB.gasto, true, false, false);
+            container.innerHTML += createCard("🎯 Leads (A)", aA.leads, aB.leads, false, false, false);
+            container.innerHTML += createCard("📉 CPL Médio (A)", cplA, cplB, true, false, true); 
+            container.innerHTML += createCard("👁️ Impressões (A)", aA.impr, aB.impr, false, false, false);
+            container.innerHTML += createCard("🖱️ CTR (A)", ctrA, ctrB, false, true, false);
+            container.innerHTML += createCard("🔄 CVR (A)", cvrA, cvrB, false, true, false);
+        }
+
+        function renderSmallRanking(id, data, limit) {
+            const s = score(data).slice(0, limit); 
+            const b = document.getElementById(id); 
+            b.innerHTML = s.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sem dados com leads</td></tr>';
+            s.forEach(i => { 
+                let campSub = Array.from(i.camps).join(', ');
+                b.innerHTML += `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-2 truncate max-w-[130px]" title="${i.name}">
+                        <div class="font-bold text-slate-700 truncate">${i.name}</div>
+                        ${id !== 'topCampaignsBody' ? `<div class="text-[9px] text-slate-400 uppercase truncate">${campSub}</div>` : ''}
+                    </td>
+                    <td class="p-2 text-right font-black text-blue-600">${fmt.n(i.leads)}</td>
+                    <td class="p-2 text-right font-bold text-orange-600">${fmt.m(i.cpl)}</td>
+                    <td class="p-2 text-center"><span class="${getScoreClass(i.score)} text-[10px] px-1">${i.score}</span></td>
+                </tr>`; 
+            });
+        }
+
+        function renderTop10(data) {
+            const s = score(data).slice(0, 10); 
+            const b = document.getElementById('topAdsBody'); 
+            b.innerHTML = s.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sem criativos qualificados</td></tr>';
+            s.forEach((i, idx) => {
+                let link = i.link ? `<a href="${i.link}" target="_blank" class="text-blue-500 hover:text-purple-700 ml-1">🔗</a>` : '';
+                let med = idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':`${idx+1}º`;
+                let thumbHtml = i.thumb ? `<img src="${i.thumb}" class="w-10 h-10 rounded shadow-sm object-cover flex-shrink-0 border border-slate-200">` : `<div class="w-10 h-10 rounded bg-slate-200 flex items-center justify-center text-sm flex-shrink-0 border border-slate-300">🖼️</div>`;
+                b.innerHTML += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                    <td class="py-3 px-2">
+                        <div class="flex items-center gap-3">
+                            ${thumbHtml}
+                            <div class="truncate max-w-[180px]">
+                                <div class="font-bold text-slate-700 truncate" title="${i.name}">${med} ${i.name} ${link}</div>
+                                <div class="text-[9px] text-slate-400 uppercase font-bold truncate mt-0.5">${Array.from(i.camps).join(', ')}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-2 text-right text-slate-500 text-[11px]">${fmt.m(i.gasto)}</td>
+                    <td class="py-3 px-2 text-right font-black text-blue-600">${fmt.n(i.leads)}</td>
+                    <td class="py-3 px-2 text-right font-bold text-orange-600">${fmt.m(i.cpl)}</td>
+                    <td class="py-3 px-2 text-center"><span class="${getScoreClass(i.score)} px-2 py-0.5">${i.score}</span></td>
+                </tr>`;
+            });
+        }
+
+        function renderMainTable(dA, dB) {
+            const g = document.getElementById('groupingSelector').value; 
+            let f = { 'ad':'Anuncio','adset':'Conjunto','campaign':'Campanha','demo':'Demografico' }[g];
+            let aA = agg(dA, f), aB = agg(dB, f); 
+            let mB = {}; aB.forEach(i => mB[i.name] = i);
+            score(aA);
+            const sA = sortArr(aA);
+            const b = document.getElementById('mainTableBody'); 
+            b.innerHTML = '';
+            
+            sA.forEach(i => {
+                if(i.name === 'N/A') return;
+                let j = mB[i.name] || { gasto:0, leads:0, cpl:0 };
+                const d = (vA, vB, inv=false) => { 
+                    if (!vB) return ''; let pct = ((vA-vB)/vB)*100; if(pct===0) return '';
+                    let good = inv ? pct<=0 : pct>=0; 
+                    return `<span class="${good?'text-green-500':'text-red-500'} text-[10px] block mt-0.5 font-bold">${pct>0?'▲':'▼'} ${Math.abs(pct).toFixed(1)}%</span>`; 
+                };
+                let link = (g==='ad' && i.link) ? `<a href="${i.link}" target="_blank" class="text-blue-500 ml-1">🔗</a>` : '';
+                let thumbHtml = (g === 'ad') ? (i.thumb ? `<img src="${i.thumb}" class="w-10 h-10 rounded shadow-sm object-cover flex-shrink-0 border border-slate-200">` : `<div class="w-10 h-10 rounded bg-slate-200 flex items-center justify-center text-sm flex-shrink-0 border border-slate-300">🖼️</div>`) : '';
+                let nameContent = g === 'ad' ? `
+                    <div class="flex items-center gap-3">
+                        ${thumbHtml}
+                        <div class="truncate max-w-[220px]">
+                            <div class="font-bold text-slate-800 text-sm truncate" title="${i.name}">${i.name} ${link}</div>
+                            <div class="text-[9px] text-slate-400 uppercase font-bold truncate mt-0.5">${Array.from(i.camps).join(', ')}</div>
+                        </div>
+                    </div>` : `
+                    <div class="truncate max-w-[220px]">
+                        <div class="font-bold text-slate-800 text-sm truncate" title="${i.name}">${i.name}</div>
+                    </div>`;
+                
+                b.innerHTML += `
+                <tr class="hover:bg-purple-50 transition border-b border-slate-100">
+                    <td class="px-6 py-4">${nameContent}</td>
+                    <td class="px-6 py-4 text-right"><span class="font-medium text-slate-600">${fmt.m(i.gasto)}</span>${d(i.gasto, j.gasto)}</td>
+                    <td class="px-6 py-4 text-right text-slate-500">${fmt.n(i.impr)}</td>
+                    <td class="px-6 py-4 text-right font-bold text-slate-400">${fmt.p(i.ctr)}</td>
+                    <td class="px-6 py-4 text-right"><span class="font-black text-blue-700">${fmt.n(i.leads)}</span>${d(i.leads, j.leads)}</td>
+                    <td class="px-6 py-4 text-right font-bold text-purple-600">${fmt.p(i.cvr)}</td>
+                    <td class="px-6 py-4 text-right"><span class="font-bold text-orange-600">${fmt.m(i.cpl)}</span>${d(i.cpl, j.cpl, true)}</td>
+                    <td class="px-6 py-4 text-center"><span class="${getScoreClass(i.score)}">${i.score}</span></td>
+                </tr>`;
+            });
+        }
+
+        function renderChart(data) {
+            const top = score(data).slice(0, 5); 
+            if (currentChart) currentChart.destroy();
+            currentChart = new Chart(document.getElementById('adsChart').getContext('2d'), {
+                type: 'bar', 
+                data: { 
+                    labels: top.map(i => i.name.substring(0,12)+'...'), 
+                    datasets: [
+                        { label: 'Leads', data: top.map(i => i.leads), backgroundColor: '#9333ea', yAxisID: 'y', datalabels: { color: '#fff', font: {weight:'bold'} } },
+                        { label: 'CPL (R$)', data: top.map(i => i.cpl), type: 'line', borderColor: '#f97316', borderWidth: 3, tension: 0.3, yAxisID: 'y1', datalabels: { color:'#c2410c', align: 'top', anchor: 'end', formatter: v => fmt.m(v), font: {weight:'bold'} } }
+                    ]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'top' }, datalabels: { display: true } }, 
+                    scales: { 
+                        x: { grid:{display:false}, ticks: {font:{size:10}} },
+                        y: { type:'linear', position:'left', title:{display:true, text:'Volume de Leads'} }, 
+                        y1: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true, text:'Custo (R$)'} } 
+                    },
+                    layout: { padding: { top: 20 } }
+                }
+            });
+        }
+
+        // ─── IA: GEMINI API E EXPORTAÇÃO ──────────────────────────────────
+        document.getElementById('btnCopyData').addEventListener('click', () => {
+            const btn = document.getElementById('btnCopyData');
+            if (dataA.length === 0) { alert("Atualize o painel primeiro!"); return; }
+
+            const aggAd  = agg(dataA, 'Anuncio');
+            const aggDem = agg(dataA, 'Demografico').filter(i => i.name !== 'N/A' && i.name !== ' | ');
+            const aggCam = agg(dataA, 'Campanha');
+
+            const topAdsText = score(aggAd).slice(0, 10).map((a,i) => `${i+1}. ${a.name} | Leads: ${a.leads} | CPL: R$${a.cpl.toFixed(2)} | Score: ${a.score}`).join('\n');
+            const topDemText = score(aggDem).slice(0, 5).map((d,i) => `${i+1}. ${d.name} | Leads: ${d.leads} | CPL: R$${d.cpl.toFixed(2)}`).join('\n');
+            const topCamText = score(aggCam).slice(0, 5).map((c,i) => `${i+1}. ${c.name} | Leads: ${c.leads} | CPL: R$${c.cpl.toFixed(2)} | Gasto: R$${c.gasto.toFixed(2)}`).join('\n');
+
+            const totA = { g: dataA.reduce((s,d)=>s+d.Gasto,0), l: dataA.reduce((s,d)=>s+d.Leads,0) };
+            const totB = { g: dataB.reduce((s,d)=>s+d.Gasto,0), l: dataB.reduce((s,d)=>s+d.Leads,0) };
+            const varGasto = totB.g > 0 ? (((totA.g-totB.g)/totB.g)*100).toFixed(1) : 'N/A';
+            const varLeads = totB.l > 0 ? (((totA.l-totB.l)/totB.l)*100).toFixed(1) : 'N/A';
+            const cplA = totA.l > 0 ? (totA.g/totA.l).toFixed(2) : 'N/A';
+            const cplB = totB.l > 0 ? (totB.g/totB.l).toFixed(2) : 'N/A';
+            const varCpl = (cplA !== 'N/A' && cplB !== 'N/A') ? (((cplA-cplB)/cplB)*100).toFixed(1) : 'N/A';
+
+            const texto = `
+Aja como Analista de Performance. Avalie o cenário micro:
+
+--- RESULTADO GLOBAL DA SELEÇÃO ---
+Investimento: R$ ${totA.g.toFixed(2)} (vs Ant: ${varGasto}%)
+Leads: ${totA.l} (vs Ant: ${varLeads}%) | CPL: R$ ${cplA} (vs Ant: ${varCpl}%)
+
+--- TOP CAMPANHAS ---
+${topCamText}
+
+--- TOP CRIATIVOS ---
+${topAdsText}
+
+--- TOP PÚBLICOS ---
+${topDemText}
+
+Responda: Qual criativo/público deve ser escalado e qual deve ser pausado?
+            `.trim();
+
+            navigator.clipboard.writeText(texto).then(() => {
+                const orig = btn.innerHTML; btn.innerHTML = "✅ Copiado!"; btn.classList.replace('text-blue-700','text-green-700');
+                setTimeout(() => { btn.innerHTML = orig; btn.classList.replace('text-green-700','text-blue-700'); }, 3000);
+            }).catch(() => alert("Erro ao copiar."));
+        });
+
+        async function chamarGemini(prompt, targetId) {
+            const key = document.getElementById('geminiApiKey').value.trim();
+            const div = document.getElementById(targetId);
+            
+            if (!key) { div.innerHTML = "<span class='text-red-500 font-bold'>⚠️ Insira a Chave da API Gemini no topo.</span>"; return; }
+            div.innerHTML = '<div class="flex items-center gap-2"><div class="loader"></div> <span class="text-purple-600 font-bold text-xs uppercase">Analisando granularidade...</span></div>';
+
+            const totA = { g: dataA.reduce((s,d)=>s+d.Gasto,0), l: dataA.reduce((s,d)=>s+d.Leads,0) };
+            const cplA = totA.l > 0 ? (totA.g/totA.l).toFixed(2) : 0;
+            const topAds = score(agg(dataA, 'Anuncio')).slice(0, 3).map(a => `${a.name}(R$${a.cpl.toFixed(2)})`).join(', ');
+            
+            const contexto = `Invest. Total: R$${totA.g.toFixed(2)}, Leads: ${totA.l}, CPL Médio: R$${cplA}. Melhores Anúncios: ${topAds}.`;
+            const payload = { contents: [{ parts: [{ text: `Você é estrategista de anúncios. Baseado:\n${contexto}\n\nInstruções: ${prompt}\nResponda direto e use negrito.` }] }] };
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (res.ok && data.candidates) div.innerHTML = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                else throw new Error(data.error?.message || "Erro desconhecido");
+            } catch (e) { div.innerHTML = `<span class="text-red-600 text-xs font-bold">❌ ERRO: ${e.message}</span>`; }
+        }
+
+        function pedirInsightAutomatico() { chamarGemini("Faça um diagnóstico de 3 linhas dizendo se o CPL está bom e qual o melhor anúncio para focar orçamento.", 'aiAutoInsight'); }
+        document.getElementById('btnAskAi').addEventListener('click', () => { const u = document.getElementById('aiUserInput').value; if(u) chamarGemini(u, 'aiChatResponse'); document.getElementById('aiUserInput').value = ''; });
+        document.getElementById('aiUserInput').addEventListener('keyup', (e) => { if(e.key === 'Enter') document.getElementById('btnAskAi').click(); });
+
+    </script>
+</body>
+</html>
