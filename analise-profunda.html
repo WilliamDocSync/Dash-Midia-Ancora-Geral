@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise Profunda de Criativos - Frentes</title>
+    <title>Análise Profunda de Criativos - Frentes e Contas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -57,7 +57,7 @@
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-sm mb-8 border border-slate-200">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
                 
                 <div class="bg-purple-50 p-2.5 rounded-xl border border-purple-100">
                     <label class="text-[9px] font-black text-purple-700 uppercase mb-1 block">Período Atual (A)</label>
@@ -75,8 +75,16 @@
                     </div>
                 </div>
 
-                <div class="relative" id="dropdownContaContainer">
+                <div class="relative" id="dropdownFrenteContainer">
                     <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Frentes (Marcas)</label>
+                    <button type="button" id="btnDropdownFrente" class="w-full border border-slate-300 rounded p-2 text-xs bg-white text-left flex justify-between items-center focus:border-purple-500 hover:bg-slate-50 h-9">
+                        <span class="truncate text-gray-400">Todas</span><span class="text-[9px] text-gray-400">▼</span>
+                    </button>
+                    <div id="menuFrente" class="hidden absolute z-50 w-full left-0 mt-1 bg-white border border-slate-200 rounded shadow-xl max-h-48 overflow-y-auto custom-scrollbar p-2"></div>
+                </div>
+
+                <div class="relative" id="dropdownContaContainer">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Contas Reais</label>
                     <button type="button" id="btnDropdownConta" class="w-full border border-slate-300 rounded p-2 text-xs bg-white text-left flex justify-between items-center focus:border-purple-500 hover:bg-slate-50 h-9">
                         <span class="truncate text-gray-400">Todas</span><span class="text-[9px] text-gray-400">▼</span>
                     </button>
@@ -171,7 +179,8 @@
                     <h3 class="font-black text-slate-800 uppercase text-sm">Desempenho Geral e Comparativo (A vs B)</h3>
                     <select id="groupingSelector" class="border border-slate-300 rounded-lg p-2 text-xs font-bold text-slate-600 outline-none focus:ring-1 focus:ring-purple-500 shadow-sm bg-white">
                         <option value="ad">Agrupar por Anúncio (Criativo)</option>
-                        <option value="conta">Agrupar por Frente (Marca)</option>
+                        <option value="frente">Agrupar por Frente (Marca)</option>
+                        <option value="conta">Agrupar por Conta</option>
                         <option value="campaign">Agrupar por Campanha</option>
                         <option value="adset">Agrupar por Conjunto</option>
                         <option value="demo">Agrupar por Demográfico</option>
@@ -202,7 +211,7 @@
     <script>
         Chart.register(ChartDataLabels);
 
-        // --- LISTA DE LINKS DO GOOGLE SHEETS (25 LINKS) ---
+        // --- LISTA DE LINKS DO GOOGLE SHEETS (AGORA COM 29 LINKS) ---
         const SHEET_URLS = [
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=0&single=true&output=csv",
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=1154341460&single=true&output=csv",
@@ -230,7 +239,9 @@
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdkM3xpekqJ2Fp9s38KdyNZtjucHUP1I7G-eOWVC31KJAr2NpATz8lZbAwua9nIMD8l6sKQAaz8L_Y/pub?gid=0&single=true&output=csv",
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdkM3xpekqJ2Fp9s38KdyNZtjucHUP1I7G-eOWVC31KJAr2NpATz8lZbAwua9nIMD8l6sKQAaz8L_Y/pub?gid=1289448911&single=true&output=csv",
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=0&single=true&output=csv",
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=1289448911&single=true&output=csv"
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=1289448911&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtbEP_0gEpNDaKn1BCzpLy9SofCQjUiCjcX8BmvMrKAboPsDo8H3arwN_OnGjTpP8zI2OBEeaa3y8E/pub?gid=0&single=true&output=csv",
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtbEP_0gEpNDaKn1BCzpLy9SofCQjUiCjcX8BmvMrKAboPsDo8H3arwN_OnGjTpP8zI2OBEeaa3y8E/pub?gid=1289448911&single=true&output=csv"
         ];
 
         let allData = [], dataA = [], dataB = [], currentChart = null;
@@ -355,10 +366,12 @@
                 const leads = leadsVal > 0 ? leadsVal : (convs + msgConv);
 
                 let rawDate = d.Date || d.Data || d['Date (Segment)'] || d.Day || d['Reporting Starts'] || d['Stat time'] || d.Dia;
+                let contaNomeRaw = d['Account Name'] || d.Account || d.Conta || d['Advertiser Name'] || 'Desconhecida';
 
                 return {
                     Data: normalizarData(rawDate),
-                    Conta: extrairFrente(d['Account Name'] || d.Account || d.Conta || d['Advertiser Name'] || 'Desconhecida'), // <--- FRENTE EXTRAIDA AQUI
+                    Frente: extrairFrente(contaNomeRaw), 
+                    Conta: contaNomeRaw,
                     Campanha: d['Campaign Name'] || d.Campaign || d.Campanha || 'Sem Campanha',
                     Conjunto: d['Adset Name'] || d['Ad Set Name'] || d['Ad group name'] || d['Ad group'] || d.Conjunto || 'Sem Conjunto',
                     Anuncio: cleanAdName(d['Ad Name'] || d.Ad || d['Ad name'] || d.Anuncio), 
@@ -404,17 +417,23 @@
         });
 
         // ─── CHECKBOX FILTERS LOGIC ───────────────────────────────────────
+        const btnDropdownFrente = document.getElementById('btnDropdownFrente');
+        const menuFrente = document.getElementById('menuFrente');
         const btnDropdownConta = document.getElementById('btnDropdownConta');
         const menuConta = document.getElementById('menuConta');
         const btnDropdownCampanha = document.getElementById('btnDropdownCampanha');
         const menuCampanha = document.getElementById('menuCampanha');
 
-        btnDropdownConta.addEventListener('click', (e) => { e.stopPropagation(); menuConta.classList.toggle('hidden'); menuCampanha.classList.add('hidden'); });
-        btnDropdownCampanha.addEventListener('click', (e) => { e.stopPropagation(); menuCampanha.classList.toggle('hidden'); menuConta.classList.add('hidden'); });
+        btnDropdownFrente.addEventListener('click', (e) => { e.stopPropagation(); menuFrente.classList.toggle('hidden'); menuConta.classList.add('hidden'); menuCampanha.classList.add('hidden'); });
+        btnDropdownConta.addEventListener('click', (e) => { e.stopPropagation(); menuConta.classList.toggle('hidden'); menuFrente.classList.add('hidden'); menuCampanha.classList.add('hidden'); });
+        btnDropdownCampanha.addEventListener('click', (e) => { e.stopPropagation(); menuCampanha.classList.toggle('hidden'); menuFrente.classList.add('hidden'); menuConta.classList.add('hidden'); });
+        
         document.addEventListener('click', (e) => { 
+            if (!e.target.closest('#dropdownFrenteContainer')) menuFrente.classList.add('hidden'); 
             if (!e.target.closest('#dropdownContaContainer')) menuConta.classList.add('hidden'); 
             if (!e.target.closest('#dropdownCampanhaContainer')) menuCampanha.classList.add('hidden'); 
         });
+        menuFrente.addEventListener('click', e => e.stopPropagation());
         menuConta.addEventListener('click', e => e.stopPropagation());
         menuCampanha.addEventListener('click', e => e.stopPropagation());
 
@@ -423,6 +442,12 @@
         }
 
         function updateDropdownLabels() {
+            const frentes = getSelectedCheckboxes('chk-frente');
+            const btnSpanFrente = btnDropdownFrente.querySelector('span:first-child');
+            if (frentes.length === 0) { btnSpanFrente.textContent = 'Todas'; btnSpanFrente.className = 'truncate text-gray-400'; }
+            else if (frentes.length === 1) { btnSpanFrente.textContent = frentes[0]; btnSpanFrente.className = 'truncate text-purple-700 font-bold'; }
+            else { btnSpanFrente.textContent = `${frentes.length} selecionadas`; btnSpanFrente.className = 'truncate text-purple-700 font-bold'; }
+
             const contas = getSelectedCheckboxes('chk-conta');
             const btnSpanConta = btnDropdownConta.querySelector('span:first-child');
             if (contas.length === 0) { btnSpanConta.textContent = 'Todas'; btnSpanConta.className = 'truncate text-gray-400'; }
@@ -437,23 +462,20 @@
         }
 
         function setupFilters() {
-            const currentContas = getSelectedCheckboxes('chk-conta');
-            const contas = [...new Set(allData.map(d => d.Conta))].filter(Boolean).sort();
-            menuConta.innerHTML = ''; 
-            contas.forEach(c => {
-                const isChecked = currentContas.includes(c) ? 'checked' : '';
-                menuConta.innerHTML += `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[11px] text-gray-700 rounded transition"><input type="checkbox" value="${c}" class="chk-conta rounded text-purple-600 focus:ring-purple-500" ${isChecked}><span class="truncate" title="${c}">${c}</span></label>`;
-            });
+            const fillMenu = (menu, cls, key) => {
+                const currentSelected = getSelectedCheckboxes(cls);
+                const vals = [...new Set(allData.map(d => d[key]))].filter(Boolean).sort();
+                menu.innerHTML = vals.map(v => {
+                    const isChecked = currentSelected.includes(v) ? 'checked' : '';
+                    return `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[11px] text-gray-700 rounded transition"><input type="checkbox" value="${v}" class="${cls} rounded text-purple-600 focus:ring-purple-500" ${isChecked}><span class="truncate" title="${v}">${v}</span></label>`;
+                }).join('');
+            };
 
-            const currentCamps = getSelectedCheckboxes('chk-campanha');
-            const camps = [...new Set(allData.map(d => d.Campanha))].filter(Boolean).sort();
-            menuCampanha.innerHTML = '';
-            camps.forEach(c => {
-                const isChecked = currentCamps.includes(c) ? 'checked' : '';
-                menuCampanha.innerHTML += `<label class="flex items-center gap-2 p-1.5 hover:bg-slate-50 cursor-pointer text-[11px] text-gray-700 rounded transition"><input type="checkbox" value="${c}" class="chk-campanha rounded text-purple-600 focus:ring-purple-500" ${isChecked}><span class="truncate" title="${c}">${c}</span></label>`;
-            });
+            fillMenu(menuFrente, 'chk-frente', 'Frente');
+            fillMenu(menuConta, 'chk-conta', 'Conta');
+            fillMenu(menuCampanha, 'chk-campanha', 'Campanha');
 
-            document.querySelectorAll('.chk-conta, .chk-campanha').forEach(chk => {
+            document.querySelectorAll('.chk-frente, .chk-conta, .chk-campanha').forEach(chk => {
                 chk.addEventListener('change', () => { updateDropdownLabels(); processAndRender(); });
             });
 
@@ -491,15 +513,17 @@
                   p2S = document.getElementById('p2Start').value, p2E = document.getElementById('p2End').value,
                   txt = document.getElementById('filterText').value.toLowerCase();
             
+            const selFrentes = getSelectedCheckboxes('chk-frente');
             const selContas = getSelectedCheckboxes('chk-conta');
             const selCamps  = getSelectedCheckboxes('chk-campanha');
 
             const filter = (d, s, e) => {
                 let passDate = d.Data && (!s || d.Data >= s) && (!e || d.Data <= e);
+                let passFrente = selFrentes.length === 0 || selFrentes.includes(d.Frente);
                 let passConta = selContas.length === 0 || selContas.includes(d.Conta);
                 let passCamp  = selCamps.length === 0 || selCamps.includes(d.Campanha);
                 let passTxt   = !txt || `${d.Campanha}${d.Anuncio}`.toLowerCase().includes(txt);
-                return passDate && passConta && passCamp && passTxt;
+                return passDate && passFrente && passConta && passCamp && passTxt;
             };
             
             dataA = allData.filter(d => filter(d, p1S, p1E)); 
@@ -665,7 +689,7 @@
 
         function renderMainTable(dA, dB) {
             const g = document.getElementById('groupingSelector').value; 
-            let f = { 'ad':'Anuncio', 'conta': 'Conta', 'adset':'Conjunto','campaign':'Campanha','demo':'Demografico' }[g];
+            let f = { 'ad':'Anuncio', 'frente':'Frente', 'conta':'Conta','adset':'Conjunto','campaign':'Campanha','demo':'Demografico' }[g];
             let aA = agg(dA, f), aB = agg(dB, f); 
             let mB = {}; aB.forEach(i => mB[i.name] = i);
             score(aA);
