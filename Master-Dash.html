@@ -12,239 +12,105 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 8px;}
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle;}
+        .menu-btn.active { background-color: #2563eb; color: #ffffff; border-left: 4px solid #60a5fa; }
+        .menu-btn { border-left: 4px solid transparent; transition: all 0.2s; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .delta-up { color: #10b981; font-weight: bold;}
         .delta-down { color: #ef4444; font-weight: bold;}
         .score-high { color: #15803d; background-color: #dcfce7; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
         .score-med { color: #b45309; background-color: #fef3c7; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
         .score-low { color: #b91c1c; background-color: #fee2e2; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
-        
-        /* Sidebar active state */
-        .menu-btn.active { background-color: #2563eb; color: #ffffff; border-left-color: #60a5fa; }
-        .menu-btn { border-left: 4px solid transparent; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-gray-800 flex h-screen overflow-hidden">
 
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col h-full shadow-2xl z-20 shrink-0 transition-all">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col h-full shadow-2xl z-20 shrink-0">
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
-            <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Sistema de Mídia Integrado</p>
+            <p class="text-[10px] uppercase font-bold text-slate-500 mt-1">Gestão de Mídia Integrada</p>
         </div>
-
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
-            <p class="px-2 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Dashboards</p>
-            
-            <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 transition flex items-center gap-3">
-                <span class="text-lg">📊</span> Visão Global (Master)
-            </button>
-            <button onclick="switchTab('tab-analise', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 transition flex items-center gap-3">
-                <span class="text-lg">🔬</span> Análise de Criativos
-            </button>
-            <button onclick="switchTab('tab-pacing', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 transition flex items-center gap-3">
-                <span class="text-lg">⏱️</span> Controle de Pacing
-            </button>
+            <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
+            <button onclick="switchTab('tab-analise', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>🔬</span> Análise Criativos</button>
+            <button onclick="switchTab('tab-pacing', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>⏱️</span> Controle Pacing</button>
         </nav>
-
         <div class="p-4 border-t border-slate-800 bg-slate-950">
             <div class="mb-3">
-                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Inteligência Artificial</label>
-                <input type="password" id="globalApiKey" placeholder="Chave da API Gemini..." class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white outline-none focus:border-blue-500">
+                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">API IA (Opcional)</label>
+                <input type="password" id="globalApiKey" placeholder="Chave Gemini..." class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white outline-none">
             </div>
-            <div class="flex items-center gap-2 justify-between">
-                <span id="globalStatus" class="text-[10px] font-black uppercase text-orange-400 flex items-center gap-1">
-                    <div class="loader"></div> Conectando...
-                </span>
-            </div>
+            <span id="globalStatus" class="text-[10px] font-black uppercase text-orange-400 flex items-center gap-2"><div class="loader"></div> Iniciando...</span>
         </div>
     </aside>
 
-    <main class="flex-1 h-full overflow-y-auto relative custom-scrollbar bg-slate-50">
+    <main class="flex-1 h-full overflow-y-auto bg-slate-50 custom-scrollbar">
         
-        <section id="tab-master" class="p-8 max-w-[1600px] mx-auto animate-fade-in">
-            <div class="flex justify-between items-center mb-6 bg-white p-6 rounded-xl shadow-sm border-b-4 border-blue-600">
-                <div>
-                    <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Visão Global da Operação</h2>
-                    <p class="text-slate-500 text-sm font-medium">Consolidado Financeiro e Desempenho por Canais</p>
-                </div>
+        <section id="tab-master" class="p-8 max-w-[1600px] mx-auto">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6">
+                <h2 class="text-2xl font-black text-slate-800 uppercase">Visão Macro</h2>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                <div class="space-y-1 border-r pr-6">
-                    <label class="font-bold text-blue-600 text-[10px] uppercase block">Período Atual (A)</label>
-                    <div class="flex gap-2"><input type="date" id="v1_p1Start" class="w-full border rounded p-1.5 text-xs outline-none bg-slate-50"><input type="date" id="v1_p1End" class="w-full border rounded p-1.5 text-xs outline-none bg-slate-50"></div>
-                </div>
-                <div class="space-y-1 border-r pr-6">
-                    <label class="font-bold text-orange-500 text-[10px] uppercase block">Período Anterior (B)</label>
-                    <div class="flex gap-2"><input type="date" id="v1_p2Start" class="w-full border rounded p-1.5 text-xs outline-none bg-slate-50"><input type="date" id="v1_p2End" class="w-full border rounded p-1.5 text-xs outline-none bg-slate-50"></div>
-                </div>
-                <div class="space-y-1 border-r pr-6">
-                    <label class="font-bold text-gray-500 text-[10px] uppercase block">Plataforma</label>
-                    <select id="v1_platform" class="w-full border rounded p-1.5 text-xs outline-none bg-slate-50"><option value="ALL">Todas</option></select>
-                </div>
-                <div class="flex items-end">
-                    <button onclick="renderMaster()" class="bg-slate-800 text-white px-6 py-2 rounded-lg font-black hover:bg-black transition shadow w-full text-sm h-full">ATUALIZAR DADOS</button>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-white p-5 rounded-xl border">
+                <div><label class="text-[10px] font-bold text-blue-600 uppercase block">Período A</label><div class="flex gap-1"><input type="date" id="v1_p1Start" class="w-full border rounded p-1 text-xs"><input type="date" id="v1_p1End" class="w-full border rounded p-1 text-xs"></div></div>
+                <div><label class="text-[10px] font-bold text-orange-500 uppercase block">Período B</label><div class="flex gap-1"><input type="date" id="v1_p2Start" class="w-full border rounded p-1 text-xs"><input type="date" id="v1_p2End" class="w-full border rounded p-1 text-xs"></div></div>
+                <div><label class="text-[10px] font-bold text-slate-500 uppercase block">Canal</label><select id="v1_platform" class="w-full border rounded p-1 text-xs bg-slate-50"><option value="ALL">Todos</option></select></div>
+                <button onclick="renderMaster()" class="bg-slate-800 text-white rounded font-bold text-xs hover:bg-black transition h-9 mt-4">ATUALIZAR</button>
             </div>
-
             <div id="v1_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8"></div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-200">
-                <div class="flex flex-wrap justify-between items-center mb-6 pb-4 border-b">
-                    <h3 class="font-black text-slate-700 uppercase text-sm">Análise Visual Evolutiva</h3>
-                    <div class="flex gap-3">
-                        <select id="v1_metric" class="border rounded p-1.5 text-xs bg-slate-50 font-bold" onchange="renderMasterChart()"><option value="leads">Leads</option><option value="gasto">Gasto</option><option value="cpl">CPL</option><option value="vendas">Vendas</option></select>
-                        <select id="v1_dimension" class="border rounded p-1.5 text-xs bg-slate-50 font-bold" onchange="renderMasterChart()"><option value="frente">Por Frente</option><option value="plataforma">Por Canal</option></select>
-                    </div>
-                </div>
-                <div class="w-full"><canvas id="v1_chart" height="80"></canvas></div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-                <div class="p-4 border-b flex justify-between items-center bg-slate-50">
-                    <h3 class="font-black text-slate-800 uppercase text-sm">Desempenho Consolidado</h3>
-                    <select id="v1_grouping" class="border rounded p-1.5 text-xs bg-white font-bold shadow-sm" onchange="renderMasterTable()">
-                        <option value="frente">Agrupar por Frente</option><option value="canal">Agrupar por Canal</option>
-                    </select>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-left text-sm border-collapse whitespace-nowrap">
-                        <thead class="bg-white border-b-2 uppercase text-[10px] font-black text-slate-500">
-                            <tr><th class="px-4 py-3">Nome</th><th class="px-4 py-3 text-right">Gasto</th><th class="px-4 py-3 text-right">Impressões</th><th class="px-4 py-3 text-right">CTR</th><th class="px-4 py-3 text-right text-blue-600">Leads</th><th class="px-4 py-3 text-right">CVR</th><th class="px-4 py-3 text-right text-orange-600">CPL</th><th class="px-4 py-3 text-right text-green-700">Vendas</th><th class="px-4 py-3 text-right">CPA</th></tr>
-                        </thead>
-                        <tbody id="v1_tableBody" class="divide-y divide-slate-100 text-xs"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-
-        <section id="tab-analise" class="hidden p-8 max-w-[1600px] mx-auto animate-fade-in">
-            <div class="flex justify-between items-center mb-6 bg-white p-6 rounded-xl shadow-sm border-b-4 border-purple-600">
-                <div>
-                    <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Análise de Criativos & Públicos</h2>
-                    <p class="text-slate-500 text-sm font-medium">Classificação micro por Score de Eficiência</p>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-xl shadow-sm mb-8 border border-slate-200 grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-                <div class="col-span-2 flex gap-2">
-                    <div class="flex-1 bg-purple-50 p-2 rounded border border-purple-100">
-                        <label class="text-[9px] font-black text-purple-700 uppercase mb-1 block">Data (A)</label>
-                        <div class="flex gap-1"><input type="date" id="v2_p1Start" class="w-full rounded p-1 text-xs border-none"><input type="date" id="v2_p1End" class="w-full rounded p-1 text-xs border-none"></div>
-                    </div>
-                </div>
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Frente</label><select id="v2_frente" class="w-full border rounded p-2 text-xs outline-none bg-slate-50"><option value="ALL">Todas</option></select></div>
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Campanha</label><select id="v2_campanha" class="w-full border rounded p-2 text-xs outline-none bg-slate-50"><option value="ALL">Todas</option></select></div>
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Busca Anúncio</label><input type="text" id="v2_busca" placeholder="Ex: video01" class="w-full border rounded p-2 text-xs bg-slate-50"></div>
-                <button onclick="renderAnalise()" class="bg-purple-700 text-white px-4 py-2 rounded font-black hover:bg-purple-800 transition text-sm w-full h-9">ATUALIZAR</button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white rounded-xl border overflow-hidden"><div class="p-3 bg-slate-50 border-b font-black text-xs uppercase text-slate-600">🚀 Top Campanhas</div><table class="w-full text-left text-xs"><tbody id="v2_topCam" class="divide-y"></tbody></table></div>
-                <div class="bg-white rounded-xl border overflow-hidden"><div class="p-3 bg-slate-50 border-b font-black text-xs uppercase text-slate-600">🎯 Top Conjuntos</div><table class="w-full text-left text-xs"><tbody id="v2_topAdset" class="divide-y"></tbody></table></div>
-                <div class="bg-white rounded-xl border overflow-hidden"><div class="p-3 bg-slate-50 border-b font-black text-xs uppercase text-slate-600">👥 Melhor Público</div><table class="w-full text-left text-xs"><tbody id="v2_topDemo" class="divide-y"></tbody></table></div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div class="bg-white rounded-xl border p-5 flex flex-col">
-                    <h3 class="font-black text-slate-800 uppercase text-center text-sm border-b pb-3 mb-3">🏆 Top 10 Criativos</h3>
-                    <div class="overflow-x-auto flex-1"><table class="min-w-full text-left text-xs"><thead class="uppercase text-slate-400 bg-slate-50"><tr><th class="p-2">Anúncio</th><th class="p-2 text-right">Gasto</th><th class="p-2 text-right">Leads</th><th class="p-2 text-right">CPL</th><th class="p-2 text-center">Score</th></tr></thead><tbody id="v2_topAds" class="divide-y"></tbody></table></div>
-                </div>
-                <div class="bg-white rounded-xl border p-5 flex flex-col min-h-[300px]">
-                    <h3 class="font-black text-slate-800 uppercase text-center text-sm border-b pb-3 mb-3">Volume vs Eficiência (Top 5)</h3>
-                    <div class="flex-1 w-full relative"><canvas id="v2_chart"></canvas></div>
-                </div>
-            </div>
-
+            <div class="bg-white p-6 rounded-xl border mb-8"><canvas id="v1_chart" height="80"></canvas></div>
             <div class="bg-white rounded-xl border overflow-hidden">
-                <div class="p-4 border-b flex justify-between items-center bg-slate-50">
-                    <h3 class="font-black text-slate-800 uppercase text-sm">Desempenho Micro</h3>
-                    <select id="v2_grouping" class="border rounded p-1.5 text-xs font-bold shadow-sm" onchange="renderAnaliseTable()"><option value="ad">Por Anúncio</option><option value="adset">Por Conjunto</option><option value="campaign">Por Campanha</option><option value="demo">Por Demográfico</option></select>
+                <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
+                    <h3 class="font-bold text-xs uppercase">Tabela de Performance</h3>
+                    <select id="v1_grouping" class="text-xs border rounded p-1" onchange="renderMasterTable()"><option value="frente">Por Frente</option><option value="canal">Por Canal</option></select>
                 </div>
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="min-w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-white border-b-2 uppercase text-[10px] font-black text-slate-500">
-                            <tr><th class="px-4 py-3">Estrutura</th><th class="px-4 py-3 text-right">Gasto</th><th class="px-4 py-3 text-right">Impr</th><th class="px-4 py-3 text-right">CTR</th><th class="px-4 py-3 text-right text-blue-600">Leads</th><th class="px-4 py-3 text-right">CVR</th><th class="px-4 py-3 text-right text-orange-600">CPL</th><th class="px-4 py-3 text-center">Score</th></tr>
-                        </thead>
-                        <tbody id="v2_tableBody" class="divide-y divide-slate-100 text-xs"></tbody>
-                    </table>
-                </div>
+                <table class="min-w-full text-right text-xs"><thead class="bg-white border-b uppercase text-slate-400 font-bold text-[9px]"><tr class="text-center"><th class="text-left p-3">Nome</th><th>Gasto</th><th>Impr</th><th>CTR</th><th class="text-blue-600">Leads</th><th>CVR</th><th class="text-orange-600">CPL</th><th class="text-green-600">Vendas</th></tr></thead><tbody id="v1_tableBody" class="divide-y"></tbody></table>
             </div>
         </section>
 
-
-        <section id="tab-pacing" class="hidden p-8 max-w-[1600px] mx-auto animate-fade-in">
-            <div class="flex justify-between items-center mb-6 bg-white p-6 rounded-xl shadow-sm border-b-4 border-emerald-600">
-                <div>
-                    <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Controle de Pacing & Metas</h2>
-                    <p class="text-slate-500 text-sm font-medium">Objetivos Diários Necessários para Alcançar as Metas do Mês</p>
-                </div>
-                <div class="flex gap-4">
-                    <select id="v3_month" class="border border-slate-300 rounded p-2 text-xs font-bold text-emerald-700 outline-none shadow-sm" onchange="renderPacing()"></select>
-                    <select id="v3_grouping" class="border border-slate-300 rounded p-2 text-xs font-bold text-slate-700 outline-none shadow-sm" onchange="renderPacingTable()"><option value="Frente">Agrupar por Frente</option><option value="Plataforma">Agrupar por Canal</option></select>
-                </div>
+        <section id="tab-analise" class="hidden p-8 max-w-[1600px] mx-auto">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-purple-600 mb-6"><h2 class="text-2xl font-black text-slate-800 uppercase">Análise de Criativos</h2></div>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 bg-white p-5 rounded-xl border">
+                <div class="col-span-1"><label class="text-[10px] font-bold uppercase">Data</label><div class="flex gap-1"><input type="date" id="v2_p1Start" class="w-full border rounded p-1 text-xs"><input type="date" id="v2_p1End" class="w-full border rounded p-1 text-xs"></div></div>
+                <div><label class="text-[10px] font-bold uppercase block">Frente</label><select id="v2_frente" class="w-full border rounded p-1 text-xs"><option value="ALL">Todas</option></select></div>
+                <div><label class="text-[10px] font-bold uppercase block">Campanha</label><select id="v2_campanha" class="w-full border rounded p-1 text-xs"><option value="ALL">Todas</option></select></div>
+                <div><label class="text-[10px] font-bold uppercase block">Busca</label><input type="text" id="v2_busca" class="w-full border rounded p-1 text-xs" placeholder="Nome do criativo..."></div>
+                <button onclick="renderAnalise()" class="bg-purple-700 text-white rounded font-bold text-xs h-9 mt-4">FILTRAR</button>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="v3_kpiContainer"></div>
-
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200">
-                <div class="p-5 border-b bg-slate-50 flex justify-between items-center">
-                    <h3 class="font-black text-slate-800 uppercase text-sm">Acompanhamento Operacional (Live)</h3>
-                    <div class="text-xs text-slate-600 font-bold bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
-                        Dias Corridos: <span id="v3_lblCorridos" class="text-emerald-600">0</span> <span class="mx-2 text-slate-300">|</span> Restantes: <span id="v3_lblRestantes" class="text-orange-600">0</span>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="min-w-full text-left text-sm border-collapse whitespace-nowrap">
-                        <thead>
-                            <tr class="bg-slate-100 border-b-2 border-slate-300 text-center">
-                                <th class="px-4 py-3 border-r-2 border-slate-300 text-left text-slate-700 font-black uppercase text-xs">Estrutura</th>
-                                <th colspan="5" class="px-4 py-3 border-r-2 border-slate-300 text-slate-700 uppercase font-black text-xs">💸 Investimento (R$)</th>
-                                <th colspan="5" class="px-4 py-3 border-r-2 border-slate-300 text-blue-700 uppercase font-black text-xs">🎯 Leads</th>
-                                <th colspan="5" class="px-4 py-3 text-green-700 uppercase font-black text-xs">🛒 Vendas</th>
-                            </tr>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase font-bold text-right">
-                                <th class="px-4 py-2 border-r-2 border-slate-300 text-left text-[11px]">Nome</th>
-                                <th class="px-4 py-2">Realizado</th><th class="px-4 py-2 text-orange-600 bg-orange-50/30">Ontem</th><th class="px-4 py-2">Projetado</th><th class="px-4 py-2 text-slate-700 bg-slate-100">Meta Mês</th><th class="px-4 py-2 border-r-2 border-slate-300 text-emerald-600 bg-emerald-50/50">Objetivo Dia</th>
-                                <th class="px-4 py-2">Realizado</th><th class="px-4 py-2 text-orange-600 bg-orange-50/50">Ontem</th><th class="px-4 py-2">Projetado</th><th class="px-4 py-2 text-slate-700 bg-slate-100">Meta Mês</th><th class="px-4 py-2 border-r-2 border-slate-300 text-blue-600 bg-blue-50/50">Objetivo Dia</th>
-                                <th class="px-4 py-2">Realizado</th><th class="px-4 py-2 text-orange-600 bg-orange-50/50">Ontem</th><th class="px-4 py-2">Projetado</th><th class="px-4 py-2 text-slate-700 bg-slate-100">Meta Mês</th><th class="px-4 py-2 text-green-600 bg-green-50/50">Objetivo Dia</th>
-                            </tr>
-                        </thead>
-                        <tbody id="v3_tableBody" class="divide-y divide-slate-100 text-xs"></tbody>
-                    </table>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-white rounded border overflow-hidden"><div class="p-2 bg-slate-50 font-bold text-[10px] uppercase">Top Campanhas</div><table class="w-full text-xs"><tbody id="v2_topCam" class="divide-y"></tbody></table></div>
+                <div class="bg-white rounded border overflow-hidden"><div class="p-2 bg-slate-50 font-bold text-[10px] uppercase">Top Conjuntos</div><table class="w-full text-xs"><tbody id="v2_topAdset" class="divide-y"></tbody></table></div>
+                <div class="bg-white rounded border overflow-hidden"><div class="p-2 bg-slate-50 font-bold text-[10px] uppercase">Top Criativos</div><table class="w-full text-xs"><tbody id="v2_topAds" class="divide-y"></tbody></table></div>
             </div>
+            <div class="bg-white rounded border p-5"><canvas id="v2_chart" height="80"></canvas></div>
         </section>
 
+        <section id="tab-pacing" class="hidden p-8">
+            <div class="bg-white p-6 rounded-xl border-b-4 border-emerald-600 mb-6 flex justify-between items-center">
+                <h2 class="text-2xl font-black uppercase">Pacing Diário</h2>
+                <div class="flex gap-2">
+                    <select id="v3_month" class="border rounded p-2 text-xs font-bold" onchange="renderPacing()"></select>
+                    <select id="v3_grouping" class="border rounded p-2 text-xs font-bold" onchange="renderPacing()"><option value="Frente">Frente</option><option value="Plataforma">Canal</option></select>
+                </div>
+            </div>
+            <div id="v3_kpiContainer" class="grid grid-cols-3 gap-6 mb-8"></div>
+            <div class="bg-white rounded-xl border overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b flex justify-between text-xs font-bold">
+                    <span>Acompanhamento Operacional</span>
+                    <div>Corridos: <span id="v3_lblCorridos" class="text-emerald-600">0</span> | Restantes: <span id="v3_lblRestantes" class="text-orange-600">0</span></div>
+                </div>
+                <div class="overflow-x-auto"><table class="min-w-full text-right text-xs whitespace-nowrap"><thead class="bg-slate-100 border-b-2 font-black uppercase text-[9px]"><tr class="text-center"><th class="text-left p-3 border-r">Estrutura</th><th colspan="4" class="border-r">Investimento (R$)</th><th colspan="4" class="border-r">Leads</th><th colspan="4">Vendas</th></tr><tr class="bg-slate-50 text-[8px] border-b text-slate-500"><th>Nome</th><th>Real</th><th>Proj</th><th>Meta</th><th class="border-r text-emerald-600">Objetivo Dia</th><th>Real</th><th>Proj</th><th>Meta</th><th class="border-r text-blue-600">Objetivo Dia</th><th>Real</th><th>Proj</th><th>Meta</th><th class="text-green-600">Objetivo Dia</th></tr></thead><tbody id="v3_tableBody" class="divide-y"></tbody></table></div>
+            </div>
+        </section>
     </main>
 
     <script>
         Chart.register(ChartDataLabels);
+        window.globalData = [];
+        let v1_ChartObj = null, v2_ChartObj = null;
 
-        // --- NAVEGAÇÃO SPA ---
-        function switchTab(tabId, btnElement) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
-            
-            // Re-render graphs just in case canvas resized while hidden
-            if(tabId === 'tab-master' && window.globalData.length > 0) renderMaster();
-            if(tabId === 'tab-analise' && window.globalData.length > 0) renderAnalise();
-            if(tabId === 'tab-pacing' && window.globalData.length > 0) renderPacing();
-        }
-
-        // --- LINKS GLOBAIS (31 Links: Vendas, Planejados, Performance) ---
         const SHEET_URLS = [
-            // VENDAS (1)
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=574214236&single=true&output=csv",
-            // PLANEJADOS (1)
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=1227414686&single=true&output=csv",
-            // PERFORMANCE (29)
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=0&single=true&output=csv",
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=1154341460&single=true&output=csv",
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEDPDOvOrnJ8mWBvKF9r_Ky9631vYr5CspOof-fubFa0E_FgQ3x9LPvh5zUjaSllEn5HsUDCb57YWT/pub?gid=0&single=true&output=csv",
@@ -276,260 +142,128 @@
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtbEP_0gEpNDaKn1BCzpLy9SofCQjUiCjcX8BmvMrKAboPsDo8H3arwN_OnGjTpP8zI2OBEeaa3y8E/pub?gid=1289448911&single=true&output=csv"
         ];
 
-        window.globalData = []; // Onde TUDO fica armazenado
-        let v1_ChartObj = null; let v2_ChartObj = null;
-        
-        // Utilitários Universais
         const fmt = { m: v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0), n: v => new Intl.NumberFormat('pt-BR').format(Math.round(v || 0)), p: v => (v || 0).toFixed(2) + '%' };
-        function parseNum(val) { if (!val) return 0; if (typeof val === 'number') return val; let s = String(val).trim().replace(/[^\d,.-]/g, ''); if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.'); else if (s.includes(',')) s = s.replace(',', '.'); let n = parseFloat(s); return isNaN(n) ? 0 : n; }
-        function normData(d) { let s = String(d || '').trim(); if(s.toLowerCase() === 'data' || !s) return null; let b = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if (b) return `${b[3]}-${b[2].padStart(2,'0')}-${b[1].padStart(2,'0')}`; let i = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if (i) return `${i[1]}-${i[2].padStart(2,'0')}-${i[3].padStart(2,'0')}`; return null; }
-        function normPlat(n) { let s = String(n || '').toLowerCase(); if (s.includes('tiktok')) return 'TikTok'; if (s.includes('facebook') || s.includes('meta') || s.includes('ig')) return 'Facebook Ads'; if (s.includes('google') || s.includes('youtube')) return 'Google Ads'; return n || 'Desconhecida'; }
-        
-        function padronizarConta(nomeBruto) {
-            if (!nomeBruto) return "Outros";
-            let n = String(nomeBruto).toLowerCase();
-            if (n.includes("ckb espelho")) return "CKB Espelho";
-            if (n.includes("ckb whatsapp")) return "CKB - WhatsApp";
-            if (n.includes("ckb google")) return "Âncora | CKB";
-            if (n.includes("bajaj google")) return "Ancora | Bajaj";
-            return nomeBruto; 
-        }
-
-        function extrairFrente(nomeConta) {
-            if (!nomeConta) return "Outros";
-            let n = String(nomeConta).toLowerCase();
-            if (n.includes("ckb")) return "CKB";
-            if (n.includes("bajaj")) return "Bajaj";
-            if (n.includes("noma")) return "Noma";
-            if (n.includes("dafra")) return "Dafra";
-            if (n.includes("xcmg")) return "XCMG";
-            if (n.includes("shineray")) return "Shineray";
-            if (n.includes("carros")) return "Carros";
-            if (n.includes("imoveis") || n.includes("imóveis")) return "Imóveis";
-            if (n.includes("beijar")) return "Beijar Flor";
-            let partes = n.split(/[\s\-\|]+/);
-            let primeiraPalavra = partes[0];
-            if (primeiraPalavra === 'ancora' || primeiraPalavra === 'âncora') return (partes[1] || 'Ancora').toUpperCase();
-            return primeiraPalavra.toUpperCase();
-        }
-
-        window.onload = () => { carregarTudo(); };
+        function parseNum(val) { if (!val) return 0; if (typeof val === 'number') return val; let s = String(val).trim().replace(/[^\d,.-]/g, ''); if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.'); else if (s.includes(',')) s = s.replace(',', '.'); return parseFloat(s) || 0; }
+        function normData(d) { let s = String(d || '').trim(); if(!s || s.toLowerCase()==='data') return null; let b = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(b) return `${b[3]}-${b[2].padStart(2,'0')}-${b[1].padStart(2,'0')}`; let i = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); return i ? `${i[1]}-${i[2].padStart(2,'0')}-${i[3].padStart(2,'0')}` : null; }
+        function extrairFrente(n) { let s = String(n||'').toLowerCase(); if(s.includes("ckb")) return "CKB"; if(s.includes("bajaj")) return "Bajaj"; if(s.includes("noma")) return "Noma"; if(s.includes("dafra")) return "Dafra"; if(s.includes("xcmg")) return "XCMG"; if(s.includes("shineray")) return "Shineray"; if(s.includes("carros")) return "Carros"; if(s.includes("imoveis")) return "Imóveis"; return s.split(/[\s\-\|]+/)[0].toUpperCase() || "OUTROS"; }
 
         async function carregarTudo() {
             const status = document.getElementById('globalStatus');
-            try {
-                let processadas = 0;
-                for (let url of SHEET_URLS) {
-                    await new Promise(resolve => {
-                        Papa.parse(url, { download: true, header: true, skipEmptyLines: true, complete: (res) => {
-                            let keys = Object.keys(res.data[0] || {});
-                            if (keys.includes('Planejado Meta') || keys.includes('Leads Planejados')) { parsePlanejados(res.data); }
-                            else if (keys.includes('Data') && keys.includes('Meta') && keys.includes('Google') && keys.includes('Tik tok')) { parseVendas(res.data); }
-                            else { parsePerformance(res.data); }
+            let processadas = 0;
+            for (let i=0; i<SHEET_URLS.length; i++) {
+                status.innerHTML = `<div class="loader"></div> Sincronizando (${i+1}/${SHEET_URLS.length})...`;
+                await new Promise(resolve => {
+                    const timeout = setTimeout(() => { console.warn("Timeout no link", i); resolve(); }, 8000);
+                    Papa.parse(SHEET_URLS[i], { download: true, header: true, skipEmptyLines: true, 
+                        complete: res => {
+                            clearTimeout(timeout);
+                            let k = Object.keys(res.data[0] || {});
+                            if(k.includes('Planejado Meta')) parsePlanejados(res.data);
+                            else if(k.includes('Meta') && k.includes('Google')) parseVendas(res.data);
+                            else parsePerformance(res.data);
                             resolve();
-                        }, error: resolve });
+                        }, 
+                        error: () => { clearTimeout(timeout); resolve(); }
                     });
-                    processadas++;
-                    status.innerHTML = `<div class="loader"></div> (${processadas}/${SHEET_URLS.length}) Planilhas...`;
-                }
-                status.innerHTML = "✅ Tudo Pronto";
-                status.classList.replace('text-orange-400', 'text-green-500');
-                if (window.globalData.length > 0) initAllDashboards();
-            } catch(e) { status.innerHTML = "❌ Erro ao Carregar"; }
+                });
+            }
+            status.innerHTML = "✅ Dados Sincronizados"; status.classList.replace('text-orange-400','text-green-500');
+            initDash();
         }
 
-        // --- Extratores Universais ---
         function parsePlanejados(data) {
-            let mStr = '04', yStr = '2026'; // Defaulting para teste de planejamento como no Master original
-            let daysInMonth = new Date(parseInt(yStr), parseInt(mStr), 0).getDate();
             data.forEach(d => {
-                let contaBruta = d.Conta; if (!contaBruta) return;
-                let contaPadrao = padronizarConta(contaBruta);
                 let g = parseNum(d['Planejado Meta']) + parseNum(d['Planejado Google']) + parseNum(d['Planejado Tik Tok']);
-                let cplPlan = parseNum(d['CPL Planejado']);
-                let l = cplPlan > 0 ? (g / cplPlan) : parseNum(d['Leads Planejados']);
-                
-                for(let day=1; day<=daysInMonth; day++) {
-                    window.globalData.push({ Data: `${yStr}-${mStr}-${day<10?'0'+day:day}`, Frente: extrairFrente(contaPadrao), Conta: contaPadrao, Plataforma: 'Todas', Campanha: '', Conjunto: '', Anuncio: '', Demografico: 'N/A', Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: 0, GastoPlan: g/daysInMonth, LeadsPlan: l/daysInMonth, VendasPlan: 0 });
+                let cpl = parseNum(d['CPL Planejado']), l = cpl>0 ? g/cpl : parseNum(d['Leads Planejados']);
+                for(let day=1; day<=30; day++) {
+                    window.globalData.push({ Data: `2026-04-${day<10?'0'+day:day}`, Frente: extrairFrente(d.Conta), Gasto: 0, Leads: 0, Vendas: 0, GastoPlan: g/30, LeadsPlan: l/30, VendasPlan: 0, Plataforma: 'Todas' });
                 }
             });
         }
         function parseVendas(data) {
             data.forEach(d => {
-                let rDate = normData(d.Data); if(!rDate) return;
-                let conta = padronizarConta(d.Conta || d.Frente || 'Desconhecida');
-                let frente = extrairFrente(conta);
-                let vM = parseNum(d.Meta), vG = parseNum(d.Google), vT = parseNum(d['Tik tok']);
-                if (vM>0) window.globalData.push({ Data: rDate, Frente: frente, Conta: conta, Plataforma: 'Facebook Ads', Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: vM, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
-                if (vG>0) window.globalData.push({ Data: rDate, Frente: frente, Conta: conta, Plataforma: 'Google Ads', Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: vG, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
-                if (vT>0) window.globalData.push({ Data: rDate, Frente: frente, Conta: conta, Plataforma: 'TikTok', Gasto: 0, Leads: 0, Impressoes: 0, Cliques: 0, Vendas: vT, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
+                let dt = normData(d.Data); if(!dt) return;
+                let f = extrairFrente(d.Conta || d.Frente);
+                window.globalData.push({ Data: dt, Frente: f, Gasto: 0, Leads: 0, Vendas: parseNum(d.Meta)+parseNum(d.Google)+parseNum(d['Tik tok']), GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0, Plataforma: 'Todas' });
             });
         }
         function parsePerformance(data) {
             data.forEach(d => {
-                let rDate = normData(d.Date || d.Data || d['Date (Segment)'] || d.Day || d['Reporting Starts'] || d['Stat time']); if(!rDate) return;
-                let cRaw = d['Account Name'] || d.Account || d.Conta || d['Advertiser Name'] || 'Desconhecida';
-                let age = d['Age (Breakdown)'] || d.Age || '', gender = d['Gender (Breakdown)'] || d.Gender || '';
-                if(gender.toLowerCase().includes('male') && !gender.toLowerCase().includes('fe')) gender='H'; else if(gender.toLowerCase().includes('fe')) gender='M';
-                let leadsVal = parseNum(d['Action Leads'] || d.Leads || d.Lead || d.Results || 0);
-                let msgConv = parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0);
-                let leads = leadsVal > 0 ? leadsVal : (parseNum(d.Conversions || 0) + msgConv);
-                
-                window.globalData.push({
-                    Data: rDate, Frente: extrairFrente(cRaw), Conta: padronizarConta(cRaw), Plataforma: normPlat(d.Plataforma || d.Platform || d['Platform Name']),
-                    Campanha: d['Campaign Name'] || d.Campaign || 'Sem Campanha', Conjunto: d['Adset Name'] || d['Ad group name'] || 'Sem Conjunto',
-                    Anuncio: cleanAdName(d['Ad Name'] || d.Ad), Link: d['Instagram Permalink URL'] || '', ImageURL: d['Image URL'] || d['Thumbnail URL'] || '',
-                    Demografico: (age||gender)?`${age} | ${gender}`:'N/A', Gasto: parseNum(d['Spend (Cost, Amount Spent)'] || d.Gasto || d.Cost || d.Spend), Leads: leads,
-                    Impressoes: parseNum(d.Impressions || d.Impressoes), Cliques: parseNum(d['Action Link Clicks'] || d.Clicks || d.Cliques),
-                    Vendas: parseNum(d.Vendas || 0), GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0
-                });
+                let dt = normData(d.Date || d.Data || d.Day || d['Reporting Starts']); if(!dt) return;
+                let c = d['Account Name'] || d.Account || d.Conta || 'Desconhecida';
+                let l = parseNum(d['Action Leads'] || d.Leads || d.Results || 0) + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0);
+                window.globalData.push({ Data: dt, Frente: extrairFrente(c), Plataforma: (d.Plataforma || d.Platform || 'Social').includes('Google')?'Google Ads':'Facebook Ads', Gasto: parseNum(d.Gasto || d.Spend || d.Cost), Leads: l, Vendas: 0, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0, Campanha: d.Campaign || d['Campaign Name'], Anuncio: d.Ad || d['Ad Name'] });
             });
         }
 
-        // ==========================================
-        // INIT GLOBAL (Seta filtros nas 3 telas)
-        // ==========================================
-        function initAllDashboards() {
+        function initDash() {
             let dates = [...new Set(window.globalData.map(d=>d.Data))].filter(Boolean).sort();
-            let plats = [...new Set(window.globalData.map(d=>d.Plataforma))].filter(Boolean).sort();
-            let frentes = [...new Set(window.globalData.map(d=>d.Frente))].filter(Boolean).sort();
-            let contas = [...new Set(window.globalData.map(d=>d.Conta))].filter(Boolean).sort();
-            let camps = [...new Set(window.globalData.map(d=>d.Campanha))].filter(Boolean).sort();
-
-            // Set Dates
             if(dates.length) {
-                let end = dates[dates.length-1], start = dates[Math.max(0, dates.length-15)];
-                let p2e = dates[Math.max(0, dates.length-16)], p2s = dates[Math.max(0, dates.length-31)];
-                document.getElementById('v1_p1Start').value = document.getElementById('v2_p1Start').value = start;
-                document.getElementById('v1_p1End').value = document.getElementById('v2_p1End').value = end;
-                document.getElementById('v1_p2Start').value = p2s; document.getElementById('v1_p2End').value = p2e;
-                
-                // Pacing Month
+                document.getElementById('v1_p1Start').value = document.getElementById('v2_p1Start').value = dates[Math.max(0, dates.length-15)];
+                document.getElementById('v1_p1End').value = document.getElementById('v2_p1End').value = dates[dates.length-1];
                 let mos = [...new Set(dates.map(d=>d.substring(0,7)))].sort().reverse();
                 document.getElementById('v3_month').innerHTML = mos.map(m=>`<option value="${m}">${m}</option>`).join('');
             }
-            
-            // Set Selects
-            document.getElementById('v1_platform').innerHTML = '<option value="ALL">Todas</option>' + plats.map(p=>`<option value="${p}">${p}</option>`).join('');
-            document.getElementById('v2_frente').innerHTML = '<option value="ALL">Todas</option>' + frentes.map(p=>`<option value="${p}">${p}</option>`).join('');
-            document.getElementById('v2_campanha').innerHTML = '<option value="ALL">Todas</option>' + camps.map(p=>`<option value="${p}">${p}</option>`).join('');
-
-            // Pacing Init Data
-            renderMaster();
-            renderAnalise();
-            renderPacing();
+            renderMaster(); renderAnalise(); renderPacing();
         }
 
-        // ==========================================
-        // V1: MASTER LOGIC
-        // ==========================================
-        let v1_dataA=[], v1_dataB=[];
+        function switchTab(id, btn) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // LOGICA MASTER (V1)
         function renderMaster() {
-            let p1s=document.getElementById('v1_p1Start').value, p1e=document.getElementById('v1_p1End').value;
-            let p2s=document.getElementById('v1_p2Start').value, p2e=document.getElementById('v1_p2End').value;
-            let plat=document.getElementById('v1_platform').value;
-            let fil = (d,s,e) => d.Data>=s && d.Data<=e && (plat==='ALL' || d.Plataforma===plat || d.Plataforma==='Todas');
-            v1_dataA = window.globalData.filter(d=>fil(d,p1s,p1e)); v1_dataB = window.globalData.filter(d=>fil(d,p2s,p2e));
-            
-            let agg = (data) => data.reduce((a,c)=>{ a.g+=c.Gasto; a.l+=c.Leads; a.gp+=c.GastoPlan; a.lp+=c.LeadsPlan; a.v+=c.Vendas; a.vp+=c.VendasPlan; return a;}, {g:0,l:0,gp:0,lp:0,v:0,vp:0});
-            let aA = agg(v1_dataA), aB = agg(v1_dataB);
-            
-            const card = (l, va, vb, plan, mon, inv) => {
-                let pct = vb>0 ? ((va-vb)/vb)*100 : 0; let c = (inv ? pct<=0 : pct>=0) ? 'delta-up text-green-500' : 'delta-down text-red-500';
-                return `<div class="bg-white p-4 border rounded shadow-sm">
-                    <div class="text-[10px] font-bold text-slate-500 uppercase flex justify-between">${l} <span class="${c}">${pct>=0?'▲':'▼'} ${Math.abs(pct).toFixed(1)}%</span></div>
-                    <div class="text-2xl font-black my-1">${mon?fmt.m(va):fmt.n(va)}</div>
-                    <div class="text-[10px] text-slate-400 font-bold">Meta: ${mon?fmt.m(plan):fmt.n(plan)}</div>
-                </div>`;
-            };
-            document.getElementById('v1_kpiContainer').innerHTML = card("Investimento", aA.g, aB.g, aA.gp, true) + card("Leads", aA.l, aB.l, aA.lp, false) + card("CPL Médio", aA.l>0?aA.g/aA.l:0, aB.l>0?aB.g/aB.l:0, aA.lp>0?aA.gp/aA.lp:0, true, true) + card("Vendas", aA.v, aB.v, aA.vp, false) + card("CPA Médio", aA.v>0?aA.g/aA.v:0, aB.v>0?aB.g/aB.v:0, aA.vp>0?aA.gp/aA.vp:0, true, true);
-            
-            renderMasterChart(); renderMasterTable();
+            let s=document.getElementById('v1_p1Start').value, e=document.getElementById('v1_p1End').value;
+            let data = window.globalData.filter(d=>d.Data>=s && d.Data<=e);
+            let a = data.reduce((acc,c)=>{acc.g+=c.Gasto; acc.l+=c.Leads; acc.v+=c.Vendas; acc.gp+=c.GastoPlan; acc.lp+=c.LeadsPlan; return acc;}, {g:0,l:0,v:0,gp:0,lp:0});
+            const c = (t, v, p, mon) => `<div class="bg-white p-4 border rounded shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">${t}</p><p class="text-xl font-black">${mon?fmt.m(v):fmt.n(v)}</p><p class="text-[9px] text-slate-400 font-bold">Meta: ${mon?fmt.m(p):fmt.n(p)}</p></div>`;
+            document.getElementById('v1_kpiContainer').innerHTML = c("Gasto", a.g, a.gp, true)+c("Leads", a.l, a.lp, false)+c("CPL", a.l>0?a.g/a.l:0, a.lp>0?a.gp/a.lp:0, true)+c("Vendas", a.v, 0, false)+c("CPA", a.v>0?a.g/a.v:0, 0, true);
+            renderMasterTable();
         }
         function renderMasterTable() {
-            let dim = document.getElementById('v1_grouping').value === 'frente' ? 'Frente' : 'Plataforma';
-            let g = v1_dataA.filter(d=>d.Plataforma!=='Todas').reduce((a,c)=>{ if(!a[c[dim]]) a[c[dim]]={n:c[dim], g:0,i:0,cl:0,l:0,v:0}; a[c[dim]].g+=c.Gasto; a[c[dim]].i+=c.Impressoes; a[c[dim]].cl+=c.Cliques; a[c[dim]].l+=c.Leads; a[c[dim]].v+=c.Vendas; return a;}, {});
-            document.getElementById('v1_tableBody').innerHTML = Object.values(g).sort((a,b)=>b.g-a.g).map(i=>`<tr class="hover:bg-slate-50"><td class="px-4 py-2 font-bold">${i.n}</td><td class="px-4 py-2 text-right">${fmt.m(i.g)}</td><td class="px-4 py-2 text-right">${fmt.n(i.i)}</td><td class="px-4 py-2 text-right">${fmt.p(i.i>0?(i.cl/i.i)*100:0)}</td><td class="px-4 py-2 text-right text-blue-700 font-bold">${fmt.n(i.l)}</td><td class="px-4 py-2 text-right">${fmt.p(i.cl>0?(i.l/i.cl)*100:0)}</td><td class="px-4 py-2 text-right text-orange-600 font-bold">${fmt.m(i.l>0?i.g/i.l:0)}</td><td class="px-4 py-2 text-right text-green-700 font-bold">${fmt.n(i.v)}</td><td class="px-4 py-2 text-right">${fmt.m(i.v>0?i.g/i.v:0)}</td></tr>`).join('');
-        }
-        function renderMasterChart() {
-            let m = document.getElementById('v1_metric').value, dim = document.getElementById('v1_dimension').value === 'frente' ? 'Frente' : 'Plataforma';
-            let dates = [...new Set([...v1_dataA, ...v1_dataB].map(d=>d.Data))].sort();
-            let dims = [...new Set([...v1_dataA, ...v1_dataB].filter(d=>d.Plataforma!=='Todas').map(d=>d[dim]))].filter(Boolean);
-            let ds = dims.map((dn, i) => {
-                let color = ['#3b82f6','#10b981','#f97316','#8b5cf6','#ef4444'][i%5];
-                return { label: dn, borderColor: color, tension:0.3, data: dates.map(dt => {
-                    let rows = [...v1_dataA, ...v1_dataB].filter(r=>r.Data===dt && r[dim]===dn);
-                    let tg=0, tl=0, tv=0; rows.forEach(r=>{tg+=r.Gasto; tl+=r.Leads; tv+=r.Vendas;});
-                    if(m==='cpl') return tl>0?tg/tl:0; if(m==='cpa') return tv>0?tg/tv:0; if(m==='gasto') return tg; return tl;
-                })};
-            });
-            if(v1_ChartObj) v1_ChartObj.destroy();
-            v1_ChartObj = new Chart(document.getElementById('v1_chart'), { type: 'line', data: {labels:dates, datasets:ds}, options: { plugins:{datalabels:{display:false}} }});
+            let grp = document.getElementById('v1_grouping').value === 'frente' ? 'Frente' : 'Plataforma';
+            let s=document.getElementById('v1_p1Start').value, e=document.getElementById('v1_p1End').value;
+            let obj = window.globalData.filter(d=>d.Data>=s && d.Data<=e && d.Plataforma!=='Todas').reduce((acc,c)=>{ let k=c[grp]; if(!acc[k]) acc[k]={n:k,g:0,l:0,v:0,i:0}; acc[k].g+=c.Gasto; acc[k].l+=c.Leads; acc[k].v+=c.Vendas; acc[k].i+=c.Impressoes; return acc;},{});
+            document.getElementById('v1_tableBody').innerHTML = Object.values(obj).sort((a,b)=>b.g-a.g).map(i=>`<tr><td class="text-left p-3 font-bold">${i.n}</td><td>${fmt.m(i.g)}</td><td>${fmt.n(i.i)}</td><td>-</td><td class="text-blue-600 font-bold">${fmt.n(i.l)}</td><td>-</td><td class="text-orange-600 font-bold">${fmt.m(i.l>0?i.g/i.l:0)}</td><td class="text-green-600 font-bold">${fmt.n(i.v)}</td></tr>`).join('');
         }
 
-        // ==========================================
-        // V2: ANÁLISE MICRO LOGIC
-        // ==========================================
-        let v2_dataA=[];
+        // LOGICA ANALISE (V2)
         function renderAnalise() {
-            let p1s=document.getElementById('v2_p1Start').value, p1e=document.getElementById('v2_p1End').value;
-            let fre=document.getElementById('v2_frente').value, cam=document.getElementById('v2_campanha').value, txt=document.getElementById('v2_busca').value.toLowerCase();
-            v2_dataA = window.globalData.filter(d=> d.Data>=p1s && d.Data<=p1e && d.Plataforma!=='Todas' && (fre==='ALL'||d.Frente===fre) && (cam==='ALL'||d.Campanha===cam) && (!txt||d.Anuncio.toLowerCase().includes(txt)));
-            
-            let sc = arr => { let m=Math.max(...arr.map(i=>i.leads),1), c=Math.min(...arr.filter(i=>i.cpl>0).map(i=>i.cpl),100); arr.forEach(i=>{ i.score=i.leads>0?Math.round(((i.leads/m)*40+(c/Math.max(i.cpl,0.1))*40+(i.cvr/100)*20)):0;}); return arr.sort((a,b)=>b.score-a.score);};
-            let a = (f) => Object.values(v2_dataA.reduce((ac,d)=>{let k=d[f]; if(!ac[k]) ac[k]={n:k,g:0,l:0,i:0,cl:0, th:d.ImageURL}; ac[k].g+=d.Gasto; ac[k].l+=d.Leads; ac[k].i+=d.Impressoes; ac[k].cl+=d.Cliques; return ac;},{})).map(i=>{i.cpl=i.l>0?i.g/i.l:0; i.cvr=i.cl>0?(i.l/i.cl)*100:0; i.leads=i.l; return i;});
-            
-            let rnk = (id, data) => document.getElementById(id).innerHTML = sc(data).slice(0,3).map(i=>`<tr><td class="p-2 truncate max-w-[100px] font-bold">${i.n}</td><td class="p-2 text-right text-blue-600 font-bold">${i.l}</td><td class="p-2 text-right text-orange-600">${fmt.m(i.cpl)}</td></tr>`).join('');
-            rnk('v2_topCam', a('Campanha')); rnk('v2_topAdset', a('Conjunto')); rnk('v2_topDemo', a('Demografico').filter(i=>i.n!=='N/A'));
-            
-            let ads = sc(a('Anuncio')).slice(0,10);
-            document.getElementById('v2_topAds').innerHTML = ads.map(i=>`<tr><td class="p-2 text-[10px] font-bold truncate max-w-[150px]"><img src="${i.th}" class="w-6 h-6 inline mr-1 rounded bg-slate-200 object-cover">${i.n}</td><td class="p-2 text-right">${fmt.m(i.g)}</td><td class="p-2 text-right text-blue-600 font-bold">${i.l}</td><td class="p-2 text-right text-orange-600">${fmt.m(i.cpl)}</td><td class="p-2 text-center font-black">${i.score}</td></tr>`).join('');
-            
-            if(v2_ChartObj) v2_ChartObj.destroy();
-            v2_ChartObj = new Chart(document.getElementById('v2_chart'), { type: 'bar', data: { labels: ads.slice(0,5).map(i=>i.n.substring(0,10)), datasets: [{ label: 'Leads', data: ads.map(i=>i.l), backgroundColor: '#8b5cf6', yAxisID: 'y' }, { label: 'CPL', data: ads.map(i=>i.cpl), type: 'line', borderColor: '#f97316', yAxisID: 'y1' }] }, options: { scales: { y1: { position: 'right' } } } });
-            renderAnaliseTable();
-        }
-        function renderAnaliseTable() {
-            let g = document.getElementById('v2_grouping').value;
-            let f = g==='ad'?'Anuncio':g==='adset'?'Conjunto':g==='campaign'?'Campanha':'Demografico';
-            let a = Object.values(v2_dataA.reduce((ac,d)=>{let k=d[f]; if(!ac[k]) ac[k]={n:k,g:0,l:0,i:0,cl:0}; ac[k].g+=d.Gasto; ac[k].l+=d.Leads; ac[k].i+=d.Impressoes; ac[k].cl+=d.Cliques; return ac;},{})).map(i=>{i.cpl=i.l>0?i.g/i.l:0; i.cvr=i.cl>0?(i.l/i.cl)*100:0; i.leads=i.l; return i;});
-            let m=Math.max(...a.map(i=>i.leads),1), c=Math.min(...a.filter(i=>i.cpl>0).map(i=>i.cpl),100); a.forEach(i=>{ i.score=i.leads>0?Math.round(((i.leads/m)*40+(c/Math.max(i.cpl,0.1))*40+(i.cvr/100)*20)):0;});
-            document.getElementById('v2_tableBody').innerHTML = a.sort((x,y)=>y.score-x.score).map(i=>`<tr class="hover:bg-slate-50"><td class="px-4 py-2 font-bold">${i.n}</td><td class="px-4 py-2 text-right">${fmt.m(i.g)}</td><td class="px-4 py-2 text-right">${fmt.n(i.i)}</td><td class="px-4 py-2 text-right">${fmt.p(i.i>0?(i.cl/i.i)*100:0)}</td><td class="px-4 py-2 text-right font-black text-blue-600">${fmt.n(i.l)}</td><td class="px-4 py-2 text-right">${fmt.p(i.cvr)}</td><td class="px-4 py-2 text-right text-orange-600">${fmt.m(i.cpl)}</td><td class="px-4 py-2 text-center font-black">${i.score}</td></tr>`).join('');
+            let s=document.getElementById('v2_p1Start').value, e=document.getElementById('v2_p1End').value;
+            let data = window.globalData.filter(d=>d.Data>=s && d.Data<=e && d.Anuncio);
+            let g = data.reduce((acc,c)=>{ let k=c.Anuncio; if(!acc[k]) acc[k]={n:k,g:0,l:0}; acc[k].g+=c.Gasto; acc[k].l+=c.Leads; return acc;},{});
+            let sorted = Object.values(g).sort((a,b)=>b.l-a.l).slice(0,10);
+            document.getElementById('v2_topAds').innerHTML = sorted.map(i=>`<tr><td class="p-2 truncate max-w-[150px] font-bold">${i.n}</td><td class="text-right p-2 font-bold">${fmt.n(i.l)}</td><td class="text-right p-2">${fmt.m(i.l>0?i.g/i.l:0)}</td></tr>`).join('');
         }
 
-        // ==========================================
-        // V3: PACING LOGIC
-        // ==========================================
+        // LOGICA PACING (V3)
         function renderPacing() {
             let mo = document.getElementById('v3_month').value;
-            let dAtual = 15; // Set to actual `new Date().getDate()` in prod
+            let dAtual = new Date().getDate(); // Pega o dia real de hoje
             let dTot = new Date(parseInt(mo.split('-')[0]), parseInt(mo.split('-')[1]), 0).getDate();
-            let dRest = Math.max(dTot - dAtual, 1);
-            document.getElementById('v3_lblCorridos').innerText = dAtual; document.getElementById('v3_lblRestantes').innerText = dRest;
-            renderPacingTable(mo, dAtual, dTot, dRest);
-        }
-        function renderPacingTable(mo, dA, dT, dR) {
-            let grp = document.getElementById('v3_grouping').value; // Frente, Plataforma, Conta
-            let b = window.globalData.reduce((ac, d) => {
-                if(!d.Data.startsWith(mo)) return ac;
-                let k = d[grp]; if(!ac[k]) ac[k]={n:k,g:0,go:0,gp:0, l:0,lo:0,lp:0, v:0,vo:0,vp:0};
-                if(d.Plataforma !== 'Todas') { ac[k].g+=d.Gasto; ac[k].l+=d.Leads; ac[k].v+=d.Vendas; }
-                if(d.Plataforma === 'Todas') { ac[k].gp+=d.GastoPlan; ac[k].lp+=d.LeadsPlan; ac[k].vp+=d.VendasPlan; }
-                // Simulating Yesterday logic. In prod check if d.Data === ontem
-                return ac;
+            let dRest = Math.max(dTot - dAtual + 1, 1);
+            document.getElementById('v3_lblCorridos').innerText = dAtual;
+            document.getElementById('v3_lblRestantes').innerText = dRest;
+
+            let grp = document.getElementById('v3_grouping').value;
+            let b = window.globalData.reduce((acc, d) => {
+                if(!d.Data.startsWith(mo)) return acc;
+                let k = d[grp] || 'Outros'; if(!acc[k]) acc[k]={n:k,g:0,gp:0,l:0,lp:0,v:0,vp:0};
+                acc[k].g+=d.Gasto; acc[k].l+=d.Leads; acc[k].v+=d.Vendas;
+                acc[k].gp+=d.GastoPlan; acc[k].lp+=d.LeadsPlan; acc[k].vp+=d.VendasPlan;
+                return acc;
             },{});
-            
-            let arr = Object.values(b);
-            document.getElementById('v3_tableBody').innerHTML = arr.map(d=>{
-                let pG=(d.g/dA)*dT, pL=(d.l/dA)*dT, pV=(d.v/dA)*dT;
-                return `<tr class="hover:bg-slate-50 border-b"><td class="px-4 py-3 font-bold border-r">${d.n}</td><td class="px-4 py-3 text-right">${fmt.m(d.g)}</td><td class="px-4 py-3 text-right text-orange-500">-</td><td class="px-4 py-3 text-right ${pG>d.gp?'text-red-500':'text-emerald-500'}">${fmt.m(pG)}</td><td class="px-4 py-3 text-right font-bold bg-slate-50">${fmt.m(d.gp)}</td><td class="px-4 py-3 text-right font-black border-r text-emerald-600 bg-emerald-50">${fmt.m(Math.max((d.gp-d.g)/dR,0))}</td><td class="px-4 py-3 text-right text-blue-600">${fmt.n(d.l)}</td><td class="px-4 py-3 text-right text-orange-500">-</td><td class="px-4 py-3 text-right ${pL<d.lp?'text-red-500':'text-blue-500'}">${fmt.n(pL)}</td><td class="px-4 py-3 text-right font-bold bg-slate-50">${fmt.n(d.lp)}</td><td class="px-4 py-3 text-right font-black border-r text-blue-600 bg-blue-50">${fmt.n(Math.max((d.lp-d.l)/dR,0))}</td><td class="px-4 py-3 text-right text-green-600">${fmt.n(d.v)}</td><td class="px-4 py-3 text-right text-orange-500">-</td><td class="px-4 py-3 text-right">${fmt.n(pV)}</td><td class="px-4 py-3 text-right font-bold bg-slate-50">${fmt.n(d.vp)}</td><td class="px-4 py-3 text-right font-black text-green-600 bg-green-50">${fmt.n(Math.max((d.vp-d.v)/dR,0))}</td></tr>`;
+
+            document.getElementById('v3_tableBody').innerHTML = Object.values(b).map(d=>{
+                let pG=(d.g/dAtual)*dTot, pL=(d.l/dAtual)*dTot;
+                return `<tr class="hover:bg-slate-50 border-b"><td class="p-3 font-bold text-left border-r">${d.n}</td><td>${fmt.m(d.g)}</td><td class="${pG>d.gp?'text-red-500':'text-emerald-600'}">${fmt.m(pG)}</td><td class="bg-slate-50 font-bold">${fmt.m(d.gp)}</td><td class="border-r font-black text-emerald-600">${fmt.m(Math.max((d.gp-d.g)/dRest,0))}</td><td>${fmt.n(d.l)}</td><td>${fmt.n(pL)}</td><td class="bg-slate-50 font-bold">${fmt.n(d.lp)}</td><td class="border-r font-black text-blue-600">${fmt.n(Math.max((d.lp-d.l)/dRest,0))}</td><td>${fmt.n(d.v)}</td><td>-</td><td class="bg-slate-50 font-bold">-</td><td class="font-black text-green-600">-</td></tr>`;
             }).join('');
-            
-            let tot = arr.reduce((a,c)=>{a.g+=c.g; a.gp+=c.gp; a.l+=c.l; a.lp+=c.lp; a.v+=c.v; a.vp+=c.vp; return a;},{g:0,gp:0,l:0,lp:0,v:0,vp:0});
-            let c = (t,a,m,mon) => `<div class="bg-white p-4 border rounded shadow-sm"><div class="text-[10px] font-bold text-slate-400 uppercase flex justify-between">${t}<span>Meta: ${mon?fmt.m(m):fmt.n(m)}</span></div><div class="text-2xl font-black">${mon?fmt.m(a):fmt.n(a)}</div><div class="w-full bg-slate-100 h-2 mt-2"><div class="${a>m?'bg-red-500':'bg-emerald-500'} h-2" style="width:${Math.min((a/m)*100||0,100)}%"></div></div></div>`;
-            document.getElementById('v3_kpiContainer').innerHTML = c("Investimento",tot.g,tot.gp,true)+c("Leads",tot.l,tot.lp,false)+c("Vendas",tot.v,tot.vp,false);
         }
 
+        window.onload = carregarTudo;
     </script>
 </body>
 </html>
