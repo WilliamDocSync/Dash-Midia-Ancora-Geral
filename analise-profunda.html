@@ -175,19 +175,25 @@
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
-                <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                <div class="p-5 border-b flex flex-wrap justify-between items-center bg-slate-50 gap-4">
                     <h3 class="font-black text-slate-800 uppercase text-sm">Desempenho Geral e Comparativo (A vs B)</h3>
-                    <select id="groupingSelector" class="border border-slate-300 rounded-lg p-2 text-xs font-bold text-slate-600 outline-none focus:ring-1 focus:ring-purple-500 shadow-sm bg-white">
-                        <option value="ad">Agrupar por Anúncio (Criativo)</option>
-                        <option value="frente">Agrupar por Frente (Marca)</option>
-                        <option value="conta">Agrupar por Conta</option>
-                        <option value="campaign">Agrupar por Campanha</option>
-                        <option value="adset">Agrupar por Conjunto</option>
-                        <option value="demo">Agrupar por Demográfico</option>
-                    </select>
+                    <div class="flex gap-3 items-center">
+                        <button id="btnDownloadCSV" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition shadow-sm text-xs flex items-center gap-2">
+                            <span>⬇️</span> Baixar Tabela
+                        </button>
+                        
+                        <select id="groupingSelector" class="border border-slate-300 rounded-lg p-2 text-xs font-bold text-slate-600 outline-none focus:ring-1 focus:ring-purple-500 shadow-sm bg-white">
+                            <option value="ad">Agrupar por Anúncio (Criativo)</option>
+                            <option value="frente">Agrupar por Frente (Marca)</option>
+                            <option value="conta">Agrupar por Conta</option>
+                            <option value="campaign">Agrupar por Campanha</option>
+                            <option value="adset">Agrupar por Conjunto</option>
+                            <option value="demo">Agrupar por Demográfico</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
-                    <table class="min-w-full text-left text-sm">
+                    <table class="min-w-full text-left text-sm" id="exportTable">
                         <thead class="bg-white border-b-2 border-slate-200 uppercase text-[10px] font-black text-slate-500">
                             <tr>
                                 <th class="px-6 py-4 text-left">Nome da Estrutura</th>
@@ -211,7 +217,7 @@
     <script>
         Chart.register(ChartDataLabels);
 
-        // --- LISTA DE LINKS DO GOOGLE SHEETS (AGORA COM 29 LINKS) ---
+        // --- LISTA DE LINKS DO GOOGLE SHEETS (29 LINKS) ---
         const SHEET_URLS = [
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=0&single=true&output=csv",
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=1154341460&single=true&output=csv",
@@ -757,6 +763,42 @@
                 }
             });
         }
+
+        // ─── EXPORTAR TABELA PARA CSV ─────────────────────────────────────
+        document.getElementById('btnDownloadCSV').addEventListener('click', function() {
+            if (dataA.length === 0) { alert("Atualize o painel primeiro!"); return; }
+            
+            let csv = [];
+            let rows = document.querySelectorAll("#mainTableBody tr");
+            
+            if(rows.length === 0) { alert("Tabela vazia."); return; }
+            
+            // Cabeçalho (Ponto e Vírgula para Excel em PT-BR)
+            csv.push("Nome da Estrutura;Gasto (A);Impressoes;CTR;Leads (A);CVR;CPL (A);Score");
+            
+            rows.forEach(row => {
+                let cols = row.querySelectorAll("td");
+                let rowData = [];
+                cols.forEach(col => {
+                    // Limpa quebras de linha e remove o ícone de link para não sujar o CSV
+                    let text = col.innerText.replace(/[\r\n]+/g, " | ").replace(/🔗/g, "").trim();
+                    rowData.push(`"${text}"`);
+                });
+                csv.push(rowData.join(";"));
+            });
+            
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF" + csv.join("\n");
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            
+            let agrupamento = document.getElementById('groupingSelector').options[document.getElementById('groupingSelector').selectedIndex].text;
+            link.setAttribute("download", `Exportacao_Midia_${agrupamento.replace(/\s+/g, '_')}.csv`);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
 
         // ─── IA: GEMINI API E EXPORTAÇÃO ──────────────────────────────────
         document.getElementById('btnCopyData').addEventListener('click', () => {
