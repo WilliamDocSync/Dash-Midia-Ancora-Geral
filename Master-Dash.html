@@ -64,7 +64,8 @@
             </div>
 
             <div class="bg-white rounded-xl border overflow-hidden">
-                <div class="p-4 bg-slate-50 border-b flex justify-between items-center"><h3 class="font-bold text-xs uppercase">Detalhamento Financeiro</h3><select id="v1_grouping" class="text-xs border rounded p-1" onchange="renderMasterTable()"><option value="Frente">Por Frente</option><option value="Plataforma">Por Canal</option></select></div>
+                <!-- FIX: onchange agora chama renderMaster() para ter os dados disponíveis -->
+                <div class="p-4 bg-slate-50 border-b flex justify-between items-center"><h3 class="font-bold text-xs uppercase">Detalhamento Financeiro</h3><select id="v1_grouping" class="text-xs border rounded p-1" onchange="renderMaster()"><option value="Frente">Por Frente</option><option value="Plataforma">Por Canal</option></select></div>
                 <div class="overflow-x-auto"><table class="min-w-full text-right text-xs whitespace-nowrap"><thead class="bg-white border-b uppercase text-slate-400 font-bold text-[9px]"><tr class="text-center"><th class="text-left p-3">Estrutura</th><th>Gasto</th><th>Impr</th><th>CTR</th><th class="text-blue-600">Leads</th><th>CVR</th><th class="text-orange-600">CPL</th><th class="text-green-600">Vendas</th></tr></thead><tbody id="v1_tableBody" class="divide-y"></tbody></table></div>
             </div>
         </section>
@@ -112,35 +113,98 @@
             if (!val) return 0;
             if (typeof val === 'number') return val;
             let s = String(val).trim().replace(/[R$\s]/g, '');
+            if (!s) return 0;
             if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
             else if (s.includes(',')) s = s.replace(',', '.');
             else if (s.includes('.') && s.length - s.indexOf('.') > 3) s = s.replace(/\./g, '');
             return parseFloat(s) || 0;
         }
 
-        function normData(d) { let s = String(d || '').trim(); if(!s || s.toLowerCase()==='data') return null; let b = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(b) return `${b[3]}-${b[2].padStart(2,'0')}-${b[1].padStart(2,'0')}`; let i = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); return i ? `${i[1]}-${i[2].padStart(2,'0')}-${i[3].padStart(2,'0')}` : null; }
-        
-        function padronizarConta(nomeBruto) {
-            if (!nomeBruto) return "Outros";
-            let n = String(nomeBruto).toLowerCase();
-            if (n.includes("ckb espelho")) return "CKB Espelho";
-            if (n.includes("ckb whatsapp")) return "CKB - WhatsApp";
-            if (n.includes("ckb google")) return "Âncora | CKB";
-            if (n.includes("bajaj google")) return "Ancora | Bajaj";
-            return nomeBruto; 
+        function normData(d) {
+            let s = String(d || '').trim();
+            if (!s || s.toLowerCase() === 'data' || s.toLowerCase() === 'date') return null;
+            let b = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (b) return `${b[3]}-${b[2].padStart(2,'0')}-${b[1].padStart(2,'0')}`;
+            let i = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            return i ? `${i[1]}-${i[2].padStart(2,'0')}-${i[3].padStart(2,'0')}` : null;
         }
 
-        function extrairFrente(n) { 
-            let s = String(n||'').toLowerCase(); 
-            if(s.includes("ckb")) return "CKB"; 
-            if(s.includes("bajaj")) return "Bajaj"; 
-            if(s.includes("noma")) return "Noma"; 
-            if(s.includes("dafra")) return "Dafra"; 
-            if(s.includes("xcmg")) return "XCMG"; 
-            if(s.includes("shineray")) return "Shineray"; 
-            if(s.includes("carros")) return "Carros"; 
-            if(s.includes("imoveis")) return "Imóveis"; 
-            return s.split(/[\s\-\|]+/)[0].toUpperCase() || "OUTROS"; 
+        // FIX: Normaliza acentos para comparação de strings
+        function normStr(s) {
+            return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // FIX: extrairFrente com normalização de acentos e mais frentes mapeadas
+        function extrairFrente(n) {
+            let s = normStr(n);
+            if (s.includes("ckb")) return "CKB";
+            if (s.includes("bajaj")) return "Bajaj";
+            if (s.includes("noma")) return "Noma";
+            if (s.includes("dafra")) return "Dafra";
+            if (s.includes("xcmg")) return "XCMG";
+            if (s.includes("shineray")) return "Shineray";
+            if (s.includes("carros") || s.includes("gm") || s.includes("byd")) return "Carros";
+            if (s.includes("imoveis") || s.includes("imov")) return "Imóveis";  // FIX: sem acento
+            if (s.includes("kobe")) return "Kobe";
+            if (s.includes("beijar") || s.includes("flor")) return "Beijar Flor";
+            if (s.includes("bmw")) return "BMW";
+            if (s.includes("avell") || s.includes("avelox")) return "Avelloz";
+            if (s.includes("represent")) return "Representantes";
+            if (s.includes("novato")) return "Novatos";
+            if (s.includes("espelho")) return "CKB Espelho";
+            return s.split(/[\s\-\|]+/)[0].toUpperCase() || "OUTROS";
+        }
+
+        function padronizarConta(nomeBruto) {
+            if (!nomeBruto) return "Outros";
+            let n = normStr(nomeBruto);
+            if (n.includes("ckb") && n.includes("espelho")) return "CKB Espelho";
+            if (n.includes("ckb") && n.includes("whatsapp")) return "CKB - WhatsApp";
+            if (n.includes("ckb") && n.includes("google")) return "Âncora | CKB";
+            if (n.includes("bajaj") && n.includes("google")) return "Ancora | Bajaj";
+            return nomeBruto;
+        }
+
+        // ============================================================
+        // FIX PRINCIPAL: Deduplicação de headers do PapaParse
+        // Os CSVs do Google/Meta/TikTok têm uma tabela resumo colada
+        // à direita com os mesmos nomes de coluna. O PapaParse sobrescrevia
+        // os valores reais pelos do resumo, causando dados zerados/errados.
+        // ============================================================
+        function makeHeaderTransformer() {
+            const seen = {};
+            return function(header) {
+                const h = (header || '').trim();
+                if (!h) return '__EMPTY__';
+                if (seen[h] !== undefined) {
+                    seen[h]++;
+                    return `__DUP_${h}_${seen[h]}`;  // renomeia duplicatas
+                }
+                seen[h] = 0;
+                return h;
+            };
+        }
+
+        // FIX: parsePlanejados lê o mês do CSV em vez de hardcodar abril/2026
+        function parseMesCSV(mesStr) {
+            const meses = { janeiro:'01', fevereiro:'02', marco:'03', abril:'04', maio:'05',
+                            junho:'06', julho:'07', agosto:'08', setembro:'09', outubro:'10',
+                            novembro:'11', dezembro:'12' };
+            let s = normStr(mesStr || '');
+            for (let [nome, num] of Object.entries(meses)) {
+                if (s.includes(nome)) {
+                    let yearMatch = s.match(/\d{4}/);
+                    let year = yearMatch ? yearMatch[0] : new Date().getFullYear().toString();
+                    let dias = new Date(parseInt(year), parseInt(num), 0).getDate();
+                    return { ano: year, mes: num, dias };
+                }
+            }
+            // fallback: mês atual
+            let now = new Date();
+            let ano = now.getFullYear().toString();
+            let mes = String(now.getMonth() + 1).padStart(2, '0');
+            let dias = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            return { ano, mes, dias };
         }
 
         async function carregarTudo() {
@@ -185,158 +249,383 @@
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtbEP_0gEpNDaKn1BCzpLy9SofCQjUiCjcX8BmvMrKAboPsDo8H3arwN_OnGjTpP8zI2OBEeaa3y8E/pub?gid=1289448911&single=true&output=csv"
             ];
 
-            // 1. Carrega Macro (5 planilhas de consolidado)
-            for (let i=0; i<MACRO_URLS.length; i++) {
+            // Macro: 5 planilhas (Planejados, Vendas, e Performance das 3 plataformas)
+            for (let i = 0; i < MACRO_URLS.length; i++) {
                 status.innerHTML = `<div class="loader"></div> Macro (${i+1}/${MACRO_URLS.length})`;
                 await new Promise(resolve => {
-                    Papa.parse(MACRO_URLS[i], { download:true, header:true, skipEmptyLines:true, complete: res => {
-                        let k = Object.keys(res.data[0]||{});
-                        if(k.includes('Planejado Meta')) parsePlanejados(res.data);
-                        else if(k.includes('Data') && k.includes('Meta')) parseVendas(res.data);
-                        else parsePerfMacro(res.data);
-                        resolve();
-                    }, error: resolve });
+                    Papa.parse(MACRO_URLS[i], {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        transformHeader: makeHeaderTransformer(), // FIX: deduplicação de headers
+                        complete: res => {
+                            if (!res.data || !res.data.length) { resolve(); return; }
+                            let k = Object.keys(res.data[0] || {});
+                            if (k.includes('Planejado Meta')) parsePlanejados(res.data);
+                            else if (k.includes('Data') && k.includes('Meta')) parseVendas(res.data);
+                            else parsePerfMacro(res.data);
+                            resolve();
+                        },
+                        error: () => resolve()
+                    });
                 });
             }
             initMacro();
 
-            // 2. Carrega Micro (29 planilhas de detalhe)
-            for (let i=0; i<MICRO_URLS.length; i++) {
+            // Micro: planilhas de detalhe para criativos
+            for (let i = 0; i < MICRO_URLS.length; i++) {
                 status.innerHTML = `<div class="loader"></div> Detalhado (${i+1}/${MICRO_URLS.length})`;
                 await new Promise(resolve => {
-                    Papa.parse(MICRO_URLS[i], { download:true, header:true, skipEmptyLines:true, complete: res => {
-                        parsePerfMicro(res.data); resolve();
-                    }, error: resolve });
+                    Papa.parse(MICRO_URLS[i], {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        transformHeader: makeHeaderTransformer(), // FIX: deduplicação de headers
+                        complete: res => {
+                            parsePerfMicro(res.data); resolve();
+                        },
+                        error: () => resolve()
+                    });
                 });
             }
-            status.innerHTML = "✅ Sistema Online"; status.classList.replace('text-orange-400','text-emerald-500');
+            status.innerHTML = "✅ Sistema Online";
+            status.classList.replace('text-orange-400', 'text-emerald-500');
             initMicro();
         }
 
+        // FIX: lê o mês/ano do CSV em vez de hardcodar "2026-04"
         function parsePlanejados(data) {
             data.forEach(d => {
                 let g = parseNum(d['Planejado Meta']) + parseNum(d['Planejado Google']) + parseNum(d['Planejado Tik Tok']);
                 let l = parseNum(d['Leads Planejados']);
-                for(let i=1; i<=30; i++) { window.macroData.push({ Data: `2026-04-${i<10?'0'+i:i}`, Frente: extrairFrente(d.Conta), Gasto:0, Leads:0, Vendas:0, GastoPlan:g/30, LeadsPlan:l/30, Plataforma:'Todas' }); }
+                let { ano, mes, dias } = parseMesCSV(d['Mês'] || d['Mes'] || '');
+                for (let i = 1; i <= dias; i++) {
+                    let dia = i < 10 ? '0' + i : String(i);
+                    window.macroData.push({
+                        Data: `${ano}-${mes}-${dia}`,
+                        Frente: extrairFrente(d.Conta),
+                        Gasto: 0, Leads: 0, Vendas: 0,
+                        GastoPlan: g / dias,
+                        LeadsPlan: l / dias,
+                        Plataforma: 'Todas'
+                    });
+                }
             });
         }
 
-        function parseVendas(data) { data.forEach(d => { let dt = normData(d.Data); if(dt) window.macroData.push({ Data:dt, Frente:extrairFrente(d.Conta||d.Frente), Gasto:0, Leads:0, Vendas:parseNum(d.Meta)+parseNum(d.Google)+parseNum(d['Tik tok']), GastoPlan:0, LeadsPlan:0, Plataforma:'Todas' }); }); }
+        function parseVendas(data) {
+            data.forEach(d => {
+                let dt = normData(d.Data);
+                if (!dt) return;
+                window.macroData.push({
+                    Data: dt,
+                    Frente: extrairFrente(d.Conta || d.Frente),
+                    Gasto: 0, Leads: 0,
+                    Vendas: parseNum(d.Meta) + parseNum(d.Google) + parseNum(d['Tik tok']),
+                    GastoPlan: 0, LeadsPlan: 0,
+                    Plataforma: 'Todas'
+                });
+            });
+        }
 
         function parsePerfMacro(data) {
             data.forEach(d => {
-                let dt = normData(d.Date || d.Data || d['Date (Segment)'] || d.Day); if(!dt) return;
-                let c = d['Account Name'] || d.Account || d.Conta || d['Advertiser Name'];
+                let dt = normData(d.Date || d.Data || d['Date (Segment)'] || d.Day);
+                if (!dt) return;
+                let c = d['Account Name'] || d['Advertiser Name'] || d.Account || d.Conta;
                 let g = parseNum(d['Spend (Cost, Amount Spent)'] || d['Cost (Spend, Amount Spent)'] || d.Gasto || d.Spend || d.Cost);
-                let l = parseNum(d['Action Leads'] || 0) + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0) + parseNum(d.Conversions || 0) + parseNum(d['Generate Lead'] || 0) + parseNum(d.Results || 0);
-                window.macroData.push({ Data:dt, Frente:extrairFrente(padronizarConta(c)), Plataforma: (d['Platform Name'] || d.Plataforma || '').includes('Google')?'Google Ads':'Facebook Ads', Gasto:g, Leads:l, Vendas:0, GastoPlan:0, LeadsPlan:0, Impressoes:parseNum(d.Impressions || d.Impressoes), Cliques:parseNum(d.Clicks || d.Cliques) });
+                let l = parseNum(d['Action Leads'] || 0)
+                      + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0)
+                      + parseNum(d.Conversions || 0)
+                      + parseNum(d['Generate Lead'] || 0)
+                      + parseNum(d.Results || 0);
+                // FIX: detecta TikTok corretamente além de Google e Facebook
+                let plat = String(d['Platform Name'] || d.Plataforma || '').toLowerCase();
+                let plataforma = plat.includes('google') ? 'Google Ads'
+                               : plat.includes('tiktok') || plat.includes('tik tok') ? 'TikTok Ads'
+                               : 'Facebook Ads';
+                window.macroData.push({
+                    Data: dt,
+                    Frente: extrairFrente(padronizarConta(c)),
+                    Plataforma: plataforma,
+                    Gasto: g, Leads: l, Vendas: 0,
+                    GastoPlan: 0, LeadsPlan: 0,
+                    Impressoes: parseNum(d.Impressions || d.Impressoes || 0),
+                    Cliques: parseNum(d.Clicks || d.Cliques || 0)
+                });
             });
         }
 
         function parsePerfMicro(data) {
             data.forEach(d => {
-                let dt = normData(d.Date || d.Data || d['Date (Segment)']); if(!dt) return;
-                let c = d['Account Name'] || d.Account || d.Conta || d['Advertiser Name'];
-                let g = parseNum(d['Spend (Cost, Amount Spent)'] || d['Cost (Spend, Amount Spent)'] || d.Gasto);
-                let l = parseNum(d['Action Leads'] || 0) + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0) + parseNum(d.Conversions || 0) + parseNum(d.Results || 0);
-                window.microData.push({ Data:dt, Frente:extrairFrente(padronizarConta(c)), Campanha:d['Campaign Name'] || d.Campaign, Anuncio:d['Ad Name'] || d.Ad, Conjunto:d['Adset Name'] || d.Adset, Gasto:g, Leads:l, ImageURL:d['Image URL'] || d['Thumbnail URL'], Impressoes:parseNum(d.Impressions || d.Impressoes), Cliques:parseNum(d.Clicks || d.Cliques) });
+                let dt = normData(d.Date || d.Data || d['Date (Segment)']);
+                if (!dt) return;
+                let c = d['Account Name'] || d['Advertiser Name'] || d.Account || d.Conta;
+                let g = parseNum(d['Spend (Cost, Amount Spent)'] || d['Cost (Spend, Amount Spent)'] || d.Gasto || 0);
+                let l = parseNum(d['Action Leads'] || 0)
+                      + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0)
+                      + parseNum(d.Conversions || 0)
+                      + parseNum(d['Generate Lead'] || 0);
+                window.microData.push({
+                    Data: dt,
+                    Frente: extrairFrente(padronizarConta(c)),
+                    Campanha: d['Campaign Name'] || d.Campaign || '',
+                    Anuncio: d['Ad Name'] || d.Ad || '',
+                    Conjunto: d['Adset Name'] || d.Adset || '',
+                    Gasto: g, Leads: l,
+                    ImageURL: d['Image URL'] || d['Thumbnail URL'] || '',
+                    Impressoes: parseNum(d.Impressions || d.Impressoes || 0),
+                    Cliques: parseNum(d.Clicks || d.Cliques || 0)
+                });
             });
         }
 
         function initMacro() {
-            let dates = [...new Set(window.macroData.map(d=>d.Data))].filter(Boolean).sort();
-            if(dates.length) { 
-                document.getElementById('v1_p1Start').value = dates[Math.max(0, dates.length-15)]; 
-                document.getElementById('v1_p1End').value = dates[dates.length-1]; 
-                let mos = [...new Set(dates.map(d=>d.substring(0,7)))].sort().reverse(); 
-                document.getElementById('v3_month').innerHTML = mos.map(m=>`<option value="${m}">${m}</option>`).join('');
+            let dates = [...new Set(window.macroData.map(d => d.Data))].filter(Boolean).sort();
+            if (dates.length) {
+                document.getElementById('v1_p1Start').value = dates[Math.max(0, dates.length - 15)];
+                document.getElementById('v1_p1End').value = dates[dates.length - 1];
+                let mos = [...new Set(dates.map(d => d.substring(0, 7)))].sort().reverse();
+                document.getElementById('v3_month').innerHTML = mos.map(m => `<option value="${m}">${m}</option>`).join('');
             }
-            let plats = [...new Set(window.macroData.map(d=>d.Plataforma))].filter(p=>p!=='Todas').sort();
-            document.getElementById('v1_platform').innerHTML = '<option value="ALL">Todas</option>' + plats.map(p=>`<option value="${p}">${p}</option>`).join('');
-            renderMaster(); renderPacing();
+            let plats = [...new Set(window.macroData.map(d => d.Plataforma))].filter(p => p && p !== 'Todas').sort();
+            document.getElementById('v1_platform').innerHTML = '<option value="ALL">Todas</option>' + plats.map(p => `<option value="${p}">${p}</option>`).join('');
+            renderMaster();
+            renderPacing();
         }
 
         function initMicro() {
-            let frentes = [...new Set(window.microData.map(d=>d.Frente))].sort();
-            document.getElementById('v2_frente').innerHTML = '<option value="ALL">Todas</option>' + frentes.map(f=>`<option value="${f}">${f}</option>`).join('');
-            let camps = [...new Set(window.microData.map(d=>d.Campanha))].sort();
-            document.getElementById('v2_campanha').innerHTML = '<option value="ALL">Todas</option>' + camps.map(c=>`<option value="${c}">${c}</option>`).join('');
+            let frentes = [...new Set(window.microData.map(d => d.Frente))].filter(Boolean).sort();
+            document.getElementById('v2_frente').innerHTML = '<option value="ALL">Todas</option>' + frentes.map(f => `<option value="${f}">${f}</option>`).join('');
+            let camps = [...new Set(window.microData.map(d => d.Campanha))].filter(Boolean).sort();
+            document.getElementById('v2_campanha').innerHTML = '<option value="ALL">Todas</option>' + camps.map(c => `<option value="${c}">${c}</option>`).join('');
             document.getElementById('v2_p1Start').value = document.getElementById('v1_p1Start').value;
             document.getElementById('v2_p1End').value = document.getElementById('v1_p1End').value;
         }
 
         function switchTab(id, btn) {
-            document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
 
+        // FIX: renderMasterTable usa cache para funcionar tanto no onchange quanto no renderMaster
+        let v1_cachedData = [];
+
         function renderMaster() {
-            let s=document.getElementById('v1_p1Start').value, e=document.getElementById('v1_p1End').value, p=document.getElementById('v1_platform').value;
-            let dataA = window.macroData.filter(d=>d.Data>=s && d.Data<=e && (p==='ALL'||d.Plataforma===p||d.Plataforma==='Todas'));
-            let a = dataA.reduce((acc,c)=>{acc.g+=c.Gasto; acc.l+=c.Leads; acc.v+=c.Vendas; acc.gp+=c.GastoPlan; acc.lp+=c.LeadsPlan; return acc;}, {g:0,l:0,v:0,gp:0,lp:0});
-            const card = (t,v,m,mon) => `<div class="bg-white p-4 border rounded shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">${t}</p><p class="text-xl font-black">${mon?fmt.m(v):fmt.n(v)}</p><p class="text-[9px] text-slate-400 uppercase">Meta: ${mon?fmt.m(m):fmt.n(m)}</p></div>`;
-            document.getElementById('v1_kpiContainer').innerHTML = card("Gasto",a.g,a.gp,true)+card("Leads",a.l,a.lp,false)+card("CPL",a.l>0?a.g/a.l:0,a.lp>0?a.gp/a.lp:0,true)+card("Vendas",a.v,0,false)+card("CPA",a.v>0?a.g/a.v:0,0,true);
-            renderMasterTable(dataA);
+            let s = document.getElementById('v1_p1Start').value;
+            let e = document.getElementById('v1_p1End').value;
+            let p = document.getElementById('v1_platform').value;
+            let dataA = window.macroData.filter(d =>
+                d.Data >= s && d.Data <= e &&
+                (p === 'ALL' || d.Plataforma === p || d.Plataforma === 'Todas')
+            );
+            let a = dataA.reduce((acc, c) => {
+                acc.g += c.Gasto; acc.l += c.Leads; acc.v += c.Vendas;
+                acc.gp += c.GastoPlan; acc.lp += c.LeadsPlan;
+                return acc;
+            }, { g: 0, l: 0, v: 0, gp: 0, lp: 0 });
+
+            const card = (t, v, m, mon) => `
+                <div class="bg-white p-4 border rounded shadow-sm">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">${t}</p>
+                    <p class="text-xl font-black">${mon ? fmt.m(v) : fmt.n(v)}</p>
+                    <p class="text-[9px] text-slate-400 uppercase">Meta: ${mon ? fmt.m(m) : fmt.n(m)}</p>
+                </div>`;
+            document.getElementById('v1_kpiContainer').innerHTML =
+                card("Gasto", a.g, a.gp, true) +
+                card("Leads", a.l, a.lp, false) +
+                card("CPL", a.l > 0 ? a.g / a.l : 0, a.lp > 0 ? a.gp / a.lp : 0, true) +
+                card("Vendas", a.v, 0, false) +
+                card("CPA", a.v > 0 ? a.g / a.v : 0, 0, true);
+
+            v1_cachedData = dataA; // FIX: cacheia para uso em renderMasterTable
+            renderMasterTable();
             renderMasterChart(dataA);
         }
 
-        function renderMasterTable(data) {
+        // FIX: usa v1_cachedData em vez de parâmetro; funciona no onchange e no renderMaster
+        function renderMasterTable() {
+            let data = v1_cachedData;
+            if (!data || !data.length) return;
             let grp = document.getElementById('v1_grouping').value;
-            let tb = data.filter(d=>d.Plataforma!=='Todas').reduce((acc,c)=>{ let k=c[grp]; if(!acc[k]) acc[k]={n:k,g:0,l:0,v:0,i:0,cl:0}; acc[k].g+=c.Gasto; acc[k].l+=c.Leads; acc[k].v+=c.Vendas; acc[k].i+=c.Impressoes; acc[k].cl+=c.Cliques; return acc;},{});
-            document.getElementById('v1_tableBody').innerHTML = Object.values(tb).sort((a,b)=>b.g-a.g).map(i=>`<tr><td class="text-left p-3 font-bold">${i.n}</td><td>${fmt.m(i.g)}</td><td>${fmt.n(i.i)}</td><td>${fmt.p(i.i>0?(i.cl/i.i)*100:0)}</td><td class="text-blue-600 font-bold">${fmt.n(i.l)}</td><td>${fmt.p(i.cl>0?(i.l/i.cl)*100:0)}</td><td class="text-orange-600 font-bold">${fmt.m(i.l>0?i.g/i.l:0)}</td><td class="text-green-600 font-bold">${fmt.n(i.v)}</td><td class="bg-blue-50/30">${fmt.m(i.v>0?i.g/i.v:0)}</td></tr>`).join('');
+            let tb = data.filter(d => d.Plataforma !== 'Todas').reduce((acc, c) => {
+                let k = c[grp] || 'Outros';
+                if (!acc[k]) acc[k] = { n: k, g: 0, l: 0, v: 0, i: 0, cl: 0 };
+                acc[k].g += c.Gasto; acc[k].l += c.Leads; acc[k].v += c.Vendas;
+                acc[k].i += (c.Impressoes || 0); acc[k].cl += (c.Cliques || 0);
+                return acc;
+            }, {});
+            document.getElementById('v1_tableBody').innerHTML = Object.values(tb)
+                .sort((a, b) => b.g - a.g)
+                .map(i => `<tr>
+                    <td class="text-left p-3 font-bold">${i.n}</td>
+                    <td>${fmt.m(i.g)}</td>
+                    <td>${fmt.n(i.i)}</td>
+                    <td>${fmt.p(i.i > 0 ? (i.cl / i.i) * 100 : 0)}</td>
+                    <td class="text-blue-600 font-bold">${fmt.n(i.l)}</td>
+                    <td>${fmt.p(i.cl > 0 ? (i.l / i.cl) * 100 : 0)}</td>
+                    <td class="text-orange-600 font-bold">${fmt.m(i.l > 0 ? i.g / i.l : 0)}</td>
+                    <td class="text-green-600 font-bold">${fmt.n(i.v)}</td>
+                </tr>`).join('');
         }
 
         function renderMasterChart(dataA) {
             let met = document.getElementById('v1_metric').value;
-            let dates = [...new Set(dataA.map(d=>d.Data))].sort();
+            let dates = [...new Set(dataA.map(d => d.Data))].sort();
             let aggData = dates.map(dt => {
-                let rows = dataA.filter(r=>r.Data===dt);
-                let tg=0, tl=0, tv=0; rows.forEach(r=>{tg+=r.Gasto; tl+=r.Leads; tv+=r.Vendas;});
-                if(met==='cpl') return tl>0?tg/tl:0; if(met==='vendas') return tv; if(met==='gasto') return tg; return tl;
+                let rows = dataA.filter(r => r.Data === dt);
+                let tg = 0, tl = 0, tv = 0;
+                rows.forEach(r => { tg += r.Gasto; tl += r.Leads; tv += r.Vendas; });
+                if (met === 'cpl') return tl > 0 ? tg / tl : 0;
+                if (met === 'vendas') return tv;
+                if (met === 'gasto') return tg;
+                return tl;
             });
-            if(v1_ChartObj) v1_ChartObj.destroy();
-            v1_ChartObj = new Chart(document.getElementById('v1_chart'), { type: 'line', data: {labels:dates, datasets:[{label:met.toUpperCase(), data:aggData, borderColor:'#3b82f6', tension:0.4, fill:true, backgroundColor:'rgba(59,130,246,0.1)'}]}, options:{plugins:{datalabels:{display:false}}, scales:{x:{grid:{display:false}},y:{beginAtZero:true}}} });
+            if (v1_ChartObj) v1_ChartObj.destroy();
+            v1_ChartObj = new Chart(document.getElementById('v1_chart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: met.toUpperCase(),
+                        data: aggData,
+                        borderColor: '#3b82f6',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(59,130,246,0.1)'
+                    }]
+                },
+                options: {
+                    plugins: { datalabels: { display: false } },
+                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
+                }
+            });
         }
 
         function renderPacing() {
-            let mo = document.getElementById('v3_month').value; if(!mo) return;
-            let dAtual = new Date().getDate(); if(new Date().toISOString().substring(0,7) !== mo) dAtual = new Date(parseInt(mo.split('-')[0]), parseInt(mo.split('-')[1]), 0).getDate();
-            let dTot = new Date(parseInt(mo.split('-')[0]), parseInt(mo.split('-')[1]), 0).getDate();
-            let dRest = Math.max(dTot-dAtual+1, 1);
-            document.getElementById('v3_lblCorridos').innerText = dAtual; document.getElementById('v3_lblRestantes').innerText = dRest;
+            let mo = document.getElementById('v3_month').value;
+            if (!mo) return;
+            let [ano, mes] = mo.split('-').map(Number);
+            let dTot = new Date(ano, mes, 0).getDate();
+            let hoje = new Date();
+            let dAtual = (hoje.getFullYear() === ano && hoje.getMonth() + 1 === mes)
+                ? hoje.getDate()
+                : dTot;
+            let dRest = Math.max(dTot - dAtual + 1, 1);
+
+            document.getElementById('v3_lblCorridos').innerText = dAtual;
+            document.getElementById('v3_lblRestantes').innerText = dRest;
+
             let grp = document.getElementById('v3_grouping').value;
-            let obj = window.macroData.reduce((acc,d)=>{ if(!d.Data.startsWith(mo)) return acc; let k=d[grp]||'Outros'; if(!acc[k]) acc[k]={n:k,g:0,gp:0,l:0,lp:0,v:0,vp:0}; if(d.Plataforma!=='Todas'){acc[k].g+=d.Gasto; acc[k].l+=d.Leads; acc[k].v+=d.Vendas;} else {acc[k].gp+=d.GastoPlan; acc[k].lp+=d.LeadsPlan;} return acc;},{});
-            document.getElementById('v3_tableBody').innerHTML = Object.values(obj).sort((a,b)=>b.g-a.g).map(d=>{
-                let pG=(d.g/dAtual)*dTot, pL=(d.l/dAtual)*dTot;
-                return `<tr><td class="p-3 font-bold text-left border-r-2">${d.n}</td><td>${fmt.m(d.g)}</td><td class="${pG>d.gp?'text-red-500 font-bold':''}">${fmt.m(pG)}</td><td>${fmt.m(d.gp)}</td><td class="border-r-2 text-emerald-600 font-black bg-emerald-50/30">${fmt.m(Math.max((d.gp-d.g)/dRest,0))}</td><td>${fmt.n(d.l)}</td><td>${fmt.n(pL)}</td><td>${fmt.n(d.lp)}</td><td class="border-r-2 text-blue-600 font-black bg-blue-50/30">${fmt.n(Math.max((d.lp-d.l)/dRest,0))}</td><td>${fmt.n(d.v)}</td><td>-</td><td>-</td><td class="text-green-600 font-black bg-green-50/30">-</td></tr>`;
-            }).join('');
-            let tot = Object.values(obj).reduce((a,c)=>{a.g+=c.g; a.gp+=c.gp; a.l+=c.l; a.lp+=c.lp; a.v+=c.v; return a;},{g:0,gp:0,l:0,lp:0,v:0});
-            const card = (t,v,m,mon) => { let p=m>0?(v/m)*100:0; return `<div class="bg-white p-5 border rounded-xl shadow-sm"><div class="flex justify-between items-end mb-2"><div><h4 class="text-xs font-black text-slate-400 uppercase">${t}</h4><span class="text-2xl font-black">${mon?fmt.m(v):fmt.n(v)}</span></div><div class="text-right"><span class="text-[10px] font-bold text-slate-400 uppercase block">Meta</span><span class="text-sm font-bold text-slate-600">${mon?fmt.m(m):fmt.n(m)}</span></div></div><div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden"><div class="${p>=100?'bg-emerald-500':'bg-blue-500'} h-3" style="width:${Math.min(p,100)}%"></div></div></div>`; };
-            document.getElementById('v3_kpiContainer').innerHTML = card("Gasto",tot.g,tot.gp,true)+card("Leads",tot.l,tot.lp,false)+card("Vendas",tot.v,0,false);
+            let obj = window.macroData.reduce((acc, d) => {
+                if (!d.Data.startsWith(mo)) return acc;
+                let k = d[grp] || 'Outros';
+                if (!acc[k]) acc[k] = { n: k, g: 0, gp: 0, l: 0, lp: 0, v: 0 };
+                if (d.Plataforma !== 'Todas') {
+                    acc[k].g += d.Gasto;
+                    acc[k].l += d.Leads;
+                    acc[k].v += d.Vendas;
+                } else {
+                    acc[k].gp += d.GastoPlan;
+                    acc[k].lp += d.LeadsPlan;
+                }
+                return acc;
+            }, {});
+
+            document.getElementById('v3_tableBody').innerHTML = Object.values(obj)
+                .sort((a, b) => b.g - a.g)
+                .map(d => {
+                    let pG = (d.g / dAtual) * dTot;
+                    let pL = (d.l / dAtual) * dTot;
+                    return `<tr>
+                        <td class="p-3 font-bold text-left border-r-2">${d.n}</td>
+                        <td>${fmt.m(d.g)}</td>
+                        <td class="${pG > d.gp && d.gp > 0 ? 'text-red-500 font-bold' : ''}">${fmt.m(pG)}</td>
+                        <td>${fmt.m(d.gp)}</td>
+                        <td class="border-r-2 text-emerald-600 font-black bg-emerald-50/30">${fmt.m(Math.max((d.gp - d.g) / dRest, 0))}</td>
+                        <td>${fmt.n(d.l)}</td>
+                        <td>${fmt.n(pL)}</td>
+                        <td>${fmt.n(d.lp)}</td>
+                        <td class="border-r-2 text-blue-600 font-black bg-blue-50/30">${fmt.n(Math.max((d.lp - d.l) / dRest, 0))}</td>
+                        <td>${fmt.n(d.v)}</td>
+                        <td>-</td><td>-</td>
+                        <td class="text-green-600 font-black bg-green-50/30">-</td>
+                    </tr>`;
+                }).join('');
+
+            let tot = Object.values(obj).reduce((a, c) => {
+                a.g += c.g; a.gp += c.gp; a.l += c.l; a.lp += c.lp; a.v += c.v;
+                return a;
+            }, { g: 0, gp: 0, l: 0, lp: 0, v: 0 });
+
+            const card = (t, v, m, mon) => {
+                let p = m > 0 ? (v / m) * 100 : 0;
+                return `<div class="bg-white p-5 border rounded-xl shadow-sm">
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                            <h4 class="text-xs font-black text-slate-400 uppercase">${t}</h4>
+                            <span class="text-2xl font-black">${mon ? fmt.m(v) : fmt.n(v)}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase block">Meta</span>
+                            <span class="text-sm font-bold text-slate-600">${mon ? fmt.m(m) : fmt.n(m)}</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                        <div class="${p >= 100 ? 'bg-emerald-500' : 'bg-blue-500'} h-3" style="width:${Math.min(p, 100)}%"></div>
+                    </div>
+                </div>`;
+            };
+            document.getElementById('v3_kpiContainer').innerHTML =
+                card("Gasto", tot.g, tot.gp, true) +
+                card("Leads", tot.l, tot.lp, false) +
+                card("Vendas", tot.v, 0, false);
         }
 
         function renderAnalise() {
-            let s=document.getElementById('v2_p1Start').value, e=document.getElementById('v2_p1End').value, f=document.getElementById('v2_frente').value, c=document.getElementById('v2_campanha').value, txt=document.getElementById('v2_busca').value.toLowerCase();
-            let data = window.microData.filter(d=>d.Data>=s && d.Data<=e && (f==='ALL'||d.Frente===f) && (c==='ALL'||d.Campanha===c) && (!txt||d.Anuncio.toLowerCase().includes(txt)));
-            
-            const scoreArr = (arr) => { let ml=Math.max(...arr.map(i=>i.l),1), mc=Math.min(...arr.filter(i=>i.cpl>0).map(i=>i.cpl),100); arr.forEach(i=>{ i.score=i.l>0?Math.round(((i.l/ml)*40+(mc/Math.max(i.cpl,0.1))*40+(i.cvr/100)*20)):0;}); return arr.sort((a,b)=>b.score-a.score); };
-            const agg = (fld) => Object.values(data.reduce((acc,curr)=>{let k=curr[fld]; if(!acc[k]) acc[k]={n:k,g:0,l:0,i:0,cl:0,th:curr.ImageURL}; acc[k].g+=curr.Gasto; acc[k].l+=curr.Leads; acc[k].i+=curr.Impressoes; acc[k].cl+=curr.Cliques; return acc;},{})).map(i=>{i.cpl=i.l>0?i.g/i.l:0; i.cvr=i.cl>0?(i.l/i.cl)*100:0; return i;});
+            let s = document.getElementById('v2_p1Start').value;
+            let e = document.getElementById('v2_p1End').value;
+            let f = document.getElementById('v2_frente').value;
+            let c = document.getElementById('v2_campanha').value;
+            let txt = document.getElementById('v2_busca').value.toLowerCase();
+            let data = window.microData.filter(d =>
+                d.Data >= s && d.Data <= e &&
+                (f === 'ALL' || d.Frente === f) &&
+                (c === 'ALL' || d.Campanha === c) &&
+                (!txt || (d.Anuncio || '').toLowerCase().includes(txt))
+            );
 
-            let topAds = scoreArr(agg('Anuncio')).slice(0,10);
-            document.getElementById('v2_topAds').innerHTML = topAds.map(i=>`<tr><td class="p-2 flex items-center gap-2 font-bold max-w-[200px] truncate"><img src="${i.th}" class="w-6 h-6 rounded bg-slate-100">${i.n}</td><td class="text-right">${fmt.m(i.g)}</td><td class="text-right text-blue-600 font-bold">${fmt.n(i.l)}</td><td class="text-right">${fmt.m(i.cpl)}</td><td class="text-center font-black">${i.score}</td></tr>`).join('');
-            
-            let topCam = scoreArr(agg('Campanha')).slice(0,3);
-            document.getElementById('v2_topCam').innerHTML = topCam.map(i=>`<tr><td class="p-2 font-bold truncate max-w-[100px]">${i.n}</td><td class="text-right text-blue-600 font-bold">${fmt.n(i.l)}</td><td class="text-right text-orange-600 font-bold">${fmt.m(i.cpl)}</td></tr>`).join('');
+            const agg = (fld) => Object.values(data.reduce((acc, curr) => {
+                let k = curr[fld] || 'N/A';
+                if (!acc[k]) acc[k] = { n: k, g: 0, l: 0, i: 0, cl: 0, th: curr.ImageURL };
+                acc[k].g += curr.Gasto; acc[k].l += curr.Leads;
+                acc[k].i += curr.Impressoes; acc[k].cl += curr.Cliques;
+                return acc;
+            }, {})).map(i => { i.cpl = i.l > 0 ? i.g / i.l : 0; i.cvr = i.cl > 0 ? (i.l / i.cl) * 100 : 0; return i; });
 
-            renderAnaliseTable();
-        }
+            const scoreArr = (arr) => {
+                let ml = Math.max(...arr.map(i => i.l), 1);
+                let mc = Math.min(...arr.filter(i => i.cpl > 0).map(i => i.cpl).concat([100]));
+                arr.forEach(i => { i.score = i.l > 0 ? Math.round(((i.l / ml) * 40 + (mc / Math.max(i.cpl, 0.1)) * 40 + (i.cvr / 100) * 20)) : 0; });
+                return arr.sort((a, b) => b.score - a.score);
+            };
 
-        function renderAnaliseTable() {
-            let g = document.getElementById('v2_grouping').value;
-            let fld = g==='ad'?'Anuncio':g==='adset'?'Conjunto':'Campanha';
-            // Repete lógica de agg e score para a tabela detalhada...
+            let topCam = scoreArr(agg('Campanha')).slice(0, 3);
+            document.getElementById('v2_topCam').innerHTML = topCam.map(i =>
+                `<tr><td class="p-2 font-bold truncate max-w-[100px]">${i.n}</td><td class="text-right text-blue-600 font-bold">${fmt.n(i.l)}</td><td class="text-right text-orange-600 font-bold">${fmt.m(i.cpl)}</td></tr>`
+            ).join('');
+
+            let topAdset = scoreArr(agg('Conjunto')).slice(0, 5);
+            document.getElementById('v2_topAdset').innerHTML = topAdset.map(i =>
+                `<tr><td class="p-2 font-bold truncate max-w-[100px]">${i.n}</td><td class="text-right text-blue-600 font-bold">${fmt.n(i.l)}</td><td class="text-right text-orange-600 font-bold">${fmt.m(i.cpl)}</td></tr>`
+            ).join('');
+
+            let topAds = scoreArr(agg('Anuncio')).slice(0, 10);
+            document.getElementById('v2_topAds').innerHTML = topAds.map(i =>
+                `<tr><td class="p-2 flex items-center gap-2 font-bold max-w-[200px] truncate"><img src="${i.th}" class="w-6 h-6 rounded bg-slate-100" onerror="this.style.display='none'">${i.n}</td><td class="text-right">${fmt.m(i.g)}</td><td class="text-right text-blue-600 font-bold">${fmt.n(i.l)}</td><td class="text-right">${fmt.m(i.cpl)}</td><td class="text-center font-black">${i.score}</td></tr>`
+            ).join('');
         }
 
         window.onload = carregarTudo;
