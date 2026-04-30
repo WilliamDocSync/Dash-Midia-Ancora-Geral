@@ -14,7 +14,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .menu-btn.active { background-color: #2563eb; color: #ffffff; border-left: 4px solid #60a5fa; }
         .menu-btn { border-left: 4px solid transparent; transition: all 0.2s; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .delta-up { color: #10b981; font-weight: bold;}
         .delta-down { color: #ef4444; font-weight: bold;}
@@ -28,89 +28,114 @@
     <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col h-full shadow-2xl z-20 shrink-0">
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
-            <p class="text-[10px] uppercase font-bold text-slate-500 mt-1">Gestão de Mídia Integrada</p>
+            <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
-            <button onclick="switchTab('tab-analise', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>🔬</span> Análise Criativos</button>
             <button onclick="switchTab('tab-pacing', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>⏱️</span> Controle Pacing</button>
+            <button onclick="switchTab('tab-analise', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>🔬</span> Análise Criativos</button>
         </nav>
-        <div class="p-4 border-t border-slate-800 bg-slate-950">
-            <div class="mb-3">
-                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">API IA (Opcional)</label>
-                <input type="password" id="globalApiKey" placeholder="Chave Gemini..." class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white outline-none">
-            </div>
-            <span id="globalStatus" class="text-[10px] font-black uppercase text-orange-400 flex items-center gap-2"><div class="loader"></div> Iniciando...</span>
+        <div class="p-4 border-t border-slate-800 bg-slate-950 text-center">
+            <span id="globalStatus" class="text-[10px] font-black uppercase text-orange-400 flex items-center justify-center gap-2">
+                <div class="loader"></div> Iniciando Sistema...
+            </span>
         </div>
     </aside>
 
-    <main class="flex-1 h-full overflow-y-auto bg-slate-50 custom-scrollbar">
+    <main class="flex-1 h-full overflow-y-auto bg-slate-50 custom-scrollbar relative">
         
-        <section id="tab-master" class="p-8 max-w-[1600px] mx-auto">
-            <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6">
-                <h2 class="text-2xl font-black text-slate-800 uppercase">Visão Macro</h2>
+        <section id="tab-master" class="p-8 max-w-[1600px] mx-auto animate-fade-in">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6 flex justify-between items-center">
+                <div><h2 class="text-2xl font-black text-slate-800 uppercase">Visão Macro</h2><p class="text-slate-500 text-sm">Consolidado por Canais e Frentes</p></div>
             </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-white p-5 rounded-xl border">
-                <div><label class="text-[10px] font-bold text-blue-600 uppercase block">Período A</label><div class="flex gap-1"><input type="date" id="v1_p1Start" class="w-full border rounded p-1 text-xs"><input type="date" id="v1_p1End" class="w-full border rounded p-1 text-xs"></div></div>
-                <div><label class="text-[10px] font-bold text-orange-500 uppercase block">Período B</label><div class="flex gap-1"><input type="date" id="v1_p2Start" class="w-full border rounded p-1 text-xs"><input type="date" id="v1_p2End" class="w-full border rounded p-1 text-xs"></div></div>
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase block">Canal</label><select id="v1_platform" class="w-full border rounded p-1 text-xs bg-slate-50"><option value="ALL">Todos</option></select></div>
-                <button onclick="renderMaster()" class="bg-slate-800 text-white rounded font-bold text-xs hover:bg-black transition h-9 mt-4">ATUALIZAR</button>
+                <div><label class="text-[10px] font-bold text-blue-600 uppercase block">Período Atual</label><div class="flex gap-1"><input type="date" id="v1_p1Start" class="w-full border rounded p-1.5 text-xs"><input type="date" id="v1_p1End" class="w-full border rounded p-1.5 text-xs"></div></div>
+                <div><label class="text-[10px] font-bold text-orange-500 uppercase block">Período Anterior</label><div class="flex gap-1"><input type="date" id="v1_p2Start" class="w-full border rounded p-1.5 text-xs"><input type="date" id="v1_p2End" class="w-full border rounded p-1.5 text-xs"></div></div>
+                <div><label class="text-[10px] font-bold text-slate-500 uppercase block">Canal</label><select id="v1_platform" class="w-full border rounded p-1.5 text-xs bg-slate-50"><option value="ALL">Todos</option><option value="Facebook Ads">Meta Ads</option><option value="Google Ads">Google Ads</option><option value="TikTok">TikTok</option></select></div>
+                <div class="flex items-end"><button onclick="renderMaster()" class="bg-slate-800 text-white rounded-lg font-bold text-xs hover:bg-black transition w-full h-9">ATUALIZAR</button></div>
             </div>
+
             <div id="v1_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8"></div>
-            <div class="bg-white p-6 rounded-xl border mb-8"><canvas id="v1_chart" height="80"></canvas></div>
+            
+            <div class="bg-white p-6 rounded-xl border mb-8">
+                <div class="flex justify-between items-center mb-4 border-b pb-2"><h3 class="font-bold text-xs uppercase">Evolução Diária</h3><select id="v1_metric" class="text-xs border rounded p-1" onchange="renderMasterChart()"><option value="leads">Leads</option><option value="gasto">Gasto (R$)</option><option value="vendas">Vendas</option></select></div>
+                <canvas id="v1_chart" height="70"></canvas>
+            </div>
+
             <div class="bg-white rounded-xl border overflow-hidden">
-                <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
-                    <h3 class="font-bold text-xs uppercase">Tabela de Performance</h3>
-                    <select id="v1_grouping" class="text-xs border rounded p-1" onchange="renderMasterTable()"><option value="frente">Por Frente</option><option value="canal">Por Canal</option></select>
-                </div>
-                <table class="min-w-full text-right text-xs"><thead class="bg-white border-b uppercase text-slate-400 font-bold text-[9px]"><tr class="text-center"><th class="text-left p-3">Nome</th><th>Gasto</th><th>Impr</th><th>CTR</th><th class="text-blue-600">Leads</th><th>CVR</th><th class="text-orange-600">CPL</th><th class="text-green-600">Vendas</th></tr></thead><tbody id="v1_tableBody" class="divide-y"></tbody></table>
+                <div class="p-4 bg-slate-50 border-b flex justify-between items-center"><h3 class="font-bold text-xs uppercase">Performance Consolidada</h3><select id="v1_grouping" class="text-xs border rounded p-1" onchange="renderMasterTable()"><option value="Frente">Por Frente</option><option value="Plataforma">Por Canal</option></select></div>
+                <div class="overflow-x-auto"><table class="min-w-full text-right text-xs whitespace-nowrap"><thead class="bg-white border-b uppercase text-slate-400 font-bold text-[9px]"><tr class="text-center"><th class="text-left p-3">Estrutura</th><th>Gasto</th><th>Impr</th><th>CTR</th><th class="text-blue-600">Leads</th><th>CVR</th><th class="text-orange-600">CPL</th><th class="text-green-600">Vendas</th><th class="text-blue-800">CPA</th></tr></thead><tbody id="v1_tableBody" class="divide-y"></tbody></table></div>
             </div>
         </section>
 
-        <section id="tab-analise" class="hidden p-8 max-w-[1600px] mx-auto">
-            <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-purple-600 mb-6"><h2 class="text-2xl font-black text-slate-800 uppercase">Análise de Criativos</h2></div>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 bg-white p-5 rounded-xl border">
-                <div class="col-span-1"><label class="text-[10px] font-bold uppercase">Data</label><div class="flex gap-1"><input type="date" id="v2_p1Start" class="w-full border rounded p-1 text-xs"><input type="date" id="v2_p1End" class="w-full border rounded p-1 text-xs"></div></div>
-                <div><label class="text-[10px] font-bold uppercase block">Frente</label><select id="v2_frente" class="w-full border rounded p-1 text-xs"><option value="ALL">Todas</option></select></div>
-                <div><label class="text-[10px] font-bold uppercase block">Campanha</label><select id="v2_campanha" class="w-full border rounded p-1 text-xs"><option value="ALL">Todas</option></select></div>
-                <div><label class="text-[10px] font-bold uppercase block">Busca</label><input type="text" id="v2_busca" class="w-full border rounded p-1 text-xs" placeholder="Nome do criativo..."></div>
-                <button onclick="renderAnalise()" class="bg-purple-700 text-white rounded font-bold text-xs h-9 mt-4">FILTRAR</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="bg-white rounded border overflow-hidden"><div class="p-2 bg-slate-50 font-bold text-[10px] uppercase">Top Campanhas</div><table class="w-full text-xs"><tbody id="v2_topCam" class="divide-y"></tbody></table></div>
-                <div class="bg-white rounded border overflow-hidden"><div class="p-2 bg-slate-50 font-bold text-[10px] uppercase">Top Conjuntos</div><table class="w-full text-xs"><tbody id="v2_topAdset" class="divide-y"></tbody></table></div>
-                <div class="bg-white rounded border overflow-hidden"><div class="p-2 bg-slate-50 font-bold text-[10px] uppercase">Top Criativos</div><table class="w-full text-xs"><tbody id="v2_topAds" class="divide-y"></tbody></table></div>
-            </div>
-            <div class="bg-white rounded border p-5"><canvas id="v2_chart" height="80"></canvas></div>
-        </section>
-
-        <section id="tab-pacing" class="hidden p-8">
+        <section id="tab-pacing" class="hidden p-8 max-w-[1600px] mx-auto animate-fade-in">
             <div class="bg-white p-6 rounded-xl border-b-4 border-emerald-600 mb-6 flex justify-between items-center">
-                <h2 class="text-2xl font-black uppercase">Pacing Diário</h2>
+                <div><h2 class="text-2xl font-black uppercase text-slate-800">Controle de Pacing</h2><p class="text-slate-500 text-sm">Acompanhamento Diário vs Meta</p></div>
                 <div class="flex gap-2">
-                    <select id="v3_month" class="border rounded p-2 text-xs font-bold" onchange="renderPacing()"></select>
-                    <select id="v3_grouping" class="border rounded p-2 text-xs font-bold" onchange="renderPacing()"><option value="Frente">Frente</option><option value="Plataforma">Canal</option></select>
+                    <select id="v3_month" class="border rounded p-2 text-xs font-bold text-emerald-700" onchange="renderPacing()"></select>
+                    <select id="v3_grouping" class="border rounded p-2 text-xs font-bold text-slate-700" onchange="renderPacing()"><option value="Frente">Por Frente</option><option value="Plataforma">Por Canal</option></select>
                 </div>
             </div>
-            <div id="v3_kpiContainer" class="grid grid-cols-3 gap-6 mb-8"></div>
+            
+            <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></div>
+            
             <div class="bg-white rounded-xl border overflow-hidden">
-                <div class="p-4 bg-slate-50 border-b flex justify-between text-xs font-bold">
-                    <span>Acompanhamento Operacional</span>
-                    <div>Corridos: <span id="v3_lblCorridos" class="text-emerald-600">0</span> | Restantes: <span id="v3_lblRestantes" class="text-orange-600">0</span></div>
+                <div class="p-4 bg-slate-50 border-b flex justify-between items-center text-xs font-bold">
+                    <span class="uppercase">Metas x Realizado</span>
+                    <div class="bg-white border px-3 py-1 rounded">Dias Corridos: <span id="v3_lblCorridos" class="text-emerald-600">0</span> | Restantes: <span id="v3_lblRestantes" class="text-orange-600">0</span></div>
                 </div>
-                <div class="overflow-x-auto"><table class="min-w-full text-right text-xs whitespace-nowrap"><thead class="bg-slate-100 border-b-2 font-black uppercase text-[9px]"><tr class="text-center"><th class="text-left p-3 border-r">Estrutura</th><th colspan="4" class="border-r">Investimento (R$)</th><th colspan="4" class="border-r">Leads</th><th colspan="4">Vendas</th></tr><tr class="bg-slate-50 text-[8px] border-b text-slate-500"><th>Nome</th><th>Real</th><th>Proj</th><th>Meta</th><th class="border-r text-emerald-600">Objetivo Dia</th><th>Real</th><th>Proj</th><th>Meta</th><th class="border-r text-blue-600">Objetivo Dia</th><th>Real</th><th>Proj</th><th>Meta</th><th class="text-green-600">Objetivo Dia</th></tr></thead><tbody id="v3_tableBody" class="divide-y"></tbody></table></div>
+                <div class="overflow-x-auto"><table class="min-w-full text-right text-xs whitespace-nowrap"><thead class="bg-slate-100 border-b-2 font-black uppercase text-[9px]"><tr class="text-center"><th class="text-left p-3 border-r-2">Estrutura</th><th colspan="4" class="border-r-2">Investimento (R$)</th><th colspan="4" class="border-r-2 text-blue-700">Leads</th><th colspan="4" class="text-green-700">Vendas</th></tr><tr class="bg-slate-50 text-[10px] border-b text-slate-500"><th>Nome</th><th>Real</th><th>Proj</th><th>Meta</th><th class="border-r-2 text-emerald-600">Objetivo/Dia</th><th>Real</th><th>Proj</th><th>Meta</th><th class="border-r-2 text-blue-600">Objetivo/Dia</th><th>Real</th><th>Proj</th><th>Meta</th><th class="text-green-600">Objetivo/Dia</th></tr></thead><tbody id="v3_tableBody" class="divide-y"></tbody></table></div>
             </div>
         </section>
+
+        <section id="tab-analise" class="hidden p-8 max-w-[1600px] mx-auto animate-fade-in">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-purple-600 mb-6">
+                <h2 class="text-2xl font-black text-slate-800 uppercase">Análise de Criativos</h2><p class="text-slate-500 text-sm">Desempenho Micro (Requer Carregamento Detalhado)</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 bg-white p-5 rounded-xl border">
+                <div class="col-span-1"><label class="text-[10px] font-bold text-purple-700 uppercase">Data</label><div class="flex gap-1"><input type="date" id="v2_p1Start" class="w-full border rounded p-1.5 text-xs bg-slate-50"><input type="date" id="v2_p1End" class="w-full border rounded p-1.5 text-xs bg-slate-50"></div></div>
+                <div><label class="text-[10px] font-bold text-slate-500 uppercase block">Frente</label><select id="v2_frente" class="w-full border rounded p-1.5 text-xs bg-slate-50"><option value="ALL">Todas</option></select></div>
+                <div><label class="text-[10px] font-bold text-slate-500 uppercase block">Campanha</label><select id="v2_campanha" class="w-full border rounded p-1.5 text-xs bg-slate-50"><option value="ALL">Todas</option></select></div>
+                <div><label class="text-[10px] font-bold text-slate-500 uppercase block">Busca (Anúncio)</label><input type="text" id="v2_busca" class="w-full border rounded p-1.5 text-xs bg-slate-50" placeholder="Ex: video..."></div>
+                <div class="flex items-end"><button onclick="renderAnalise()" class="bg-purple-700 text-white rounded-lg font-bold text-xs hover:bg-purple-800 transition w-full h-9">FILTRAR</button></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded border overflow-hidden"><div class="p-3 bg-slate-50 border-b font-black text-[10px] uppercase text-slate-600">🚀 Top Campanhas</div><table class="w-full text-xs"><tbody id="v2_topCam" class="divide-y"></tbody></table></div>
+                <div class="bg-white rounded border overflow-hidden"><div class="p-3 bg-slate-50 border-b font-black text-[10px] uppercase text-slate-600">🎯 Top Conjuntos</div><table class="w-full text-xs"><tbody id="v2_topAdset" class="divide-y"></tbody></table></div>
+                <div class="bg-white rounded border overflow-hidden"><div class="p-3 bg-slate-50 border-b font-black text-[10px] uppercase text-slate-600">👥 Top Público</div><table class="w-full text-xs"><tbody id="v2_topDemo" class="divide-y"></tbody></table></div>
+            </div>
+
+            <div class="bg-white rounded-xl border p-5 flex flex-col mb-8">
+                <h3 class="font-black text-slate-800 uppercase text-center text-sm border-b pb-3 mb-3">🏆 Top 10 Criativos</h3>
+                <div class="overflow-x-auto"><table class="min-w-full text-left text-xs whitespace-nowrap"><thead class="uppercase text-[9px] text-slate-400 bg-slate-50"><tr><th class="p-3">Anúncio</th><th class="p-3 text-right">Gasto</th><th class="p-3 text-right text-blue-600">Leads</th><th class="p-3 text-right text-orange-600">CPL</th><th class="p-3 text-center">Score</th></tr></thead><tbody id="v2_topAds" class="divide-y"></tbody></table></div>
+            </div>
+            
+            <div class="bg-white rounded-xl border overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b flex justify-between items-center"><h3 class="font-bold text-xs uppercase">Desempenho Micro Detalhado</h3><select id="v2_grouping" class="text-xs border rounded p-1" onchange="renderAnaliseTable()"><option value="ad">Por Anúncio</option><option value="adset">Por Conjunto</option><option value="campaign">Por Campanha</option></select></div>
+                <div class="overflow-x-auto"><table class="min-w-full text-right text-xs whitespace-nowrap"><thead class="bg-white border-b uppercase text-slate-400 font-bold text-[9px]"><tr class="text-center"><th class="text-left p-3">Estrutura</th><th>Gasto</th><th>Impr</th><th>CTR</th><th class="text-blue-600">Leads</th><th>CVR</th><th class="text-orange-600">CPL</th><th class="text-purple-600">Score</th></tr></thead><tbody id="v2_tableBody" class="divide-y"></tbody></table></div>
+            </div>
+        </section>
+
     </main>
 
     <script>
-        Chart.register(ChartDataLabels);
-        window.globalData = [];
-        let v1_ChartObj = null, v2_ChartObj = null;
+        // -------------------------------------------------------------
+        // SEPARAÇÃO ESTRATÉGICA DOS LINKS
+        // MACRO = Agregados + Vendas + Metas (Carrega muito rápido)
+        // MICRO = 29 Planilhas detalhadas (Para Análise de Criativos)
+        // -------------------------------------------------------------
+        const MACRO_URLS = [
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=574214236&single=true&output=csv", // Vendas
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=1227414686&single=true&output=csv", // Planejados
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=0&single=true&output=csv", // Meta Agregado
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1254441910&single=true&output=csv", // Google Agregado
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1347821527&single=true&output=csv" // TikTok Agregado
+        ];
 
-        const SHEET_URLS = [
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=574214236&single=true&output=csv",
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=1227414686&single=true&output=csv",
+        const MICRO_URLS = [
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=0&single=true&output=csv",
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=1154341460&single=true&output=csv",
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEDPDOvOrnJ8mWBvKF9r_Ky9631vYr5CspOof-fubFa0E_FgQ3x9LPvh5zUjaSllEn5HsUDCb57YWT/pub?gid=0&single=true&output=csv",
@@ -142,128 +167,334 @@
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtbEP_0gEpNDaKn1BCzpLy9SofCQjUiCjcX8BmvMrKAboPsDo8H3arwN_OnGjTpP8zI2OBEeaa3y8E/pub?gid=1289448911&single=true&output=csv"
         ];
 
+        window.macroData = []; 
+        window.microData = []; 
+        let v1_ChartObj = null, v2_ChartObj = null;
+
+        // --- UTILITÁRIOS ---
         const fmt = { m: v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0), n: v => new Intl.NumberFormat('pt-BR').format(Math.round(v || 0)), p: v => (v || 0).toFixed(2) + '%' };
         function parseNum(val) { if (!val) return 0; if (typeof val === 'number') return val; let s = String(val).trim().replace(/[^\d,.-]/g, ''); if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.'); else if (s.includes(',')) s = s.replace(',', '.'); return parseFloat(s) || 0; }
         function normData(d) { let s = String(d || '').trim(); if(!s || s.toLowerCase()==='data') return null; let b = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(b) return `${b[3]}-${b[2].padStart(2,'0')}-${b[1].padStart(2,'0')}`; let i = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); return i ? `${i[1]}-${i[2].padStart(2,'0')}-${i[3].padStart(2,'0')}` : null; }
-        function extrairFrente(n) { let s = String(n||'').toLowerCase(); if(s.includes("ckb")) return "CKB"; if(s.includes("bajaj")) return "Bajaj"; if(s.includes("noma")) return "Noma"; if(s.includes("dafra")) return "Dafra"; if(s.includes("xcmg")) return "XCMG"; if(s.includes("shineray")) return "Shineray"; if(s.includes("carros")) return "Carros"; if(s.includes("imoveis")) return "Imóveis"; return s.split(/[\s\-\|]+/)[0].toUpperCase() || "OUTROS"; }
+        
+        function padronizarConta(nomeBruto) {
+            if (!nomeBruto) return "Outros";
+            let n = String(nomeBruto).toLowerCase();
+            if (n.includes("ckb espelho")) return "CKB Espelho";
+            if (n.includes("ckb whatsapp")) return "CKB - WhatsApp";
+            if (n.includes("ckb google")) return "Âncora | CKB";
+            if (n.includes("bajaj google")) return "Ancora | Bajaj";
+            return nomeBruto; 
+        }
+
+        function extrairFrente(nomeConta) {
+            if (!nomeConta) return "Outros";
+            let n = String(nomeConta).toLowerCase();
+            if (n.includes("ckb")) return "CKB";
+            if (n.includes("bajaj")) return "Bajaj";
+            if (n.includes("noma")) return "Noma";
+            if (n.includes("dafra")) return "Dafra";
+            if (n.includes("xcmg")) return "XCMG";
+            if (n.includes("shineray")) return "Shineray";
+            if (n.includes("carros")) return "Carros";
+            if (n.includes("imoveis")) return "Imóveis";
+            return n.split(/[\s\-\|]+/)[0].toUpperCase() || "OUTROS";
+        }
+
+        function cleanAdName(rawName) { if (!rawName) return 'Sem Nome'; return rawName.replace(/\s*[-—]*\s*(C[oó]pia|Copy).*$/i, '').trim(); }
+
+        Chart.register(ChartDataLabels);
+
+        // --- CARREGAMENTO INICIAL ---
+        window.onload = () => { carregarTudo(); };
 
         async function carregarTudo() {
             const status = document.getElementById('globalStatus');
-            let processadas = 0;
-            for (let i=0; i<SHEET_URLS.length; i++) {
-                status.innerHTML = `<div class="loader"></div> Sincronizando (${i+1}/${SHEET_URLS.length})...`;
+            
+            // 1. CARREGA MACRO (5 Links)
+            for (let i = 0; i < MACRO_URLS.length; i++) {
+                status.innerHTML = `<div class="loader"></div> Macro (${i+1}/${MACRO_URLS.length})...`;
                 await new Promise(resolve => {
-                    const timeout = setTimeout(() => { console.warn("Timeout no link", i); resolve(); }, 8000);
-                    Papa.parse(SHEET_URLS[i], { download: true, header: true, skipEmptyLines: true, 
+                    const timeout = setTimeout(resolve, 8000);
+                    Papa.parse(MACRO_URLS[i], { download: true, header: true, skipEmptyLines: true, 
                         complete: res => {
                             clearTimeout(timeout);
                             let k = Object.keys(res.data[0] || {});
-                            if(k.includes('Planejado Meta')) parsePlanejados(res.data);
-                            else if(k.includes('Meta') && k.includes('Google')) parseVendas(res.data);
-                            else parsePerformance(res.data);
+                            if(k.includes('Planejado Meta') || k.includes('Leads Planejados')) parsePlanejados(res.data);
+                            else if(k.includes('Data') && k.includes('Meta') && k.includes('Google')) parseVendas(res.data);
+                            else parsePerformanceMacro(res.data);
                             resolve();
-                        }, 
-                        error: () => { clearTimeout(timeout); resolve(); }
+                        }, error: resolve
                     });
                 });
             }
-            status.innerHTML = "✅ Dados Sincronizados"; status.classList.replace('text-orange-400','text-green-500');
-            initDash();
+
+            // Inicializa Dashboards Macro (para não fazer o usuário esperar)
+            initMacroDashboards();
+
+            // 2. CARREGA MICRO (29 Links) - Em background
+            for (let i = 0; i < MICRO_URLS.length; i++) {
+                status.innerHTML = `<div class="loader"></div> Micro (${i+1}/${MICRO_URLS.length})...`;
+                await new Promise(resolve => {
+                    const timeout = setTimeout(resolve, 8000);
+                    Papa.parse(MICRO_URLS[i], { download: true, header: true, skipEmptyLines: true, 
+                        complete: res => {
+                            clearTimeout(timeout);
+                            parsePerformanceMicro(res.data);
+                            resolve();
+                        }, error: resolve
+                    });
+                });
+            }
+
+            status.innerHTML = "✅ Sistema Online"; 
+            status.classList.replace('text-orange-400','text-emerald-400');
+            initMicroDashboards();
         }
 
+        // --- PARSERS DE DADOS ---
         function parsePlanejados(data) {
+            const hoje = new Date();
+            let mStr = String(hoje.getMonth()+1).padStart(2,'0');
+            let yStr = hoje.getFullYear();
+            let daysInMonth = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
+
             data.forEach(d => {
+                let cRaw = d.Conta || d.Frente; if (!cRaw) return;
+                let cPadrao = padronizarConta(cRaw);
                 let g = parseNum(d['Planejado Meta']) + parseNum(d['Planejado Google']) + parseNum(d['Planejado Tik Tok']);
-                let cpl = parseNum(d['CPL Planejado']), l = cpl>0 ? g/cpl : parseNum(d['Leads Planejados']);
-                for(let day=1; day<=30; day++) {
-                    window.globalData.push({ Data: `2026-04-${day<10?'0'+day:day}`, Frente: extrairFrente(d.Conta), Gasto: 0, Leads: 0, Vendas: 0, GastoPlan: g/30, LeadsPlan: l/30, VendasPlan: 0, Plataforma: 'Todas' });
+                let cpl = parseNum(d['CPL Planejado']);
+                let l = cpl > 0 ? (g / cpl) : parseNum(d['Leads Planejados']);
+                
+                for(let day=1; day<=daysInMonth; day++) {
+                    window.macroData.push({ 
+                        Data: `${yStr}-${mStr}-${day<10?'0'+day:day}`, 
+                        Frente: extrairFrente(cPadrao), Conta: cPadrao, Plataforma: 'Todas', 
+                        Gasto: 0, Leads: 0, Vendas: 0, Impressoes: 0, Cliques: 0,
+                        GastoPlan: g/daysInMonth, LeadsPlan: l/daysInMonth, VendasPlan: 0 
+                    });
                 }
             });
         }
+
         function parseVendas(data) {
             data.forEach(d => {
                 let dt = normData(d.Data); if(!dt) return;
-                let f = extrairFrente(d.Conta || d.Frente);
-                window.globalData.push({ Data: dt, Frente: f, Gasto: 0, Leads: 0, Vendas: parseNum(d.Meta)+parseNum(d.Google)+parseNum(d['Tik tok']), GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0, Plataforma: 'Todas' });
+                let c = padronizarConta(d.Conta || d.Frente || 'Desconhecida');
+                let f = extrairFrente(c);
+                let vM = parseNum(d.Meta), vG = parseNum(d.Google), vT = parseNum(d['Tik tok']);
+                
+                if(vM>0) window.macroData.push({ Data: dt, Frente: f, Conta: c, Plataforma: 'Facebook Ads', Gasto: 0, Leads: 0, Vendas: vM, Impressoes: 0, Cliques: 0, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
+                if(vG>0) window.macroData.push({ Data: dt, Frente: f, Conta: c, Plataforma: 'Google Ads', Gasto: 0, Leads: 0, Vendas: vG, Impressoes: 0, Cliques: 0, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
+                if(vT>0) window.macroData.push({ Data: dt, Frente: f, Conta: c, Plataforma: 'TikTok', Gasto: 0, Leads: 0, Vendas: vT, Impressoes: 0, Cliques: 0, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 });
             });
         }
-        function parsePerformance(data) {
+
+        function parsePerformanceMacro(data) {
             data.forEach(d => {
-                let dt = normData(d.Date || d.Data || d.Day || d['Reporting Starts']); if(!dt) return;
-                let c = d['Account Name'] || d.Account || d.Conta || 'Desconhecida';
-                let l = parseNum(d['Action Leads'] || d.Leads || d.Results || 0) + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0);
-                window.globalData.push({ Data: dt, Frente: extrairFrente(c), Plataforma: (d.Plataforma || d.Platform || 'Social').includes('Google')?'Google Ads':'Facebook Ads', Gasto: parseNum(d.Gasto || d.Spend || d.Cost), Leads: l, Vendas: 0, GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0, Campanha: d.Campaign || d['Campaign Name'], Anuncio: d.Ad || d['Ad Name'] });
+                let dt = normData(d.Date || d.Data || d['Date (Segment)'] || d.Day); if(!dt) return;
+                let cRaw = d.Account || d['Account Name'] || d.Conta || 'Desconhecida';
+                let leads = parseNum(d['Action Leads'] || d.Leads || d.Results || 0) + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0);
+                if (leads === 0) leads = parseNum(d.Conversions);
+
+                window.macroData.push({ 
+                    Data: dt, Frente: extrairFrente(padronizarConta(cRaw)), Conta: padronizarConta(cRaw), 
+                    Plataforma: extrairPlataforma(d.Plataforma || d.Platform || d['Platform Name'] || cRaw),
+                    Gasto: parseNum(d.Gasto || d.Spend || d.Cost || d['Amount Spent']), 
+                    Leads: leads, Vendas: 0, 
+                    Impressoes: parseNum(d.Impressions || d.Impressoes), Cliques: parseNum(d.Clicks || d.Cliques || d['Action Link Clicks']),
+                    GastoPlan: 0, LeadsPlan: 0, VendasPlan: 0 
+                });
             });
         }
 
-        function initDash() {
-            let dates = [...new Set(window.globalData.map(d=>d.Data))].filter(Boolean).sort();
-            if(dates.length) {
-                document.getElementById('v1_p1Start').value = document.getElementById('v2_p1Start').value = dates[Math.max(0, dates.length-15)];
-                document.getElementById('v1_p1End').value = document.getElementById('v2_p1End').value = dates[dates.length-1];
-                let mos = [...new Set(dates.map(d=>d.substring(0,7)))].sort().reverse();
-                document.getElementById('v3_month').innerHTML = mos.map(m=>`<option value="${m}">${m}</option>`).join('');
-            }
-            renderMaster(); renderAnalise(); renderPacing();
+        function parsePerformanceMicro(data) {
+            data.forEach(d => {
+                let dt = normData(d.Date || d.Data || d['Date (Segment)'] || d.Day); if(!dt) return;
+                let cRaw = d.Account || d['Account Name'] || d.Conta || 'Desconhecida';
+                let leads = parseNum(d['Action Leads'] || d.Leads || d.Results || 0) + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0);
+                if (leads === 0) leads = parseNum(d.Conversions);
+                
+                let age = d.Age || d['Age (Breakdown)'] || ''; let gender = d.Gender || d['Gender (Breakdown)'] || '';
+                if(gender.toLowerCase().includes('male') && !gender.toLowerCase().includes('fe')) gender='H'; else if(gender.toLowerCase().includes('fe')) gender='M';
+
+                window.microData.push({ 
+                    Data: dt, Frente: extrairFrente(padronizarConta(cRaw)), Conta: padronizarConta(cRaw), 
+                    Plataforma: extrairPlataforma(d.Plataforma || d.Platform || d['Platform Name'] || cRaw),
+                    Campanha: d.Campaign || d['Campaign Name'] || 'Sem Campanha', Conjunto: d.Adset || d['Adset Name'] || d['Ad group name'] || 'Sem Conjunto',
+                    Anuncio: cleanAdName(d.Ad || d['Ad Name']), Demografico: (age||gender)?`${age} | ${gender}`:'N/A',
+                    ImageURL: d['Image URL'] || d['Thumbnail URL'] || '',
+                    Gasto: parseNum(d.Gasto || d.Spend || d.Cost || d['Amount Spent']), Leads: leads,
+                    Impressoes: parseNum(d.Impressions || d.Impressoes), Cliques: parseNum(d.Clicks || d.Cliques || d['Action Link Clicks'])
+                });
+            });
         }
 
+        function extrairPlataforma(n) {
+            let s = String(n || '').toLowerCase();
+            if (s.includes('tiktok') || s.includes('tik tok')) return 'TikTok';
+            if (s.includes('google') || s.includes('youtube') || s.includes('search')) return 'Google Ads';
+            return 'Facebook Ads'; // Default
+        }
+
+        // --- CONTROLES DE NAVEGAÇÃO ---
         function switchTab(id, btn) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            
+            if(id === 'tab-master') renderMaster();
+            if(id === 'tab-pacing') renderPacing();
+            if(id === 'tab-analise') renderAnalise();
         }
 
-        // LOGICA MASTER (V1)
+        function initMacroDashboards() {
+            let dates = [...new Set(window.macroData.map(d=>d.Data))].filter(Boolean).sort();
+            if(dates.length) {
+                let max = dates[dates.length-1];
+                let min = dates[Math.max(0, dates.length-15)];
+                document.getElementById('v1_p1Start').value = min; document.getElementById('v1_p1End').value = max;
+                document.getElementById('v1_p2Start').value = dates[Math.max(0, dates.length-31)] || dates[0]; document.getElementById('v1_p2End').value = dates[Math.max(0, dates.length-16)] || dates[0];
+                
+                let mos = [...new Set(dates.map(d=>d.substring(0,7)))].sort().reverse();
+                document.getElementById('v3_month').innerHTML = mos.map(m=>`<option value="${m}">${m}</option>`).join('');
+            }
+            renderMaster(); renderPacing();
+        }
+
+        function initMicroDashboards() {
+            let dates = [...new Set(window.microData.map(d=>d.Data))].filter(Boolean).sort();
+            if(dates.length) {
+                document.getElementById('v2_p1Start').value = dates[Math.max(0, dates.length-15)]; 
+                document.getElementById('v2_p1End').value = dates[dates.length-1];
+            }
+            
+            let frentes = [...new Set(window.microData.map(d=>d.Frente))].filter(Boolean).sort();
+            let camps = [...new Set(window.microData.map(d=>d.Campanha))].filter(Boolean).sort();
+            document.getElementById('v2_frente').innerHTML = '<option value="ALL">Todas</option>' + frentes.map(f=>`<option value="${f}">${f}</option>`).join('');
+            document.getElementById('v2_campanha').innerHTML = '<option value="ALL">Todas</option>' + camps.map(c=>`<option value="${c}">${c}</option>`).join('');
+            
+            // Só renderiza se a aba estiver ativa
+            if(!document.getElementById('tab-analise').classList.contains('hidden')) renderAnalise();
+        }
+
+        // --- RENDERS: VISÃO MACRO (V1) ---
         function renderMaster() {
+            if(!window.macroData.length) return;
             let s=document.getElementById('v1_p1Start').value, e=document.getElementById('v1_p1End').value;
-            let data = window.globalData.filter(d=>d.Data>=s && d.Data<=e);
-            let a = data.reduce((acc,c)=>{acc.g+=c.Gasto; acc.l+=c.Leads; acc.v+=c.Vendas; acc.gp+=c.GastoPlan; acc.lp+=c.LeadsPlan; return acc;}, {g:0,l:0,v:0,gp:0,lp:0});
-            const c = (t, v, p, mon) => `<div class="bg-white p-4 border rounded shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">${t}</p><p class="text-xl font-black">${mon?fmt.m(v):fmt.n(v)}</p><p class="text-[9px] text-slate-400 font-bold">Meta: ${mon?fmt.m(p):fmt.n(p)}</p></div>`;
-            document.getElementById('v1_kpiContainer').innerHTML = c("Gasto", a.g, a.gp, true)+c("Leads", a.l, a.lp, false)+c("CPL", a.l>0?a.g/a.l:0, a.lp>0?a.gp/a.lp:0, true)+c("Vendas", a.v, 0, false)+c("CPA", a.v>0?a.g/a.v:0, 0, true);
-            renderMasterTable();
-        }
-        function renderMasterTable() {
-            let grp = document.getElementById('v1_grouping').value === 'frente' ? 'Frente' : 'Plataforma';
-            let s=document.getElementById('v1_p1Start').value, e=document.getElementById('v1_p1End').value;
-            let obj = window.globalData.filter(d=>d.Data>=s && d.Data<=e && d.Plataforma!=='Todas').reduce((acc,c)=>{ let k=c[grp]; if(!acc[k]) acc[k]={n:k,g:0,l:0,v:0,i:0}; acc[k].g+=c.Gasto; acc[k].l+=c.Leads; acc[k].v+=c.Vendas; acc[k].i+=c.Impressoes; return acc;},{});
-            document.getElementById('v1_tableBody').innerHTML = Object.values(obj).sort((a,b)=>b.g-a.g).map(i=>`<tr><td class="text-left p-3 font-bold">${i.n}</td><td>${fmt.m(i.g)}</td><td>${fmt.n(i.i)}</td><td>-</td><td class="text-blue-600 font-bold">${fmt.n(i.l)}</td><td>-</td><td class="text-orange-600 font-bold">${fmt.m(i.l>0?i.g/i.l:0)}</td><td class="text-green-600 font-bold">${fmt.n(i.v)}</td></tr>`).join('');
+            let s2=document.getElementById('v1_p2Start').value, e2=document.getElementById('v1_p2End').value;
+            let p=document.getElementById('v1_platform').value;
+
+            let fil = (d, start, end) => d.Data>=start && d.Data<=end && (p==='ALL' || d.Plataforma===p || d.Plataforma==='Todas');
+            let dataA = window.macroData.filter(d=>fil(d,s,e));
+            let dataB = window.macroData.filter(d=>fil(d,s2,e2));
+
+            let agg = (data) => data.reduce((a,c)=>{ a.g+=c.Gasto; a.l+=c.Leads; a.v+=c.Vendas; a.gp+=c.GastoPlan; a.lp+=c.LeadsPlan; return a; }, {g:0,l:0,v:0,gp:0,lp:0});
+            let aA = agg(dataA), aB = agg(dataB);
+
+            const c = (lbl, va, vb, plan, mon, inv) => {
+                let pct = vb>0 ? ((va-vb)/vb)*100 : 0; let cl = (inv ? pct<=0 : pct>=0) ? 'delta-up text-emerald-500' : 'delta-down text-red-500';
+                return `<div class="bg-white p-4 border rounded shadow-sm"><div class="text-[10px] font-bold text-slate-500 uppercase flex justify-between">${lbl} <span class="${cl}">${pct>=0?'▲':'▼'} ${Math.abs(pct).toFixed(1)}%</span></div><div class="text-2xl font-black my-1">${mon?fmt.m(va):fmt.n(va)}</div><div class="text-[9px] text-slate-400 font-bold uppercase">Meta: ${mon?fmt.m(plan):fmt.n(plan)}</div></div>`;
+            };
+
+            document.getElementById('v1_kpiContainer').innerHTML = c("Investimento", aA.g, aB.g, aA.gp, true) + c("Leads", aA.l, aB.l, aA.lp, false) + c("CPL Médio", aA.l>0?aA.g/aA.l:0, aB.l>0?aB.g/aB.l:0, aA.lp>0?aA.gp/aA.lp:0, true, true) + c("Vendas", aA.v, aB.v, 0, false) + c("CPA Médio", aA.v>0?aA.g/aA.v:0, aB.v>0?aB.g/aB.v:0, 0, true, true);
+            
+            // Tabela
+            let grp = document.getElementById('v1_grouping').value;
+            let tb = dataA.filter(d=>d.Plataforma!=='Todas').reduce((acc,c)=>{ let k=c[grp]; if(!acc[k]) acc[k]={n:k,g:0,l:0,v:0,i:0,cl:0}; acc[k].g+=c.Gasto; acc[k].l+=c.Leads; acc[k].v+=c.Vendas; acc[k].i+=c.Impressoes; acc[k].cl+=c.Cliques; return acc;},{});
+            document.getElementById('v1_tableBody').innerHTML = Object.values(tb).sort((a,b)=>b.g-a.g).map(i=>`<tr class="hover:bg-slate-50"><td class="text-left p-3 font-bold">${i.n}</td><td>${fmt.m(i.g)}</td><td class="text-slate-500">${fmt.n(i.i)}</td><td class="text-slate-500">${fmt.p(i.i>0?(i.cl/i.i)*100:0)}</td><td class="text-blue-600 font-bold">${fmt.n(i.l)}</td><td class="text-purple-500">${fmt.p(i.cl>0?(i.l/i.cl)*100:0)}</td><td class="text-orange-600 font-bold">${fmt.m(i.l>0?i.g/i.l:0)}</td><td class="text-green-600 font-bold">${fmt.n(i.v)}</td><td class="text-blue-800 font-black bg-blue-50/50">${fmt.m(i.v>0?i.g/i.v:0)}</td></tr>`).join('');
+
+            renderMasterChart(dataA);
         }
 
-        // LOGICA ANALISE (V2)
-        function renderAnalise() {
-            let s=document.getElementById('v2_p1Start').value, e=document.getElementById('v2_p1End').value;
-            let data = window.globalData.filter(d=>d.Data>=s && d.Data<=e && d.Anuncio);
-            let g = data.reduce((acc,c)=>{ let k=c.Anuncio; if(!acc[k]) acc[k]={n:k,g:0,l:0}; acc[k].g+=c.Gasto; acc[k].l+=c.Leads; return acc;},{});
-            let sorted = Object.values(g).sort((a,b)=>b.l-a.l).slice(0,10);
-            document.getElementById('v2_topAds').innerHTML = sorted.map(i=>`<tr><td class="p-2 truncate max-w-[150px] font-bold">${i.n}</td><td class="text-right p-2 font-bold">${fmt.n(i.l)}</td><td class="text-right p-2">${fmt.m(i.l>0?i.g/i.l:0)}</td></tr>`).join('');
+        function renderMasterChart(dataA) {
+            if(!dataA) return;
+            let met = document.getElementById('v1_metric').value;
+            let dates = [...new Set(dataA.map(d=>d.Data))].sort();
+            
+            let aggData = dates.map(dt => {
+                let rows = dataA.filter(r=>r.Data===dt);
+                let tg=0, tl=0, tv=0; rows.forEach(r=>{tg+=r.Gasto; tl+=r.Leads; tv+=r.Vendas;});
+                if(met==='cpl') return tl>0?tg/tl:0; if(met==='vendas') return tv; if(met==='gasto') return tg; return tl;
+            });
+
+            if(v1_ChartObj) v1_ChartObj.destroy();
+            v1_ChartObj = new Chart(document.getElementById('v1_chart'), { type: 'line', data: {labels:dates, datasets:[{label:met.toUpperCase(), data:aggData, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', fill:true, tension:0.4}]}, options:{plugins:{datalabels:{display:false}}, scales:{x:{grid:{display:false}},y:{beginAtZero:true}}} });
         }
 
-        // LOGICA PACING (V3)
+        // --- RENDERS: PACING (V3) ---
         function renderPacing() {
+            if(!window.macroData.length) return;
             let mo = document.getElementById('v3_month').value;
-            let dAtual = new Date().getDate(); // Pega o dia real de hoje
-            let dTot = new Date(parseInt(mo.split('-')[0]), parseInt(mo.split('-')[1]), 0).getDate();
+            if(!mo) return;
+
+            let dAtual = new Date().getDate(); // Hoje real
+            let hjStr = new Date().toISOString().substring(0,10);
+            
+            // Se o mês selecionado for passado, o dia atual é o último do mês
+            let refDate = new Date(parseInt(mo.split('-')[0]), parseInt(mo.split('-')[1]), 0);
+            if(mo !== hjStr.substring(0,7)) dAtual = refDate.getDate();
+
+            let dTot = refDate.getDate();
             let dRest = Math.max(dTot - dAtual + 1, 1);
+            
             document.getElementById('v3_lblCorridos').innerText = dAtual;
             document.getElementById('v3_lblRestantes').innerText = dRest;
 
             let grp = document.getElementById('v3_grouping').value;
-            let b = window.globalData.reduce((acc, d) => {
+            let obj = window.macroData.reduce((acc, d) => {
                 if(!d.Data.startsWith(mo)) return acc;
-                let k = d[grp] || 'Outros'; if(!acc[k]) acc[k]={n:k,g:0,gp:0,l:0,lp:0,v:0,vp:0};
-                acc[k].g+=d.Gasto; acc[k].l+=d.Leads; acc[k].v+=d.Vendas;
-                acc[k].gp+=d.GastoPlan; acc[k].lp+=d.LeadsPlan; acc[k].vp+=d.VendasPlan;
+                let k = d[grp] || 'Outros'; if(!acc[k]) acc[k]={n:k, g:0,go:0, gp:0, l:0,lo:0, lp:0, v:0,vo:0, vp:0};
+                
+                if(d.Plataforma !== 'Todas') {
+                    acc[k].g+=d.Gasto; acc[k].l+=d.Leads; acc[k].v+=d.Vendas;
+                    // Se a data for ontem (simplificado para dAtual-1 para fins do painel)
+                    let numDia = parseInt(d.Data.split('-')[2]);
+                    if(numDia === dAtual - 1) { acc[k].go+=d.Gasto; acc[k].lo+=d.Leads; acc[k].vo+=d.Vendas; }
+                } else {
+                    acc[k].gp+=d.GastoPlan; acc[k].lp+=d.LeadsPlan; acc[k].vp+=d.VendasPlan;
+                }
                 return acc;
             },{});
 
-            document.getElementById('v3_tableBody').innerHTML = Object.values(b).map(d=>{
-                let pG=(d.g/dAtual)*dTot, pL=(d.l/dAtual)*dTot;
-                return `<tr class="hover:bg-slate-50 border-b"><td class="p-3 font-bold text-left border-r">${d.n}</td><td>${fmt.m(d.g)}</td><td class="${pG>d.gp?'text-red-500':'text-emerald-600'}">${fmt.m(pG)}</td><td class="bg-slate-50 font-bold">${fmt.m(d.gp)}</td><td class="border-r font-black text-emerald-600">${fmt.m(Math.max((d.gp-d.g)/dRest,0))}</td><td>${fmt.n(d.l)}</td><td>${fmt.n(pL)}</td><td class="bg-slate-50 font-bold">${fmt.n(d.lp)}</td><td class="border-r font-black text-blue-600">${fmt.n(Math.max((d.lp-d.l)/dRest,0))}</td><td>${fmt.n(d.v)}</td><td>-</td><td class="bg-slate-50 font-bold">-</td><td class="font-black text-green-600">-</td></tr>`;
+            document.getElementById('v3_tableBody').innerHTML = Object.values(obj).sort((a,b)=>b.g-a.g).map(d=>{
+                let pG=(d.g/dAtual)*dTot, pL=(d.l/dAtual)*dTot, pV=(d.v/dAtual)*dTot;
+                let objG = Math.max((d.gp-d.g)/dRest,0), objL = Math.max((d.lp-d.l)/dRest,0), objV = Math.max((d.vp-d.v)/dRest,0);
+                return `<tr class="hover:bg-slate-50 border-b"><td class="p-3 font-bold text-left border-r-2">${d.n}</td><td class="pr-4">${fmt.m(d.g)}</td><td class="pr-4 text-orange-600 font-bold bg-orange-50/30">${fmt.m(d.go)}</td><td class="pr-4 ${pG>d.gp?'text-red-500 font-bold':'text-slate-600'}">${fmt.m(pG)}</td><td class="pr-4 bg-slate-50 font-bold text-slate-800">${fmt.m(d.gp)}</td><td class="pr-4 border-r-2 font-black text-emerald-600 bg-emerald-50/50">${fmt.m(objG)}/d</td><td class="pr-4 text-blue-600">${fmt.n(d.l)}</td><td class="pr-4 text-orange-600 font-bold bg-orange-50/30">${fmt.n(d.lo)}</td><td class="pr-4 ${pL<d.lp?'text-red-500 font-bold':'text-slate-600'}">${fmt.n(pL)}</td><td class="pr-4 bg-slate-50 font-bold text-slate-800">${fmt.n(d.lp)}</td><td class="pr-4 border-r-2 font-black text-blue-600 bg-blue-50/50">${fmt.n(objL)}/d</td><td class="pr-4 text-green-600">${fmt.n(d.v)}</td><td class="pr-4 text-orange-600 font-bold bg-orange-50/30">${fmt.n(d.vo)}</td><td class="pr-4 ${pV<d.vp?'text-red-500 font-bold':'text-slate-600'}">${fmt.n(pV)}</td><td class="pr-4 bg-slate-50 font-bold text-slate-800">${fmt.n(d.vp)}</td><td class="pr-4 font-black text-green-600 bg-green-50/50">${fmt.n(objV)}/d</td></tr>`;
             }).join('');
+
+            let tot = Object.values(obj).reduce((a,c)=>{a.g+=c.g; a.gp+=c.gp; a.l+=c.l; a.lp+=c.lp; a.v+=c.v; return a;},{g:0,gp:0,l:0,lp:0,v:0});
+            const card = (t, v, m, mon) => { let p=m>0?(v/m)*100:0; return `<div class="bg-white p-5 border rounded-xl shadow-sm"><div class="flex justify-between items-end mb-2"><div><h4 class="text-xs font-black text-slate-400 uppercase">${t}</h4><span class="text-2xl font-black">${mon?fmt.m(v):fmt.n(v)}</span></div><div class="text-right"><span class="text-[10px] font-bold text-slate-500 uppercase block">Meta</span><span class="text-sm font-bold text-slate-600">${mon?fmt.m(m):fmt.n(m)}</span></div></div><div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden"><div class="${p>=100?'bg-emerald-500':'bg-blue-500'} h-3" style="width:${Math.min(p,100)}%"></div></div></div>`; };
+            document.getElementById('v3_kpiContainer').innerHTML = card("Orçamento",tot.g,tot.gp,true) + card("Geração de Leads",tot.l,tot.lp,false) + card("Vendas",tot.v,0,false);
         }
 
-        window.onload = carregarTudo;
+        // --- RENDERS: ANÁLISE MICRO (V2) ---
+        function renderAnalise() {
+            if(!window.microData.length) return;
+            let s=document.getElementById('v2_p1Start').value, e=document.getElementById('v2_p1End').value;
+            let f=document.getElementById('v2_frente').value, c=document.getElementById('v2_campanha').value, txt=document.getElementById('v2_busca').value.toLowerCase();
+            
+            let data = window.microData.filter(d=> d.Data>=s && d.Data<=e && (f==='ALL'||d.Frente===f) && (c==='ALL'||d.Campanha===c) && (!txt||d.Anuncio.toLowerCase().includes(txt)));
+            
+            let calcScore = arr => { let ml=Math.max(...arr.map(i=>i.l),1), mc=Math.min(...arr.filter(i=>i.cpl>0).map(i=>i.cpl),100); arr.forEach(i=>{ i.score=i.l>0?Math.round(((i.l/ml)*40+(mc/Math.max(i.cpl,0.1))*40+(i.cvr/100)*20)):0;}); return arr.sort((x,y)=>y.score-x.score);};
+            let agg = (fld) => Object.values(data.reduce((ac,d)=>{let k=d[fld]; if(!ac[k]) ac[k]={n:k,g:0,l:0,i:0,cl:0, th:d.ImageURL}; ac[k].g+=d.Gasto; ac[k].l+=d.Leads; ac[k].i+=d.Impressoes; ac[k].cl+=d.Cliques; return ac;},{})).map(i=>{i.cpl=i.l>0?i.g/i.l:0; i.cvr=i.cl>0?(i.l/i.cl)*100:0; return i;});
+            
+            let rnk = (id, dt) => document.getElementById(id).innerHTML = calcScore(dt).slice(0,3).map(i=>`<tr><td class="p-2 font-bold truncate max-w-[120px]" title="${i.n}">${i.n}</td><td class="p-2 text-right text-blue-600 font-black">${i.l}</td><td class="p-2 text-right text-orange-600 font-bold">${fmt.m(i.cpl)}</td></tr>`).join('');
+            rnk('v2_topCam', agg('Campanha')); rnk('v2_topAdset', agg('Conjunto')); rnk('v2_topDemo', agg('Demografico').filter(i=>i.n!=='N/A'));
+            
+            let ads = calcScore(agg('Anuncio')).slice(0,10);
+            document.getElementById('v2_topAds').innerHTML = ads.map(i=>`<tr><td class="p-3 text-[11px] font-bold truncate max-w-[200px] flex items-center gap-2"><img src="${i.th}" class="w-8 h-8 rounded object-cover bg-slate-100">${i.n}</td><td class="p-3 text-right text-slate-500">${fmt.m(i.g)}</td><td class="p-3 text-right text-blue-600 font-black">${i.l}</td><td class="p-3 text-right text-orange-600 font-bold">${fmt.m(i.cpl)}</td><td class="p-3 text-center"><span class="${i.score>=70?'score-high':i.score>=40?'score-med':'score-low'}">${i.score}</span></td></tr>`).join('');
+            
+            renderAnaliseTable(data, calcScore);
+        }
+
+        function renderAnaliseTable(data, calcScore) {
+            if(!data) return;
+            let g = document.getElementById('v2_grouping').value;
+            let fld = g==='ad'?'Anuncio':g==='adset'?'Conjunto':'Campanha';
+            let arr = Object.values(data.reduce((ac,d)=>{let k=d[fld]; if(!ac[k]) ac[k]={n:k,g:0,l:0,i:0,cl:0}; ac[k].g+=d.Gasto; ac[k].l+=d.Leads; ac[k].i+=d.Impressoes; ac[k].cl+=d.Cliques; return ac;},{})).map(i=>{i.cpl=i.l>0?i.g/i.l:0; i.cvr=i.cl>0?(i.l/i.cl)*100:0; return i;});
+            document.getElementById('v2_tableBody').innerHTML = calcScore(arr).map(i=>`<tr class="hover:bg-slate-50 border-b"><td class="p-3 font-bold truncate max-w-[250px]" title="${i.n}">${i.n}</td><td class="text-right p-3">${fmt.m(i.g)}</td><td class="text-right p-3 text-slate-500">${fmt.n(i.i)}</td><td class="text-right p-3 text-slate-500">${fmt.p(i.i>0?(i.cl/i.i)*100:0)}</td><td class="text-right p-3 font-black text-blue-600">${fmt.n(i.l)}</td><td class="text-right p-3 text-purple-600">${fmt.p(i.cvr)}</td><td class="text-right p-3 font-bold text-orange-600">${fmt.m(i.cpl)}</td><td class="text-center p-3"><span class="${i.score>=70?'score-high':i.score>=40?'score-med':'score-low'}">${i.score}</span></td></tr>`).join('');
+        }
     </script>
 </body>
 </html>
