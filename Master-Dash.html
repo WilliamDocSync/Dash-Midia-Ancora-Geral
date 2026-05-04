@@ -44,29 +44,151 @@
 
     <main class="flex-1 h-full overflow-y-auto bg-slate-50 custom-scrollbar">
         
-        <section id="tab-master" class="p-8 max-w-[1600px] mx-auto animate-fade-in">
-            <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6">
+        <section id="tab-master" class="p-8 max-w-[1600px] mx-auto">
+
+            <!-- Header -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Visão Macro</h2>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-white p-5 rounded-xl border">
-                <div><label class="text-[10px] font-bold text-blue-600 uppercase block">Período Atual</label><div class="flex gap-1"><input type="date" id="v1_p1Start" class="w-full border rounded p-1.5 text-xs"><input type="date" id="v1_p1End" class="w-full border rounded p-1.5 text-xs"></div></div>
-                <div><label class="text-[10px] font-bold text-orange-500 uppercase block">Período Anterior</label><div class="flex gap-1"><input type="date" id="v1_p2Start" class="w-full border rounded p-1.5 text-xs"><input type="date" id="v1_p2End" class="w-full border rounded p-1.5 text-xs"></div></div>
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase block">Canal</label><select id="v1_platform" class="w-full border rounded p-1.5 text-xs bg-slate-50"><option value="ALL">Todas</option></select></div>
-                <div class="flex items-end"><button onclick="renderMaster()" class="bg-slate-800 text-white rounded font-bold text-xs hover:bg-black transition h-8 w-full uppercase">Atualizar Dash</button></div>
+                <button onclick="renderMaster()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-black text-xs px-6 h-9 uppercase transition">↺ Atualizar</button>
             </div>
 
-            <div id="v1_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8"></div>
-            
-            <div class="bg-white p-6 rounded-xl border mb-8">
-                <div class="flex justify-between items-center mb-4 border-b pb-2"><h3 class="font-bold text-xs uppercase text-slate-700">Evolução de Mídia</h3><select id="v1_metric" class="text-xs border rounded p-1" onchange="renderMaster()"><option value="leads">Leads</option><option value="gasto">Gasto (R$)</option><option value="vendas">Vendas</option></select></div>
+            <!-- Filtros -->
+            <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+                    <!-- Período Atual -->
+                    <div>
+                        <label class="text-[10px] font-black text-blue-600 uppercase block mb-1">📅 Período Atual</label>
+                        <div class="flex gap-1">
+                            <input type="date" id="v1_p1Start" class="w-full border rounded p-1.5 text-xs">
+                            <input type="date" id="v1_p1End" class="w-full border rounded p-1.5 text-xs">
+                        </div>
+                    </div>
+
+                    <!-- Período Anterior -->
+                    <div>
+                        <label class="text-[10px] font-black text-orange-500 uppercase block mb-1">📅 Período Anterior</label>
+                        <div class="flex gap-1">
+                            <input type="date" id="v1_p2Start" class="w-full border rounded p-1.5 text-xs">
+                            <input type="date" id="v1_p2End" class="w-full border rounded p-1.5 text-xs">
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Plataformas -->
+                    <div class="relative" id="dd_plat_wrap">
+                        <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Plataformas</label>
+                        <button onclick="toggleDropdown('dd_plat')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
+                            <span id="dd_plat_label">Todas</span><span>▾</span>
+                        </button>
+                        <div id="dd_plat" class="hidden absolute z-50 bg-white border rounded-xl shadow-xl mt-1 p-3 w-full max-h-52 overflow-y-auto custom-scrollbar">
+                            <label class="flex items-center gap-2 text-xs py-1 cursor-pointer font-bold hover:bg-slate-50 px-1 rounded">
+                                <input type="checkbox" id="dd_plat_all" checked onchange="toggleAll('dd_plat','v1_plat_')" class="accent-blue-600"> Todas
+                            </label>
+                            <div id="dd_plat_items" class="mt-1 space-y-0.5"></div>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Frentes -->
+                    <div class="relative" id="dd_frente_wrap">
+                        <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Frentes</label>
+                        <button onclick="toggleDropdown('dd_frente')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
+                            <span id="dd_frente_label">Todas</span><span>▾</span>
+                        </button>
+                        <div id="dd_frente" class="hidden absolute z-50 bg-white border rounded-xl shadow-xl mt-1 p-3 w-full max-h-52 overflow-y-auto custom-scrollbar">
+                            <label class="flex items-center gap-2 text-xs py-1 cursor-pointer font-bold hover:bg-slate-50 px-1 rounded">
+                                <input type="checkbox" id="dd_frente_all" checked onchange="toggleAll('dd_frente','v1_frente_')" class="accent-blue-600"> Todas
+                            </label>
+                            <div id="dd_frente_items" class="mt-1 space-y-0.5"></div>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Contas + Busca -->
+                    <div class="relative" id="dd_conta_wrap">
+                        <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Contas / Busca</label>
+                        <div class="flex gap-1">
+                            <button onclick="toggleDropdown('dd_conta')" class="flex-1 border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
+                                <span id="dd_conta_label">Todas</span><span>▾</span>
+                            </button>
+                            <input type="text" id="v1_busca" onkeyup="renderMaster()" placeholder="🔍 buscar..." class="border rounded p-1.5 text-xs w-24">
+                        </div>
+                        <div id="dd_conta" class="hidden absolute z-50 bg-white border rounded-xl shadow-xl mt-1 p-3 w-full max-h-52 overflow-y-auto custom-scrollbar">
+                            <label class="flex items-center gap-2 text-xs py-1 cursor-pointer font-bold hover:bg-slate-50 px-1 rounded">
+                                <input type="checkbox" id="dd_conta_all" checked onchange="toggleAll('dd_conta','v1_conta_')" class="accent-blue-600"> Todas
+                            </label>
+                            <div id="dd_conta_items" class="mt-1 space-y-0.5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div id="v1_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6"></div>
+
+            <!-- Gráfico -->
+            <div class="bg-white p-5 rounded-xl border shadow-sm mb-6">
+                <div class="flex flex-wrap justify-between items-center mb-4 gap-2 border-b pb-3">
+                    <h3 class="font-black text-xs uppercase text-slate-700">📈 Evolução de Mídia</h3>
+                    <div class="flex gap-2 flex-wrap">
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase block">Métrica</label>
+                            <select id="v1_metric" class="text-xs border rounded p-1 bg-slate-50" onchange="renderMasterChart(v1_cachedData)">
+                                <option value="leads">Leads</option>
+                                <option value="gasto">Investimento (R$)</option>
+                                <option value="cpl">CPL Médio (R$)</option>
+                                <option value="vendas">Vendas</option>
+                                <option value="cpa">CPA Médio (R$)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase block">Visualização</label>
+                            <select id="v1_chartType" class="text-xs border rounded p-1 bg-slate-50" onchange="renderMasterChart(v1_cachedData)">
+                                <option value="line">Linhas</option>
+                                <option value="bar">Barras</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase block">Agrupar por</label>
+                            <select id="v1_chartGroup" class="text-xs border rounded p-1 bg-slate-50" onchange="renderMasterChart(v1_cachedData)">
+                                <option value="total">Total Consolidado</option>
+                                <option value="Frente">Frentes (Marcas)</option>
+                                <option value="Plataforma">Canal (Google/Meta/TikTok)</option>
+                                <option value="Conta">Contas Individuais</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <canvas id="v1_chart" height="80"></canvas>
             </div>
 
-            <div class="bg-white rounded-xl border overflow-hidden">
-                <!-- FIX: onchange agora chama renderMaster() para ter os dados disponíveis -->
-                <div class="p-4 bg-slate-50 border-b flex justify-between items-center"><h3 class="font-bold text-xs uppercase">Detalhamento Financeiro</h3><select id="v1_grouping" class="text-xs border rounded p-1" onchange="renderMaster()"><option value="Frente">Por Frente</option><option value="Plataforma">Por Canal</option></select></div>
-                <div class="overflow-x-auto"><table class="min-w-full text-right text-xs whitespace-nowrap"><thead class="bg-white border-b uppercase text-slate-400 font-bold text-[9px]"><tr class="text-center"><th class="text-left p-3">Estrutura</th><th>Gasto</th><th>Impr</th><th>CTR</th><th class="text-blue-600">Leads</th><th>CVR</th><th class="text-orange-600">CPL</th><th class="text-green-600">Vendas</th></tr></thead><tbody id="v1_tableBody" class="divide-y"></tbody></table></div>
+            <!-- Tabela -->
+            <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
+                <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
+                    <h3 class="font-black text-xs uppercase">Detalhamento</h3>
+                    <select id="v1_grouping" class="text-xs border rounded p-1.5 bg-white font-bold" onchange="renderMasterTable()">
+                        <option value="Frente">Por Frente (Marca)</option>
+                        <option value="Plataforma">Por Canal</option>
+                        <option value="Conta">Por Conta Individual</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="min-w-full text-xs whitespace-nowrap">
+                        <thead class="bg-slate-50 border-b uppercase text-slate-400 font-black text-[9px] tracking-wide">
+                            <tr>
+                                <th class="text-left p-3 pl-4 w-56">Origem / Nome</th>
+                                <th class="text-right p-3">Investimento</th>
+                                <th class="text-right p-3">Impressões</th>
+                                <th class="text-right p-3">Cliques</th>
+                                <th class="text-right p-3">CTR</th>
+                                <th class="text-right p-3 text-blue-600">Leads</th>
+                                <th class="text-right p-3 text-emerald-600">CVR</th>
+                                <th class="text-right p-3 text-orange-600">CPL</th>
+                                <th class="text-right p-3 text-green-700">Vendas</th>
+                                <th class="text-right p-3 pr-4 bg-blue-50 text-blue-700">CPA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="v1_tableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -460,6 +582,7 @@
                     Data: dt,
                     Frente: extrairFrente(padronizarConta(c)),
                     Plataforma: plataforma,
+                    Conta: String(c || '').trim(),
                     Gasto: g, Leads: l, Vendas: 0,
                     GastoPlan: 0, LeadsPlan: 0,
                     Impressoes: parseNum(d.Impressions || d.Impressoes || 0),
@@ -507,16 +630,75 @@
             });
         }
 
+        function buildCheckboxList(containerId, allId, prefix, items, onChangeFn) {
+            let c = document.getElementById(containerId);
+            c.innerHTML = items.map(v => `
+                <label class="flex items-center gap-2 text-xs py-1 cursor-pointer hover:bg-slate-50 px-1 rounded">
+                    <input type="checkbox" id="${prefix}${v.replace(/[^a-zA-Z0-9]/g,'_')}" value="${v}" checked class="accent-blue-600" onchange="${onChangeFn}">
+                    <span class="truncate max-w-[160px]">${v}</span>
+                </label>`).join('');
+        }
+
+        function toggleDropdown(id) {
+            let el = document.getElementById(id);
+            // Close all others first
+            ['dd_plat','dd_frente','dd_conta'].forEach(d => { if(d !== id) document.getElementById(d).classList.add('hidden'); });
+            el.classList.toggle('hidden');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', e => {
+            ['dd_plat_wrap','dd_frente_wrap','dd_conta_wrap'].forEach(wId => {
+                let w = document.getElementById(wId);
+                if (w && !w.contains(e.target)) {
+                    let ddId = wId.replace('_wrap','');
+                    let dd = document.getElementById(ddId);
+                    if (dd) dd.classList.add('hidden');
+                }
+            });
+        });
+
+        function toggleAll(ddId, prefix) {
+            let allBox = document.getElementById(ddId + '_all');
+            let boxes = document.querySelectorAll(`input[id^="${prefix}"]`);
+            boxes.forEach(b => b.checked = allBox.checked);
+            updateDropLabel(ddId, prefix);
+            renderMaster();
+        }
+
+        function updateDropLabel(ddId, prefix) {
+            let allBox = document.getElementById(ddId + '_all');
+            let boxes = [...document.querySelectorAll(`input[id^="${prefix}"]`)];
+            let checked = boxes.filter(b => b.checked);
+            let lbl = document.getElementById(ddId + '_label');
+            if (!lbl) return;
+            if (checked.length === 0) { allBox.checked = false; lbl.textContent = 'Nenhum'; }
+            else if (checked.length === boxes.length) { allBox.checked = true; lbl.textContent = 'Todas'; }
+            else { allBox.checked = false; lbl.textContent = checked.length + ' selecionados'; }
+        }
+
+        function getChecked(prefix) {
+            return [...document.querySelectorAll(`input[id^="${prefix}"]:checked`)].map(b => b.value);
+        }
+
         function initMacro() {
-            let dates = [...new Set(window.macroData.map(d => d.Data))].filter(Boolean).sort();
+            let real = window.macroData.filter(d => d.Plataforma !== 'Todas');
+            let dates = [...new Set(real.map(d => d.Data))].filter(Boolean).sort();
             if (dates.length) {
                 document.getElementById('v1_p1Start').value = dates[Math.max(0, dates.length - 15)];
                 document.getElementById('v1_p1End').value = dates[dates.length - 1];
                 let mos = [...new Set(dates.map(d => d.substring(0, 7)))].sort().reverse();
                 document.getElementById('v3_month').innerHTML = mos.map(m => `<option value="${m}">${m}</option>`).join('');
             }
-            let plats = [...new Set(window.macroData.map(d => d.Plataforma))].filter(p => p && p !== 'Todas').sort();
-            document.getElementById('v1_platform').innerHTML = '<option value="ALL">Todas</option>' + plats.map(p => `<option value="${p}">${p}</option>`).join('');
+            let plats = [...new Set(real.map(d => d.Plataforma))].filter(Boolean).sort();
+            buildCheckboxList('dd_plat_items', 'dd_plat_all', 'v1_plat_', plats, "updateDropLabel('dd_plat','v1_plat_');renderMaster()");
+
+            let frentes = [...new Set(real.map(d => d.Frente))].filter(Boolean).sort();
+            buildCheckboxList('dd_frente_items', 'dd_frente_all', 'v1_frente_', frentes, "updateDropLabel('dd_frente','v1_frente_');renderMaster()");
+
+            let contas = [...new Set(real.map(d => d.Conta))].filter(Boolean).sort();
+            buildCheckboxList('dd_conta_items', 'dd_conta_all', 'v1_conta_', contas, "updateDropLabel('dd_conta','v1_conta_');renderMaster()");
+
             renderMaster();
             renderPacing();
         }
@@ -536,96 +718,222 @@
             btn.classList.add('active');
         }
 
-        // FIX: renderMasterTable usa cache para funcionar tanto no onchange quanto no renderMaster
         let v1_cachedData = [];
 
-        function renderMaster() {
-            let s = document.getElementById('v1_p1Start').value;
-            let e = document.getElementById('v1_p1End').value;
-            let p = document.getElementById('v1_platform').value;
-            let dataA = window.macroData.filter(d =>
+        // Paleta de cores para múltiplos datasets
+        const CHART_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
+
+        function applyMacroFilters(data) {
+            let s  = document.getElementById('v1_p1Start').value;
+            let e  = document.getElementById('v1_p1End').value;
+            let busca = (document.getElementById('v1_busca').value || '').toLowerCase();
+            let selPlat   = getChecked('v1_plat_');
+            let selFrente = getChecked('v1_frente_');
+            let selConta  = getChecked('v1_conta_');
+            return data.filter(d =>
                 d.Data >= s && d.Data <= e &&
-                (p === 'ALL' || d.Plataforma === p || d.Plataforma === 'Todas')
+                d.Plataforma !== 'Todas' &&
+                (selPlat.length === 0   || selPlat.includes(d.Plataforma)) &&
+                (selFrente.length === 0 || selFrente.includes(d.Frente)) &&
+                (selConta.length === 0  || selConta.includes(d.Conta)) &&
+                (!busca || (d.Frente||'').toLowerCase().includes(busca) || (d.Conta||'').toLowerCase().includes(busca))
             );
-            let a = dataA.reduce((acc, c) => {
-                acc.g += c.Gasto; acc.l += c.Leads; acc.v += c.Vendas;
-                acc.gp += c.GastoPlan; acc.lp += c.LeadsPlan;
-                return acc;
-            }, { g: 0, l: 0, v: 0, gp: 0, lp: 0 });
-
-            const card = (t, v, m, mon) => `
-                <div class="bg-white p-4 border rounded shadow-sm">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">${t}</p>
-                    <p class="text-xl font-black">${mon ? fmt.m(v) : fmt.n(v)}</p>
-                    <p class="text-[9px] text-slate-400 uppercase">Meta: ${mon ? fmt.m(m) : fmt.n(m)}</p>
-                </div>`;
-            document.getElementById('v1_kpiContainer').innerHTML =
-                card("Gasto", a.g, a.gp, true) +
-                card("Leads", a.l, a.lp, false) +
-                card("CPL", a.l > 0 ? a.g / a.l : 0, a.lp > 0 ? a.gp / a.lp : 0, true) +
-                card("Vendas", a.v, 0, false) +
-                card("CPA", a.v > 0 ? a.g / a.v : 0, 0, true);
-
-            v1_cachedData = dataA; // FIX: cacheia para uso em renderMasterTable
-            renderMasterTable();
-            renderMasterChart(dataA);
         }
 
-        // FIX: usa v1_cachedData em vez de parâmetro; funciona no onchange e no renderMaster
+        function applyMacroFiltersPrev(data) {
+            let s = document.getElementById('v1_p2Start').value;
+            let e = document.getElementById('v1_p2End').value;
+            if (!s || !e) return [];
+            let selPlat   = getChecked('v1_plat_');
+            let selFrente = getChecked('v1_frente_');
+            let selConta  = getChecked('v1_conta_');
+            return data.filter(d =>
+                d.Data >= s && d.Data <= e &&
+                d.Plataforma !== 'Todas' &&
+                (selPlat.length === 0   || selPlat.includes(d.Plataforma)) &&
+                (selFrente.length === 0 || selFrente.includes(d.Frente)) &&
+                (selConta.length === 0  || selConta.includes(d.Conta))
+            );
+        }
+
+        function getMacroMeta(data) {
+            let s = document.getElementById('v1_p1Start').value;
+            let e = document.getElementById('v1_p1End').value;
+            return window.macroData.filter(d => d.Plataforma === 'Todas' && d.Data >= s && d.Data <= e);
+        }
+
+        function sumData(rows) {
+            return rows.reduce((a, d) => {
+                a.g += d.Gasto; a.l += d.Leads; a.v += d.Vendas;
+                a.i += d.Impressoes || 0; a.cl += d.Cliques || 0;
+                return a;
+            }, { g:0, l:0, v:0, i:0, cl:0 });
+        }
+
+        function renderMaster() {
+            v1_cachedData = applyMacroFilters(window.macroData);
+            let prev      = applyMacroFiltersPrev(window.macroData);
+            let meta      = getMacroMeta(window.macroData);
+
+            let cur  = sumData(v1_cachedData);
+            let ant  = sumData(prev);
+            let met  = meta.reduce((a,d) => { a.gp += d.GastoPlan; a.lp += d.LeadsPlan; return a; }, {gp:0,lp:0});
+
+            // Projeção: dias corridos vs total do período
+            let s = document.getElementById('v1_p1Start').value;
+            let e = document.getElementById('v1_p1End').value;
+            let dTot = s && e ? Math.max(1, (new Date(e) - new Date(s)) / 86400000 + 1) : 1;
+            let hoje = new Date().toISOString().substring(0,10);
+            let dCorr = Math.max(1, Math.min(dTot, (new Date(hoje) - new Date(s)) / 86400000 + 1));
+            let projFactor = dTot / dCorr;
+            let proj = { g: cur.g * projFactor, l: cur.l * projFactor, v: cur.v * projFactor };
+
+            const delta = (v, a) => {
+                if (!a || a === 0) return '';
+                let p = ((v - a) / a) * 100;
+                let cls = p >= 0 ? 'text-emerald-500' : 'text-red-500';
+                let arrow = p >= 0 ? '▲' : '▼';
+                return `<span class="${cls} font-black text-[10px]">${arrow}${Math.abs(p).toFixed(1)}%</span>`;
+            };
+
+            const pctBadge = (v, m) => {
+                if (!m) return '';
+                let p = (v / m) * 100;
+                let bg = p >= 100 ? 'bg-emerald-100 text-emerald-700' : p >= 80 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
+                return `<span class="${bg} text-[10px] font-black px-2 py-0.5 rounded-full">${p.toFixed(1)}%</span>`;
+            };
+
+            const card = (title, val, valPrev, metaV, projV, isMoney) => {
+                let fv = isMoney ? fmt.m : fmt.n;
+                return `<div class="bg-white border rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wide">${title}</span>
+                        <span>${delta(val, valPrev)} <span class="text-[9px] text-slate-300 font-bold">vs período ant.</span></span>
+                    </div>
+                    <p class="text-2xl font-black text-slate-800 mb-3">${fv(val)}</p>
+                    <div class="flex justify-between items-center text-[10px]">
+                        <div><span class="text-slate-400 font-bold uppercase block">Meta (Período)</span>
+                        <div class="flex items-center gap-1 mt-0.5">${metaV > 0 ? fv(metaV) : '<span class="text-slate-300">-</span>'} ${metaV > 0 ? pctBadge(val, metaV) : ''}</div></div>
+                        <div class="text-right"><span class="text-blue-600 font-black uppercase block">Projetado</span><span class="font-black text-slate-700">${fv(projV)}</span></div>
+                    </div>
+                </div>`;
+            };
+
+            let cpl    = cur.l > 0 ? cur.g / cur.l : 0;
+            let cplA   = ant.l > 0 ? ant.g / ant.l : 0;
+            let cplMet = met.lp > 0 ? met.gp / met.lp : 0;
+            let cpa    = cur.v > 0 ? cur.g / cur.v : 0;
+            let cpaA   = ant.v > 0 ? ant.g / ant.v : 0;
+            let projCpl = proj.l > 0 ? proj.g / proj.l : 0;
+            let projCpa = proj.v > 0 ? proj.g / proj.v : 0;
+
+            document.getElementById('v1_kpiContainer').innerHTML =
+                card('Investimento',  cur.g,  ant.g,  met.gp,  proj.g, true)  +
+                card('Leads Realizados', cur.l, ant.l, met.lp, proj.l, false) +
+                card('CPL Médio',     cpl,    cplA,   cplMet,  projCpl, true) +
+                card('Vendas',        cur.v,  ant.v,  0,       proj.v,  false)+
+                card('CPA Médio',     cpa,    cpaA,   0,       projCpa, true);
+
+            renderMasterTable();
+            renderMasterChart(v1_cachedData);
+        }
+
         function renderMasterTable() {
             let data = v1_cachedData;
-            if (!data || !data.length) return;
+            if (!data || !data.length) {
+                document.getElementById('v1_tableBody').innerHTML = '<tr><td colspan="10" class="text-center p-8 text-slate-400">Nenhum dado para os filtros selecionados</td></tr>';
+                return;
+            }
             let grp = document.getElementById('v1_grouping').value;
-            let tb = data.filter(d => d.Plataforma !== 'Todas').reduce((acc, c) => {
-                let k = c[grp] || 'Outros';
-                if (!acc[k]) acc[k] = { n: k, g: 0, l: 0, v: 0, i: 0, cl: 0 };
-                acc[k].g += c.Gasto; acc[k].l += c.Leads; acc[k].v += c.Vendas;
-                acc[k].i += (c.Impressoes || 0); acc[k].cl += (c.Cliques || 0);
+
+            // Agrupar e calcular sub-label de plataformas
+            let tb = data.reduce((acc, d) => {
+                let k = d[grp] || 'Outros';
+                if (!acc[k]) acc[k] = { n: k, g:0, l:0, v:0, i:0, cl:0, plats: new Set() };
+                acc[k].g += d.Gasto; acc[k].l += d.Leads; acc[k].v += d.Vendas;
+                acc[k].i += d.Impressoes || 0; acc[k].cl += d.Cliques || 0;
+                if (d.Plataforma) acc[k].plats.add(d.Plataforma);
                 return acc;
             }, {});
+
             document.getElementById('v1_tableBody').innerHTML = Object.values(tb)
                 .sort((a, b) => b.g - a.g)
-                .map(i => `<tr>
-                    <td class="text-left p-3 font-bold">${i.n}</td>
-                    <td>${fmt.m(i.g)}</td>
-                    <td>${fmt.n(i.i)}</td>
-                    <td>${fmt.p(i.i > 0 ? (i.cl / i.i) * 100 : 0)}</td>
-                    <td class="text-blue-600 font-bold">${fmt.n(i.l)}</td>
-                    <td>${fmt.p(i.cl > 0 ? (i.l / i.cl) * 100 : 0)}</td>
-                    <td class="text-orange-600 font-bold">${fmt.m(i.l > 0 ? i.g / i.l : 0)}</td>
-                    <td class="text-green-600 font-bold">${fmt.n(i.v)}</td>
-                </tr>`).join('');
+                .map(i => {
+                    let platLabel = grp !== 'Plataforma' ? `<div class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">${[...i.plats].join(' + ')}</div>` : '';
+                    let ctr = i.i > 0 ? (i.cl / i.i) * 100 : 0;
+                    let cvr = i.cl > 0 ? (i.l / i.cl) * 100 : 0;
+                    let cpl = i.l > 0 ? i.g / i.l : 0;
+                    let cpa = i.v > 0 ? i.g / i.v : 0;
+                    return `<tr class="hover:bg-slate-50 transition-colors">
+                        <td class="text-left p-3 pl-4">
+                            <span class="font-black text-slate-800">${i.n}</span>${platLabel}
+                        </td>
+                        <td class="text-right p-3 font-bold">${fmt.m(i.g)}</td>
+                        <td class="text-right p-3 text-slate-600">${fmt.n(i.i)}</td>
+                        <td class="text-right p-3 text-slate-600">${fmt.n(i.cl)}</td>
+                        <td class="text-right p-3 text-slate-500">${fmt.p(ctr)}</td>
+                        <td class="text-right p-3 text-blue-600 font-black text-sm">${fmt.n(i.l)}</td>
+                        <td class="text-right p-3 text-emerald-600 font-bold">${fmt.p(cvr)}</td>
+                        <td class="text-right p-3 text-orange-600 font-bold">${fmt.m(cpl)}</td>
+                        <td class="text-right p-3 text-green-700 font-bold">${fmt.n(i.v)}</td>
+                        <td class="text-right p-3 pr-4 bg-blue-50 text-blue-700 font-black">${i.v > 0 ? fmt.m(cpa) : '<span class="text-slate-300">-</span>'}</td>
+                    </tr>`;
+                }).join('');
         }
 
         function renderMasterChart(dataA) {
-            let met = document.getElementById('v1_metric').value;
-            let dates = [...new Set(dataA.map(d => d.Data))].sort();
-            let aggData = dates.map(dt => {
-                let rows = dataA.filter(r => r.Data === dt);
-                let tg = 0, tl = 0, tv = 0;
+            let met       = document.getElementById('v1_metric').value;
+            let chartType = document.getElementById('v1_chartType').value;
+            let grpBy     = document.getElementById('v1_chartGroup').value;
+
+            let getMet = (rows) => {
+                let tg=0, tl=0, tv=0;
                 rows.forEach(r => { tg += r.Gasto; tl += r.Leads; tv += r.Vendas; });
-                if (met === 'cpl') return tl > 0 ? tg / tl : 0;
+                if (met === 'gasto')  return tg;
+                if (met === 'leads')  return tl;
+                if (met === 'cpl')    return tl > 0 ? tg/tl : 0;
                 if (met === 'vendas') return tv;
-                if (met === 'gasto') return tg;
+                if (met === 'cpa')    return tv > 0 ? tg/tv : 0;
                 return tl;
-            });
+            };
+
+            let dates = [...new Set(dataA.map(d => d.Data))].sort();
+            let datasets = [];
+
+            if (grpBy === 'total') {
+                datasets = [{
+                    label: met.toUpperCase(),
+                    data: dates.map(dt => getMet(dataA.filter(r => r.Data === dt))),
+                    borderColor: CHART_COLORS[0],
+                    backgroundColor: chartType === 'bar' ? CHART_COLORS[0] + '99' : 'rgba(59,130,246,0.08)',
+                    tension: 0.4, fill: chartType === 'line', pointRadius: 3
+                }];
+            } else {
+                let grupos = [...new Set(dataA.map(d => d[grpBy]))].filter(Boolean).sort();
+                datasets = grupos.map((g, idx) => ({
+                    label: g,
+                    data: dates.map(dt => getMet(dataA.filter(r => r.Data === dt && r[grpBy] === g))),
+                    borderColor: CHART_COLORS[idx % CHART_COLORS.length],
+                    backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] + (chartType === 'bar' ? 'bb' : '22'),
+                    tension: 0.4, fill: false, pointRadius: 2
+                }));
+            }
+
             if (v1_ChartObj) v1_ChartObj.destroy();
             v1_ChartObj = new Chart(document.getElementById('v1_chart'), {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: met.toUpperCase(),
-                        data: aggData,
-                        borderColor: '#3b82f6',
-                        tension: 0.4,
-                        fill: true,
-                        backgroundColor: 'rgba(59,130,246,0.1)'
-                    }]
-                },
+                type: chartType,
+                data: { labels: dates, datasets },
                 options: {
-                    plugins: { datalabels: { display: false } },
-                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        datalabels: { display: false },
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { beginAtZero: true, ticks: { font: { size: 10 } } }
+                    }
                 }
             });
         }
