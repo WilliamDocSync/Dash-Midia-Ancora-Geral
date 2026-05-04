@@ -782,11 +782,16 @@
             // Projeção: dias corridos vs total do período
             let s = document.getElementById('v1_p1Start').value;
             let e = document.getElementById('v1_p1End').value;
-            let dTot = s && e ? Math.max(1, (new Date(e) - new Date(s)) / 86400000 + 1) : 1;
-            let hoje = new Date().toISOString().substring(0,10);
-            let dCorr = Math.max(1, Math.min(dTot, (new Date(hoje) - new Date(s)) / 86400000 + 1));
-            let projFactor = dTot / dCorr;
-            let proj = { g: cur.g * projFactor, l: cur.l * projFactor, v: cur.v * projFactor };
+            // Projetado = extrapola para o mês atual completo
+            let hoje = new Date();
+            let mesAtual = hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0');
+            let diasNoMes = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
+            let diaHoje = hoje.getDate();
+            // Pega só dados do mês atual dentro do filtro
+            let dadosMes = v1_cachedData.filter(d => d.Data.startsWith(mesAtual));
+            let curMes = sumData(dadosMes);
+            let projFactor = diaHoje > 0 ? diasNoMes / diaHoje : 1;
+            let proj = { g: curMes.g * projFactor, l: curMes.l * projFactor, v: curMes.v * projFactor };
 
             const delta = (v, a) => {
                 if (!a || a === 0) return '';
@@ -919,6 +924,18 @@
                 }));
             }
 
+            // formata label conforme métrica
+            let met2 = document.getElementById('v1_metric').value;
+            let fmtLabel = (v) => {
+                if (!v && v !== 0) return '';
+                if (met2 === 'gasto' || met2 === 'cpl' || met2 === 'cpa') return 'R$' + new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0}).format(v);
+                return new Intl.NumberFormat('pt-BR').format(Math.round(v));
+            };
+
+            // Mostra labels só quando há poucos pontos/datasets para não poluir
+            let totalPontos = dates.length * datasets.length;
+            let showLabels = totalPontos <= 60;
+
             if (v1_ChartObj) v1_ChartObj.destroy();
             v1_ChartObj = new Chart(document.getElementById('v1_chart'), {
                 type: chartType,
@@ -927,13 +944,23 @@
                     responsive: true,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        datalabels: { display: false },
+                        datalabels: {
+                            display: showLabels,
+                            formatter: fmtLabel,
+                            font: { size: 8, weight: 'bold' },
+                            color: ctx => datasets.length === 1 ? '#1e40af' : ctx.dataset.borderColor,
+                            anchor: chartType === 'bar' ? 'end' : 'top',
+                            align: chartType === 'bar' ? 'end' : 'top',
+                            offset: 2,
+                            clip: false
+                        },
                         legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } }
                     },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { size: 10 } } },
                         y: { beginAtZero: true, ticks: { font: { size: 10 } } }
-                    }
+                    },
+                    layout: { padding: { top: 20 } }
                 }
             });
         }
