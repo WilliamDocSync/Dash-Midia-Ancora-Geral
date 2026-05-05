@@ -732,7 +732,8 @@
             // FIX: sheets de criativos sem Image Asset Hash (exportações sem hash)
             // são válidos se tiverem Ad Name/ID. Só descarta se não tiver
             // nenhum indicador de breakdown (demográfico OU criativo).
-            if (!ageKey && !hashKey && !hasAdName) return;
+            console.log('[parsePerfMicro] keys sample:', keys.slice(0,5), '| ageKey:', ageKey, '| hashKey:', hashKey, '| hasAdName:', hasAdName, '| rows:', data.length);
+            if (!ageKey && !hashKey && !hasAdName) { console.log('[parsePerfMicro] DESCARTADO'); return; }
 
             data.forEach(d => {
                 let dt = normData(d['Date'] || d['Data'] || d['Date (Segment)'] || d['Day'] || '');
