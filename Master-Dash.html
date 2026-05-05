@@ -726,7 +726,7 @@
             // Identifica quais colunas de breakdown existem no sheet
             let ageKey    = keys.find(k => k.includes('Age') && k.includes('Breakdown')) || '';
             let genderKey = keys.find(k => k.includes('Gender') && k.includes('Breakdown')) || '';
-            let hashKey   = keys.find(k => k.includes('Image Asset Hash')) || '';
+            let hashKey   = keys.find(k => k.includes('Image Asset Hash') || k.includes('Image Hash')) || '';
             let hasAdName = keys.includes('Ad Name') || keys.includes('Ad ID');
 
             // FIX: sheets de criativos sem Image Asset Hash (exportações sem hash)
