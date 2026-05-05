@@ -208,129 +208,179 @@
         </section>
 
         <section id="tab-analise" class="hidden p-8 max-w-[1600px] mx-auto">
-            <div class="bg-white p-6 rounded-xl border-b-4 border-purple-600 mb-6 flex justify-between items-center">
-                <h2 class="text-2xl font-black uppercase">Análise de Criativos</h2>
-                <div class="text-xs text-slate-400 font-bold" id="v2_countLabel"></div>
+            <!-- Header -->
+            <div class="bg-white p-5 rounded-xl border-b-4 border-purple-600 mb-6 flex justify-between items-center shadow-sm">
+                <h2 class="text-2xl font-black text-slate-800 uppercase">Análise de Criativos</h2>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-slate-400 font-bold" id="v2_countLabel"></span>
+                    <button onclick="renderAnalise()" class="bg-purple-700 hover:bg-purple-900 text-white rounded-lg font-black text-xs px-5 h-9 uppercase transition">↺ Filtrar</button>
+                </div>
             </div>
 
-            <!-- Filtros -->
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6 bg-white p-5 rounded-xl border">
-                <div class="col-span-2">
-                    <label class="text-[10px] font-bold uppercase block text-purple-700 mb-1">Período</label>
-                    <div class="flex gap-1">
-                        <input type="date" id="v2_p1Start" class="w-full border rounded p-1.5 text-xs">
-                        <input type="date" id="v2_p1End" class="w-full border rounded p-1.5 text-xs">
+            <!-- Filtros com checkboxes -->
+            <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                    <!-- Período atual -->
+                    <div>
+                        <label class="text-[10px] font-black text-purple-600 uppercase block mb-1">📅 Período Atual</label>
+                        <div class="flex gap-1">
+                            <input type="date" id="v2_p1Start" class="w-full border rounded p-1.5 text-xs">
+                            <input type="date" id="v2_p1End" class="w-full border rounded p-1.5 text-xs">
+                        </div>
+                    </div>
+                    <!-- Período anterior -->
+                    <div>
+                        <label class="text-[10px] font-black text-orange-500 uppercase block mb-1">📅 Período Anterior</label>
+                        <div class="flex gap-1">
+                            <input type="date" id="v2_p2Start" class="w-full border rounded p-1.5 text-xs">
+                            <input type="date" id="v2_p2End" class="w-full border rounded p-1.5 text-xs">
+                        </div>
+                    </div>
+                    <!-- Frentes dropdown -->
+                    <div class="relative" id="dd_v2_frente_wrap">
+                        <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Frentes</label>
+                        <button onclick="toggleDropdown('dd_v2_frente')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
+                            <span id="dd_v2_frente_label">Todas</span><span>▾</span>
+                        </button>
+                        <div id="dd_v2_frente" class="hidden absolute z-50 bg-white border rounded-xl shadow-xl mt-1 p-3 w-full max-h-52 overflow-y-auto custom-scrollbar">
+                            <label class="flex items-center gap-2 text-xs py-1 cursor-pointer font-bold hover:bg-slate-50 px-1 rounded">
+                                <input type="checkbox" id="dd_v2_frente_all" checked onchange="toggleAll('dd_v2_frente','v2_frente_')" class="accent-purple-600"> Todas
+                            </label>
+                            <div id="dd_v2_frente_items" class="mt-1 space-y-0.5"></div>
+                        </div>
+                    </div>
+                    <!-- Contas dropdown -->
+                    <div class="relative" id="dd_v2_conta_wrap">
+                        <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Contas</label>
+                        <button onclick="toggleDropdown('dd_v2_conta')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
+                            <span id="dd_v2_conta_label">Todas</span><span>▾</span>
+                        </button>
+                        <div id="dd_v2_conta" class="hidden absolute z-50 bg-white border rounded-xl shadow-xl mt-1 p-3 w-full max-h-52 overflow-y-auto custom-scrollbar">
+                            <label class="flex items-center gap-2 text-xs py-1 cursor-pointer font-bold hover:bg-slate-50 px-1 rounded">
+                                <input type="checkbox" id="dd_v2_conta_all" checked onchange="toggleAll('dd_v2_conta','v2_conta_')" class="accent-purple-600"> Todas
+                            </label>
+                            <div id="dd_v2_conta_items" class="mt-1 space-y-0.5"></div>
+                        </div>
+                    </div>
+                    <!-- Campanhas dropdown -->
+                    <div class="relative" id="dd_v2_camp_wrap">
+                        <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Campanhas</label>
+                        <button onclick="toggleDropdown('dd_v2_camp')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
+                            <span id="dd_v2_camp_label">Todas</span><span>▾</span>
+                        </button>
+                        <div id="dd_v2_camp" class="hidden absolute z-50 bg-white border rounded-xl shadow-xl mt-1 p-3 w-full max-h-52 overflow-y-auto custom-scrollbar">
+                            <label class="flex items-center gap-2 text-xs py-1 cursor-pointer font-bold hover:bg-slate-50 px-1 rounded">
+                                <input type="checkbox" id="dd_v2_camp_all" checked onchange="toggleAll('dd_v2_camp','v2_camp_')" class="accent-purple-600"> Todas
+                            </label>
+                            <div id="dd_v2_camp_items" class="mt-1 space-y-0.5"></div>
+                        </div>
+                    </div>
+                    <!-- Busca -->
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Busca Criativo</label>
+                        <input type="text" id="v2_busca" class="w-full border rounded p-1.5 text-xs" placeholder="Nome do ad...">
                     </div>
                 </div>
-                <div>
-                    <label class="text-[10px] font-bold uppercase block mb-1">Frente</label>
-                    <select id="v2_frente" class="w-full border rounded p-1.5 text-xs bg-slate-50" onchange="atualizarCampanhas()"><option value="ALL">Todas</option></select>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold uppercase block mb-1">Campanha</label>
-                    <select id="v2_campanha" class="w-full border rounded p-1.5 text-xs bg-slate-50"><option value="ALL">Todas</option></select>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold uppercase block mb-1 text-slate-400">Busca Criativo</label>
-                    <input type="text" id="v2_busca" class="w-full border rounded p-1.5 text-xs" placeholder="Nome do ad...">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="renderAnalise()" class="bg-purple-700 text-white rounded-lg font-bold text-xs h-8 w-full uppercase hover:bg-purple-900 transition">Filtrar</button>
-                </div>
             </div>
 
-            <!-- KPIs de criativos -->
-            <div id="v2_kpiContainer" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6"></div>
+            <!-- KPIs big numbers com delta -->
+            <div id="v2_kpiContainer" class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6"></div>
 
-            <!-- Top Campanhas / Conjuntos / Criativos -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Tops: 4 cards lado a lado -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <!-- Top Campanhas -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
-                    <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">🚀 Top Campanhas</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase">Leads / CPL / Score</span>
                     </div>
                     <table class="w-full text-xs">
+                        <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
+                            <th class="text-left p-2">Nome</th><th class="text-right p-2">Leads</th><th class="text-right p-2">CVR</th><th class="text-right p-2">CPL</th><th class="p-2">Score</th>
+                        </tr></thead>
                         <tbody id="v2_topCam" class="divide-y"></tbody>
                     </table>
                 </div>
                 <!-- Top Conjuntos -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
-                    <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">🎯 Top Conjuntos</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase">Leads / CPL / Score</span>
                     </div>
                     <table class="w-full text-xs">
+                        <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
+                            <th class="text-left p-2">Nome</th><th class="text-right p-2">Leads</th><th class="text-right p-2">CVR</th><th class="text-right p-2">CPL</th><th class="p-2">Score</th>
+                        </tr></thead>
                         <tbody id="v2_topAdset" class="divide-y"></tbody>
                     </table>
                 </div>
                 <!-- Top Criativos -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
-                    <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">🖼️ Top Criativos</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase">Leads / CPL / Score</span>
                     </div>
                     <table class="w-full text-xs">
+                        <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
+                            <th class="text-left p-2">Nome</th><th class="text-right p-2">Leads</th><th class="text-right p-2">CVR</th><th class="text-right p-2">CPL</th><th class="p-2">Score</th>
+                        </tr></thead>
                         <tbody id="v2_topAds" class="divide-y"></tbody>
+                    </table>
+                </div>
+                <!-- Top Públicos (demográfico) -->
+                <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
+                    <div class="p-3 bg-slate-50 border-b">
+                        <span class="font-black text-[10px] uppercase text-slate-600">👥 Top Públicos</span>
+                    </div>
+                    <table class="w-full text-xs">
+                        <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
+                            <th class="text-left p-2">Público</th><th class="text-right p-2">Leads</th><th class="text-right p-2">CVR</th><th class="text-right p-2">CPL</th><th class="p-2">Score</th>
+                        </tr></thead>
+                        <tbody id="v2_topPublico" class="divide-y"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Gráficos: Evolução + Demográfico -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div class="bg-white rounded-xl border p-5 shadow-sm">
-                    <div class="flex justify-between items-center mb-3 border-b pb-2">
-                        <h3 class="font-bold text-xs uppercase text-slate-700">📈 Evolução Diária</h3>
-                        <select id="v2_metricChart" class="text-xs border rounded p-1" onchange="renderAnalise()">
-                            <option value="leads">Leads</option>
-                            <option value="gasto">Gasto (R$)</option>
-                            <option value="cpl">CPL</option>
-                        </select>
-                    </div>
-                    <canvas id="v2_chart" height="130"></canvas>
+            <!-- Demográfico fullwidth -->
+            <div class="bg-white rounded-xl border p-5 shadow-sm mb-6">
+                <div class="flex justify-between items-center mb-3 border-b pb-2">
+                    <h3 class="font-black text-xs uppercase text-slate-700">👥 Demográfico — por Idade e Gênero</h3>
+                    <select id="v2_demoMetric" class="text-xs border rounded p-1 bg-slate-50 font-bold" onchange="renderDemoChart()">
+                        <option value="leads">Leads</option>
+                        <option value="cpl">CPL Médio</option>
+                        <option value="cvr">CVR (%)</option>
+                    </select>
                 </div>
-                <div class="bg-white rounded-xl border p-5 shadow-sm">
-                    <div class="flex justify-between items-center mb-3 border-b pb-2">
-                        <h3 class="font-bold text-xs uppercase text-slate-700">👥 Demográfico — Leads por Idade e Gênero</h3>
-                        <select id="v2_demoMetric" class="text-xs border rounded p-1" onchange="renderDemoChart()">
-                            <option value="leads">Leads</option>
-                            <option value="gasto">Gasto</option>
-                            <option value="impressoes">Impressões</option>
-                        </select>
-                    </div>
-                    <canvas id="v2_demoChart" height="130"></canvas>
-                </div>
+                <canvas id="v2_demoChart" height="60"></canvas>
             </div>
 
-            <!-- Tabela detalhada de criativos -->
+            <!-- Tabela detalhada -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
-                    <span class="font-black text-xs uppercase">📋 Todos os Criativos — Detalhado</span>
-                    <select id="v2_detailGroup" class="text-xs border rounded p-1" onchange="renderTabelaDetalhe()">
+                    <span class="font-black text-xs uppercase">📋 Detalhamento Completo</span>
+                    <select id="v2_detailGroup" class="text-xs border rounded p-1.5 bg-white font-bold" onchange="renderTabelaDetalhe()">
                         <option value="Anuncio">Por Criativo (Ad)</option>
                         <option value="Conjunto">Por Conjunto</option>
                         <option value="Campanha">Por Campanha</option>
+                        <option value="Conta">Por Conta</option>
                     </select>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="min-w-full text-xs whitespace-nowrap">
-                        <thead class="bg-slate-100 border-b uppercase text-slate-400 font-bold text-[9px]">
-                            <tr class="text-center">
+                        <thead class="bg-slate-50 border-b uppercase text-slate-400 font-black text-[9px] tracking-wide">
+                            <tr>
                                 <th class="text-left p-3">Nome</th>
-                                <th>Gasto</th>
-                                <th>Impr</th>
-                                <th>Cliques</th>
-                                <th>CTR</th>
-                                <th class="text-blue-600">Leads</th>
-                                <th class="text-orange-600">CPL</th>
-                                <th>CVR</th>
-                                <th>3s Views</th>
-                                <th>Thruplay</th>
-                                <th class="text-purple-600">Score</th>
-                                <th>Link</th>
+                                <th class="text-right p-3">Gasto</th>
+                                <th class="text-right p-3">Impr</th>
+                                <th class="text-right p-3">Cliques</th>
+                                <th class="text-right p-3">CTR</th>
+                                <th class="text-right p-3 text-blue-600">Leads</th>
+                                <th class="text-right p-3 text-orange-600">CPL</th>
+                                <th class="text-right p-3 text-emerald-600">CVR</th>
+                                <th class="text-right p-3 text-slate-400">3s Views</th>
+                                <th class="text-right p-3 text-slate-400">Thruplay</th>
+                                <th class="text-right p-3 text-purple-600">Score</th>
+                                <th class="text-right p-3">Link</th>
                             </tr>
                         </thead>
-                        <tbody id="v2_tabelaDetalhe" class="divide-y"></tbody>
+                        <tbody id="v2_tabelaDetalhe" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -610,6 +660,7 @@
                 if (isDemografico) {
                     window.demoData.push({
                         Data: dt, Frente: frente,
+                        Conta: String(c || '').trim(),
                         Campanha: d['Campaign Name'] || '', Conjunto: d['Adset Name'] || '', Anuncio: d['Ad Name'] || '',
                         Idade: d['Age (Breakdown)'] || 'N/A', Genero: d['Gender (Breakdown)'] || 'N/A',
                         Gasto: g, Leads: l, Impressoes: imp, Cliques: clk
@@ -617,6 +668,7 @@
                 } else {
                     window.microData.push({
                         Data: dt, Frente: frente,
+                        Conta: String(c || '').trim(),
                         Campanha: d['Campaign Name'] || '', Conjunto: d['Adset Name'] || '', Anuncio: d['Ad Name'] || '',
                         ImageHash: d['Image Asset Hash (Breakdown)'] || '',
                         VideoID: d['Video ID'] || '',
@@ -649,7 +701,7 @@
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', e => {
-            ['dd_plat_wrap','dd_frente_wrap','dd_conta_wrap'].forEach(wId => {
+            ['dd_plat_wrap','dd_frente_wrap','dd_conta_wrap','dd_v2_frente_wrap','dd_v2_conta_wrap','dd_v2_camp_wrap'].forEach(wId => {
                 let w = document.getElementById(wId);
                 if (w && !w.contains(e.target)) {
                     let ddId = wId.replace('_wrap','');
@@ -705,9 +757,16 @@
         }
 
         function initMicro() {
-            let frentes = [...new Set([...window.microData, ...window.demoData].map(d => d.Frente))].filter(Boolean).sort();
-            document.getElementById('v2_frente').innerHTML = '<option value="ALL">Todas</option>' + frentes.map(f => `<option value="${f}">${f}</option>`).join('');
-            atualizarCampanhas();
+            let allMicro = [...window.microData, ...window.demoData];
+            let frentes = [...new Set(allMicro.map(d => d.Frente))].filter(Boolean).sort();
+            buildCheckboxList('dd_v2_frente_items', 'dd_v2_frente_all', 'v2_frente_', frentes, "updateDropLabel('dd_v2_frente','v2_frente_');renderAnalise()");
+
+            let contas = [...new Set(allMicro.map(d => d.Conta))].filter(Boolean).sort();
+            buildCheckboxList('dd_v2_conta_items', 'dd_v2_conta_all', 'v2_conta_', contas, "updateDropLabel('dd_v2_conta','v2_conta_');renderAnalise()");
+
+            let camps = [...new Set(window.microData.map(d => d.Campanha))].filter(Boolean).sort();
+            buildCheckboxList('dd_v2_camp_items', 'dd_v2_camp_all', 'v2_camp_', camps, "updateDropLabel('dd_v2_camp','v2_camp_');renderAnalise()");
+
             document.getElementById('v2_p1Start').value = document.getElementById('v1_p1Start').value;
             document.getElementById('v2_p1End').value = document.getElementById('v1_p1End').value;
         }
@@ -1046,41 +1105,40 @@
                 card("Vendas", tot.v, 0, false);
         }
 
-        function atualizarCampanhas() {
-            let f = document.getElementById('v2_frente').value;
-            let camps = [...new Set(window.microData.filter(d => f === 'ALL' || d.Frente === f).map(d => d.Campanha))].filter(Boolean).sort();
-            document.getElementById('v2_campanha').innerHTML = '<option value="ALL">Todas</option>' + camps.map(c => `<option value="${c}">${c}</option>`).join('');
-        }
-
         let v2_cachedFiltered = [];
+        let v2_cachedPrev = [];
         let v2_cachedDemo = [];
-        let v2_ChartEvol = null, v2_ChartDemo = null;
+        let v2_ChartDemo = null;
 
-        function getFiltrados() {
-            let s = document.getElementById('v2_p1Start').value;
-            let e = document.getElementById('v2_p1End').value;
-            let f = document.getElementById('v2_frente').value;
-            let c = document.getElementById('v2_campanha').value;
-            let txt = (document.getElementById('v2_busca').value || '').toLowerCase();
-            return window.microData.filter(d =>
+        function getV2Filtros() {
+            return {
+                s:   document.getElementById('v2_p1Start').value,
+                e:   document.getElementById('v2_p1End').value,
+                s2:  document.getElementById('v2_p2Start').value,
+                e2:  document.getElementById('v2_p2End').value,
+                txt: (document.getElementById('v2_busca').value || '').toLowerCase(),
+                frentes: getChecked('v2_frente_'),
+                contas:  getChecked('v2_conta_'),
+                camps:   getChecked('v2_camp_'),
+            };
+        }
+
+        function applyV2Filter(data, f, isPrev) {
+            let s = isPrev ? f.s2 : f.s;
+            let e = isPrev ? f.e2 : f.e;
+            if (!s || !e) return [];
+            return data.filter(d =>
                 d.Data >= s && d.Data <= e &&
-                (f === 'ALL' || d.Frente === f) &&
-                (c === 'ALL' || d.Campanha === c) &&
-                (!txt || d.Anuncio.toLowerCase().includes(txt))
+                (f.frentes.length === 0 || f.frentes.includes(d.Frente)) &&
+                (f.contas.length  === 0 || f.contas.includes(d.Conta)) &&
+                (f.camps.length   === 0 || f.camps.includes(d.Campanha)) &&
+                (!f.txt || (d.Anuncio || '').toLowerCase().includes(f.txt))
             );
         }
 
-        function getFiltradosDemo() {
-            let s = document.getElementById('v2_p1Start').value;
-            let e = document.getElementById('v2_p1End').value;
-            let f = document.getElementById('v2_frente').value;
-            let c = document.getElementById('v2_campanha').value;
-            return window.demoData.filter(d =>
-                d.Data >= s && d.Data <= e &&
-                (f === 'ALL' || d.Frente === f) &&
-                (c === 'ALL' || d.Campanha === c)
-            );
-        }
+        function getFiltrados()     { return applyV2Filter(window.microData, getV2Filtros(), false); }
+        function getFiltradosPrev() { return applyV2Filter(window.microData, getV2Filtros(), true);  }
+        function getFiltradosDemo() { return applyV2Filter(window.demoData,  getV2Filtros(), false); }
 
         function aggBy(data, field) {
             return Object.values(data.reduce((acc, d) => {
@@ -1114,56 +1172,87 @@
             return `<span class="score-low">${s}</span>`;
         }
 
+        function topRow(i) {
+            let link = i.link ? `<a href="${i.link}" target="_blank" class="ml-1 text-purple-400">↗</a>` : '';
+            return `<tr class="hover:bg-purple-50">
+                <td class="p-2 font-bold max-w-[110px] truncate text-slate-700" title="${i.n}">${i.n}${link}</td>
+                <td class="text-right text-blue-600 font-black px-2">${fmt.n(i.l)}</td>
+                <td class="text-right text-emerald-600 font-bold px-2">${fmt.p(i.cvr)}</td>
+                <td class="text-right text-orange-600 font-bold px-2">${fmt.m(i.cpl)}</td>
+                <td class="text-center px-2">${scoreBadge(i.score)}</td>
+            </tr>`;
+        }
+
         function renderAnalise() {
             v2_cachedFiltered = getFiltrados();
-            v2_cachedDemo = getFiltradosDemo();
+            v2_cachedPrev     = getFiltradosPrev();
+            v2_cachedDemo     = getFiltradosDemo();
 
-            // KPIs
-            let tot = v2_cachedFiltered.reduce((a, d) => { a.g += d.Gasto; a.l += d.Leads; a.i += d.Impressoes || 0; a.cl += d.Cliques || 0; a.v3s += d.Views3s || 0; a.thr += d.Thruplay || 0; return a; }, { g:0,l:0,i:0,cl:0,v3s:0,thr:0 });
+            let tot  = v2_cachedFiltered.reduce((a, d) => { a.g+=d.Gasto; a.l+=d.Leads; a.i+=d.Impressoes||0; a.cl+=d.Cliques||0; return a; }, {g:0,l:0,i:0,cl:0});
+            let prev = v2_cachedPrev.reduce((a, d)     => { a.g+=d.Gasto; a.l+=d.Leads; a.i+=d.Impressoes||0; a.cl+=d.Cliques||0; return a; }, {g:0,l:0,i:0,cl:0});
+
             let uniqAds = new Set(v2_cachedFiltered.map(d => d.Anuncio)).size;
             document.getElementById('v2_countLabel').innerText = `${v2_cachedFiltered.length} registros | ${uniqAds} criativos`;
-            const kpiCard = (t, v, mon, sub) => `<div class="bg-white p-4 border rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">${t}</p><p class="text-lg font-black">${mon ? fmt.m(v) : fmt.n(v)}</p>${sub ? `<p class="text-[9px] text-slate-400">${sub}</p>` : ''}</div>`;
+
+            const deltaStr = (cur, ant) => {
+                if (!ant || ant === 0) return '';
+                let p = ((cur - ant) / ant) * 100;
+                let cls = p >= 0 ? 'text-emerald-500' : 'text-red-500';
+                return `<span class="${cls} text-[10px] font-black">${p >= 0 ? '▲' : '▼'}${Math.abs(p).toFixed(1)}%</span>`;
+            };
+
+            const kCard = (t, v, va, isMon, sub) => {
+                let fv = isMon ? fmt.m : (x => fmt.p ? fmt.p(x) : fmt.n(x));
+                if (t === 'Leads' || t === 'Impressões') fv = fmt.n;
+                let fmtV = (t === 'CTR' || t === 'CVR') ? fmt.p(v) : (isMon ? fmt.m(v) : fmt.n(v));
+                let fmtA = (t === 'CTR' || t === 'CVR') ? va : va;
+                return `<div class="bg-white border rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-[10px] font-black text-slate-400 uppercase">${t}</span>
+                        ${deltaStr(v, va)}
+                    </div>
+                    <p class="text-xl font-black text-slate-800">${(t==='CTR'||t==='CVR') ? fmt.p(v) : (isMon ? fmt.m(v) : fmt.n(v))}</p>
+                    ${sub ? `<p class="text-[9px] text-slate-400 mt-0.5">${sub}</p>` : ''}
+                </div>`;
+            };
+
+            let cpl  = tot.l  > 0 ? tot.g  / tot.l  : 0;
+            let ctr  = tot.i  > 0 ? (tot.cl / tot.i)  * 100 : 0;
+            let cvr  = tot.cl > 0 ? (tot.l  / tot.cl) * 100 : 0;
+            let cplP = prev.l  > 0 ? prev.g  / prev.l  : 0;
+            let ctrP = prev.i  > 0 ? (prev.cl / prev.i)  * 100 : 0;
+            let cvrP = prev.cl > 0 ? (prev.l  / prev.cl) * 100 : 0;
+
             document.getElementById('v2_kpiContainer').innerHTML =
-                kpiCard('Gasto', tot.g, true) +
-                kpiCard('Leads', tot.l, false) +
-                kpiCard('CPL', tot.l > 0 ? tot.g / tot.l : 0, true) +
-                kpiCard('CTR', tot.i > 0 ? (tot.cl / tot.i) * 100 : 0, false, 'Cliques/Impressões') +
-                kpiCard('CVR', tot.cl > 0 ? (tot.l / tot.cl) * 100 : 0, false, 'Leads/Cliques');
+                kCard('Investimento', tot.g,  prev.g,  true)  +
+                kCard('Impressões',   tot.i,  prev.i,  false) +
+                kCard('Leads',        tot.l,  prev.l,  false) +
+                kCard('CPL',          cpl,    cplP,    true)  +
+                kCard('CTR',          ctr,    ctrP,    false, 'Cliques/Impressões') +
+                kCard('CVR',          cvr,    cvrP,    false, 'Leads/Cliques');
 
-            // Top listas
+            // Top Campanhas
             let byCam = calcScore(aggBy(v2_cachedFiltered, 'Campanha'));
-            document.getElementById('v2_topCam').innerHTML = byCam.slice(0, 5).map(i =>
-                `<tr class="hover:bg-slate-50"><td class="p-2 font-bold max-w-[140px] truncate" title="${i.n}">${i.n}</td><td class="text-right text-blue-600 font-bold px-2">${fmt.n(i.l)}</td><td class="text-right text-orange-600 font-bold px-2">${fmt.m(i.cpl)}</td><td class="text-center px-2">${scoreBadge(i.score)}</td></tr>`
-            ).join('') || '<tr><td class="p-3 text-slate-400 text-center" colspan="4">Sem dados</td></tr>';
+            document.getElementById('v2_topCam').innerHTML = byCam.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados</td></tr>`;
 
+            // Top Conjuntos
             let byAdset = calcScore(aggBy(v2_cachedFiltered, 'Conjunto'));
-            document.getElementById('v2_topAdset').innerHTML = byAdset.slice(0, 5).map(i =>
-                `<tr class="hover:bg-slate-50"><td class="p-2 font-bold max-w-[140px] truncate" title="${i.n}">${i.n}</td><td class="text-right text-blue-600 font-bold px-2">${fmt.n(i.l)}</td><td class="text-right text-orange-600 font-bold px-2">${fmt.m(i.cpl)}</td><td class="text-center px-2">${scoreBadge(i.score)}</td></tr>`
-            ).join('') || '<tr><td class="p-3 text-slate-400 text-center" colspan="4">Sem dados</td></tr>';
+            document.getElementById('v2_topAdset').innerHTML = byAdset.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados</td></tr>`;
 
+            // Top Criativos
             let byAd = calcScore(aggBy(v2_cachedFiltered, 'Anuncio'));
-            document.getElementById('v2_topAds').innerHTML = byAd.slice(0, 5).map(i => {
-                let linkEl = i.link ? `<a href="${i.link}" target="_blank" class="text-blue-400 hover:text-blue-600">↗</a>` : '';
-                return `<tr class="hover:bg-slate-50"><td class="p-2 font-bold max-w-[140px] truncate" title="${i.n}">${i.n} ${linkEl}</td><td class="text-right text-blue-600 font-bold px-2">${fmt.n(i.l)}</td><td class="text-right text-orange-600 font-bold px-2">${fmt.m(i.cpl)}</td><td class="text-center px-2">${scoreBadge(i.score)}</td></tr>`;
-            }).join('') || '<tr><td class="p-3 text-slate-400 text-center" colspan="4">Sem dados</td></tr>';
+            document.getElementById('v2_topAds').innerHTML = byAd.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados</td></tr>`;
 
-            // Gráfico de evolução
-            let met = document.getElementById('v2_metricChart').value;
-            let dates = [...new Set(v2_cachedFiltered.map(d => d.Data))].sort();
-            let evolData = dates.map(dt => {
-                let rows = v2_cachedFiltered.filter(r => r.Data === dt);
-                let tg = 0, tl = 0;
-                rows.forEach(r => { tg += r.Gasto; tl += r.Leads; });
-                if (met === 'gasto') return tg;
-                if (met === 'cpl') return tl > 0 ? tg / tl : 0;
-                return tl;
-            });
-            if (v2_ChartEvol) v2_ChartEvol.destroy();
-            v2_ChartEvol = new Chart(document.getElementById('v2_chart'), {
-                type: 'line',
-                data: { labels: dates, datasets: [{ label: met.toUpperCase(), data: evolData, borderColor: '#7c3aed', tension: 0.4, fill: true, backgroundColor: 'rgba(124,58,237,0.08)' }] },
-                options: { plugins: { datalabels: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
-            });
+            // Top Públicos (Idade + Gênero combinados do demoData)
+            let demoAgg = Object.values(v2_cachedDemo.reduce((acc, d) => {
+                let k = (d.Genero === 'male' ? '♂' : d.Genero === 'female' ? '♀' : '?') + ' ' + d.Idade;
+                if (!acc[k]) acc[k] = { n: k, g:0, l:0, i:0, cl:0, link:'' };
+                acc[k].g += d.Gasto; acc[k].l += d.Leads;
+                acc[k].i += d.Impressoes||0; acc[k].cl += d.Cliques||0;
+                return acc;
+            }, {})).map(i => { i.cpl=i.l>0?i.g/i.l:0; i.cvr=i.cl>0?(i.l/i.cl)*100:0; i.ctr=i.i>0?(i.cl/i.i)*100:0; return i; });
+            let topPublico = calcScore(demoAgg);
+            document.getElementById('v2_topPublico').innerHTML = topPublico.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados demográficos</td></tr>`;
 
             renderDemoChart();
             renderTabelaDetalhe();
@@ -1171,32 +1260,58 @@
 
         function renderDemoChart() {
             let met = document.getElementById('v2_demoMetric').value;
-            // Agrupa por faixa etária e gênero
-            let idades = [...new Set(v2_cachedDemo.map(d => d.Idade))].filter(Boolean).sort();
-            let generos = [...new Set(v2_cachedDemo.map(d => d.Genero))].filter(Boolean);
-            // Ordena faixas etárias numericamente
+            let idades = [...new Set(v2_cachedDemo.map(d => d.Idade))].filter(Boolean);
             idades.sort((a, b) => parseInt(a) - parseInt(b));
+            let generos = [...new Set(v2_cachedDemo.map(d => d.Genero))].filter(Boolean);
 
-            let colors = { male: 'rgba(59,130,246,0.8)', female: 'rgba(236,72,153,0.8)', unknown: 'rgba(148,163,184,0.8)' };
+            let colors = { male: 'rgba(59,130,246,0.85)', female: 'rgba(236,72,153,0.85)', unknown: 'rgba(148,163,184,0.8)' };
             let datasets = generos.map(g => ({
                 label: g === 'male' ? '♂ Masculino' : g === 'female' ? '♀ Feminino' : g,
                 backgroundColor: colors[g] || 'rgba(148,163,184,0.8)',
                 data: idades.map(id => {
                     let rows = v2_cachedDemo.filter(d => d.Idade === id && d.Genero === g);
-                    if (met === 'gasto') return rows.reduce((s, r) => s + r.Gasto, 0);
-                    if (met === 'impressoes') return rows.reduce((s, r) => s + r.Impressoes, 0);
-                    return rows.reduce((s, r) => s + r.Leads, 0);
+                    if (!rows.length) return 0;
+                    if (met === 'cpl') {
+                        let tg = rows.reduce((s,r)=>s+r.Gasto,0);
+                        let tl = rows.reduce((s,r)=>s+r.Leads,0);
+                        return tl > 0 ? tg / tl : 0;
+                    }
+                    if (met === 'cvr') {
+                        let tcl = rows.reduce((s,r)=>s+r.Cliques,0);
+                        let tl  = rows.reduce((s,r)=>s+r.Leads,0);
+                        return tcl > 0 ? (tl/tcl)*100 : 0;
+                    }
+                    return rows.reduce((s,r)=>s+r.Leads,0); // leads default
                 })
             }));
 
             if (v2_ChartDemo) v2_ChartDemo.destroy();
+            let metLabel = met === 'cpl' ? 'CPL (R$)' : met === 'cvr' ? 'CVR (%)' : 'Leads';
             v2_ChartDemo = new Chart(document.getElementById('v2_demoChart'), {
                 type: 'bar',
                 data: { labels: idades, datasets },
                 options: {
-                    plugins: { datalabels: { display: false } },
-                    scales: { x: { stacked: false, grid: { display: false } }, y: { beginAtZero: true } },
-                    responsive: true
+                    responsive: true,
+                    plugins: {
+                        datalabels: {
+                            display: true,
+                            formatter: (v) => {
+                                if (!v) return '';
+                                if (met === 'cpl') return 'R$'+new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0}).format(v);
+                                if (met === 'cvr') return v.toFixed(1)+'%';
+                                return Math.round(v).toLocaleString('pt-BR');
+                            },
+                            font: { size: 8, weight: 'bold' },
+                            color: '#fff',
+                            anchor: 'center', align: 'center'
+                        },
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } },
+                        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.formattedValue}` } }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { beginAtZero: true, ticks: { font: { size: 10 } } }
+                    }
                 }
             });
         }
@@ -1205,18 +1320,18 @@
             let grp = document.getElementById('v2_detailGroup').value;
             let grouped = calcScore(aggBy(v2_cachedFiltered, grp));
             document.getElementById('v2_tabelaDetalhe').innerHTML = grouped.map(i => {
-                let linkEl = i.link ? `<a href="${i.link}" target="_blank" class="text-blue-500 hover:underline text-[10px]">↗ IG</a>` : '-';
+                let linkEl = i.link ? `<a href="${i.link}" target="_blank" class="text-purple-500 hover:underline text-[10px]">↗ IG</a>` : '-';
                 return `<tr class="hover:bg-purple-50 text-right">
-                    <td class="text-left p-3 font-bold max-w-[200px] truncate" title="${i.n}">${i.n}</td>
+                    <td class="text-left p-3 font-bold max-w-[200px] truncate text-slate-800" title="${i.n}">${i.n}</td>
                     <td class="px-3">${fmt.m(i.g)}</td>
-                    <td class="px-3">${fmt.n(i.i)}</td>
-                    <td class="px-3">${fmt.n(i.cl)}</td>
+                    <td class="px-3 text-slate-500">${fmt.n(i.i)}</td>
+                    <td class="px-3 text-slate-500">${fmt.n(i.cl)}</td>
                     <td class="px-3">${fmt.p(i.ctr)}</td>
                     <td class="px-3 text-blue-600 font-black">${fmt.n(i.l)}</td>
                     <td class="px-3 text-orange-600 font-bold">${fmt.m(i.cpl)}</td>
-                    <td class="px-3">${fmt.p(i.cvr)}</td>
-                    <td class="px-3 text-slate-500">${fmt.n(i.v3s)}</td>
-                    <td class="px-3 text-slate-500">${fmt.n(i.thr)}</td>
+                    <td class="px-3 text-emerald-600 font-bold">${fmt.p(i.cvr)}</td>
+                    <td class="px-3 text-slate-400">${fmt.n(i.v3s)}</td>
+                    <td class="px-3 text-slate-400">${fmt.n(i.thr)}</td>
                     <td class="px-3 text-center">${scoreBadge(i.score)}</td>
                     <td class="px-3 text-center">${linkEl}</td>
                 </tr>`;
