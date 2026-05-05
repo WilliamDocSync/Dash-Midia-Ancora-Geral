@@ -868,7 +868,7 @@
             let contas = [...new Set(allMicro.map(d => d.Conta))].filter(Boolean).sort();
             buildCheckboxList('dd_v2_conta_items', 'dd_v2_conta_all', 'v2_conta_', contas, "updateDropLabel('dd_v2_conta','v2_conta_');renderAnalise()");
 
-            let camps = [...new Set(window.microData.map(d => d.Campanha))].filter(Boolean).sort();
+            let camps = [...new Set([...window.demoData, ...window.microData].map(d => d.Campanha))].filter(Boolean).sort();
             buildCheckboxList('dd_v2_camp_items', 'dd_v2_camp_all', 'v2_camp_', camps, "updateDropLabel('dd_v2_camp','v2_camp_');renderAnalise()");
 
             document.getElementById('v2_p1Start').value = document.getElementById('v1_p1Start').value;
@@ -1270,18 +1270,65 @@
             );
         }
 
-        function getFiltrados()     { return applyV2Filter(window.microData, getV2Filtros(), false); }
-        function getFiltradosPrev() { return applyV2Filter(window.microData, getV2Filtros(), true);  }
-        function getFiltradosDemo() { return applyV2Filter(window.demoData,  getV2Filtros(), false); }
+        // demoData = fonte de verdade para KPIs; microData = lookup hash/nome/link
+        function getFiltrados()     { return applyV2Filter(window.demoData, getV2Filtros(), false); }
+        function getFiltradosPrev() { return applyV2Filter(window.demoData, getV2Filtros(), true);  }
+        function getFiltradosDemo() { return applyV2Filter(window.demoData, getV2Filtros(), false); }
+
+        // Monta lookup: Conta|Campanha|Conjunto|Anuncio -> { hash, nome, link, v3s, thr }
+        function buildHashLookup(filtros) {
+            let mf = applyV2Filter(window.microData, filtros, false);
+            let byHash = {};
+            mf.forEach(d => {
+                let h = d.ImageHash || d.VideoID || (d.Conta+'|'+d.Campanha+'|'+d.Conjunto+'|'+d.Anuncio);
+                if (!byHash[h]) byHash[h] = { hash:h, nome:d.Anuncio||'', link:d.PermalinkURL||'', leads:0, v3s:0, thr:0 };
+                if ((d.Leads||0) >= byHash[h].leads) {
+                    if (d.Anuncio) byHash[h].nome = d.Anuncio;
+                    if (d.PermalinkURL) byHash[h].link = d.PermalinkURL;
+                }
+                byHash[h].leads += d.Leads||0;
+                byHash[h].v3s   += d.Views3s||0;
+                byHash[h].thr   += d.Thruplay||0;
+            });
+            let lookup = {};
+            mf.forEach(d => {
+                let k = (d.Conta||'')+'|'+(d.Campanha||'')+'|'+(d.Conjunto||'')+'|'+(d.Anuncio||'');
+                let h = d.ImageHash || d.VideoID || k;
+                if (byHash[h] && !lookup[k]) lookup[k] = byHash[h];
+            });
+            return { byHash, lookup };
+        }
+
+        // Agrupa demoData por hash com KPIs corretos
+        function aggByHash(demoFiltrado, lookup) {
+            let byHash = {};
+            demoFiltrado.forEach(d => {
+                let k = (d.Conta||'')+'|'+(d.Campanha||'')+'|'+(d.Conjunto||'')+'|'+(d.Anuncio||'');
+                let info = lookup[k];
+                let hk   = info ? info.hash : k;
+                let nome = info ? info.nome : (d.Anuncio||'Sem nome');
+                let link = info ? info.link : '';
+                if (!byHash[hk]) byHash[hk] = { n:nome, g:0, l:0, i:0, cl:0, v3s:info?info.v3s:0, thr:info?info.thr:0, link };
+                byHash[hk].g  += d.Gasto;
+                byHash[hk].l  += d.Leads;
+                byHash[hk].i  += d.Impressoes||0;
+                byHash[hk].cl += d.Cliques||0;
+            });
+            return Object.values(byHash).map(i => {
+                i.cpl = i.l>0 ? i.g/i.l : 0;
+                i.cvr = i.cl>0 ? (i.l/i.cl)*100 : 0;
+                i.ctr = i.i>0 ? (i.cl/i.i)*100 : 0;
+                return i;
+            });
+        }
 
         function aggBy(data, field) {
             return Object.values(data.reduce((acc, d) => {
                 let k = d[field] || 'N/A';
-                if (!acc[k]) acc[k] = { n: k, g: 0, l: 0, i: 0, cl: 0, v3s: 0, thr: 0, link: d.PermalinkURL || '' };
+                if (!acc[k]) acc[k] = { n: k, g: 0, l: 0, i: 0, cl: 0, v3s: 0, thr: 0, link: '' };
                 acc[k].g += d.Gasto; acc[k].l += d.Leads;
                 acc[k].i += d.Impressoes || 0; acc[k].cl += d.Cliques || 0;
                 acc[k].v3s += d.Views3s || 0; acc[k].thr += d.Thruplay || 0;
-                if (!acc[k].link && d.PermalinkURL) acc[k].link = d.PermalinkURL;
                 return acc;
             }, {})).map(i => {
                 i.cpl = i.l > 0 ? i.g / i.l : 0;
@@ -1321,6 +1368,9 @@
             v2_cachedFiltered = getFiltrados();
             v2_cachedPrev     = getFiltradosPrev();
             v2_cachedDemo     = getFiltradosDemo();
+
+            // Monta lookup de hash/nome/link a partir do microData com os mesmos filtros
+            let { lookup: hashLookup } = buildHashLookup(getV2Filtros());
 
             let tot  = v2_cachedFiltered.reduce((a, d) => { a.g+=d.Gasto; a.l+=d.Leads; a.i+=d.Impressoes||0; a.cl+=d.Cliques||0; return a; }, {g:0,l:0,i:0,cl:0});
             let prev = v2_cachedPrev.reduce((a, d)     => { a.g+=d.Gasto; a.l+=d.Leads; a.i+=d.Impressoes||0; a.cl+=d.Cliques||0; return a; }, {g:0,l:0,i:0,cl:0});
@@ -1373,8 +1423,8 @@
             let byAdset = calcScore(aggBy(v2_cachedFiltered, 'Conjunto'));
             document.getElementById('v2_topAdset').innerHTML = byAdset.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados</td></tr>`;
 
-            // Top Criativos
-            let byAd = calcScore(aggBy(v2_cachedFiltered, 'Anuncio'));
+            // Top Criativos — agrupado por hash via microData, KPIs do demoData
+            let byAd = calcScore(aggByHash(v2_cachedFiltered, hashLookup));
             document.getElementById('v2_topAds').innerHTML = byAd.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados</td></tr>`;
 
             // Top Públicos (Idade + Gênero combinados do demoData)
