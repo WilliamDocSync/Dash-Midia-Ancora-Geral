@@ -697,22 +697,17 @@
             if (!data || !data.length) return;
             let keys = Object.keys(data[0]);
 
-            // Detecta tipo de sheet:
-            // - Demográfico: tem coluna Age (Breakdown)
-            // - Criativos: tem Image Asset Hash (Breakdown) ou Ad Name
-            // - Macro-level (sem breakdown de ad): ignora, já está em macroData
-            let isDemografico = keys.some(k => k.includes('Age') && k.includes('Breakdown'));
-            let isCriativo    = keys.some(k => k.includes('Image Asset Hash') || k === 'Ad Name' || k === 'Ad ID');
+            // Identifica quais colunas de breakdown existem no sheet
+            let ageKey    = keys.find(k => k.includes('Age') && k.includes('Breakdown')) || '';
+            let genderKey = keys.find(k => k.includes('Gender') && k.includes('Breakdown')) || '';
+            let hashKey   = keys.find(k => k.includes('Image Asset Hash')) || '';
+            let hasAdName = keys.includes('Ad Name') || keys.includes('Ad ID');
 
-            // Se não é nem demográfico nem criativo, é sheet macro-level → pula
-            if (!isDemografico && !isCriativo) return;
+            // Se não tem nenhum breakdown de criativo nem de ad, é sheet macro → ignora
+            if (!ageKey && !hashKey && !hasAdName) return;
 
             data.forEach(d => {
-                // FIX: aceita todas as variantes de coluna de data
-                let dt = normData(
-                    d['Date'] || d['Data'] || d['Date (Segment)'] || d['Day'] ||
-                    d['__DUP_Date (Segment)_1'] || ''
-                );
+                let dt = normData(d['Date'] || d['Data'] || d['Date (Segment)'] || d['Day'] || '');
                 if (!dt) return;
 
                 let c   = d['Account Name'] || d['Advertiser Name'] || d['Account'] || d['Conta'] || '';
@@ -726,35 +721,40 @@
                 let frente = extrairFrente(padronizarConta(c));
                 let conta  = String(c || '').trim();
 
-                if (isDemografico) {
-                    // Pega o valor correto da coluna Age (Breakdown) seja qual for o nome exato
-                    let ageKey    = keys.find(k => k.includes('Age') && k.includes('Breakdown')) || '';
-                    let genderKey = keys.find(k => k.includes('Gender') && k.includes('Breakdown')) || '';
+                // DETECÇÃO POR LINHA: o Meta pode exportar Age e ImageHash no mesmo sheet
+                // Cada linha pertence a um tipo ou outro — nunca os dois ao mesmo tempo
+                let ageVal  = ageKey  ? (d[ageKey]  || '').trim() : '';
+                let hashVal = hashKey ? (d[hashKey] || '').trim() : '';
+
+                // Se a linha tem valor de idade/gênero → demográfico
+                if (ageVal && ageVal !== 'N/A') {
                     window.demoData.push({
                         Data: dt, Frente: frente, Conta: conta,
-                        Campanha:  d['Campaign Name'] || '',
-                        Conjunto:  d['Adset Name'] || '',
-                        Anuncio:   d['Ad Name'] || '',
-                        Idade:     (ageKey    ? d[ageKey]    : '') || 'N/A',
-                        Genero:    (genderKey ? d[genderKey] : '') || 'N/A',
+                        Campanha: d['Campaign Name'] || '',
+                        Conjunto: d['Adset Name']   || '',
+                        Anuncio:  d['Ad Name']       || '',
+                        Idade:  ageVal,
+                        Genero: genderKey ? (d[genderKey] || 'N/A') : 'N/A',
                         Gasto: g, Leads: l, Impressoes: imp, Cliques: clk
                     });
-                } else {
+                } else if (hashVal || hasAdName) {
+                    // Se tem hash de imagem ou Ad Name → criativo
                     window.microData.push({
                         Data: dt, Frente: frente, Conta: conta,
-                        Campanha:         d['Campaign Name'] || '',
-                        Conjunto:         d['Adset Name'] || '',
-                        Anuncio:          d['Ad Name'] || '',
-                        ImageHash:        d['Image Asset Hash (Breakdown)'] || '',
-                        VideoID:          d['Video ID'] || '',
-                        PermalinkURL:     d['Instagram Permalink URL'] || '',
-                        ConvRateRanking:  d['Conversion Rate Ranking'] || '',
+                        Campanha:        d['Campaign Name'] || '',
+                        Conjunto:        d['Adset Name']   || '',
+                        Anuncio:         d['Ad Name']      || '',
+                        ImageHash:       hashVal,
+                        VideoID:         d['Video ID']                  || '',
+                        PermalinkURL:    d['Instagram Permalink URL']   || '',
+                        ConvRateRanking: d['Conversion Rate Ranking']   || '',
                         Gasto: g, Leads: l, Impressoes: imp, Cliques: clk,
-                        Views3s:   parseNum(d['Action 3s Video Views'] || 0),
-                        Thruplay:  parseNum(d['Video Thruplay Watched Actions'] || 0),
-                        AvgWatch:  parseNum(d['Video Avg Time Watched Actions'] || 0)
+                        Views3s:  parseNum(d['Action 3s Video Views']          || 0),
+                        Thruplay: parseNum(d['Video Thruplay Watched Actions']  || 0),
+                        AvgWatch: parseNum(d['Video Avg Time Watched Actions']  || 0)
                     });
                 }
+                // linhas sem breakdown algum são ignoradas (totalizadores)
             });
         }
 
