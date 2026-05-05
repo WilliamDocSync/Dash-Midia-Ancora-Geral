@@ -226,6 +226,21 @@
                 <p class="text-xs text-slate-400">Carregando...</p>
             </div>
 
+            <!-- Upload CSV local -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div>
+                        <p class="font-black text-xs text-blue-700 uppercase mb-0.5">📂 Carregar CSVs de Criativos / Demográfico</p>
+                        <p class="text-[10px] text-blue-500">Selecione um ou mais arquivos CSV exportados do Meta (Performance de Criativos ou Demográfico)</p>
+                    </div>
+                    <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-4 py-2 rounded-lg uppercase transition">
+                        Selecionar CSVs
+                        <input type="file" id="v2_csvUpload" multiple accept=".csv" class="hidden" onchange="carregarCSVsLocais(this.files)">
+                    </label>
+                    <span id="v2_uploadStatus" class="text-xs font-bold text-blue-600"></span>
+                </div>
+            </div>
+
             <!-- Filtros com checkboxes -->
             <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
                 <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
@@ -512,35 +527,46 @@
             ];
             
             const MICRO_URLS = [
+                // --- Carros: gid=0 (Criativos) | gid=1154341460 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWB7Ey5htCksNcg5v6el9izXFlDB0E-2BevsudO_JFRQpoJ0fU1RJzPQCyPGRVGXY2UoKQTa1oJAFs/pub?gid=1154341460&single=true&output=csv",
+                // --- Imóveis: gid=0 (Criativos) | gid=1154341460 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEDPDOvOrnJ8mWBvKF9r_Ky9631vYr5CspOof-fubFa0E_FgQ3x9LPvh5zUjaSllEn5HsUDCb57YWT/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEDPDOvOrnJ8mWBvKF9r_Ky9631vYr5CspOof-fubFa0E_FgQ3x9LPvh5zUjaSllEn5HsUDCb57YWT/pub?gid=1154341460&single=true&output=csv",
+                // --- CKB: gid=0 (Criativos) | gid=1154341460 (Demográfico) | gid=2085806024 (extra) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFYg-OGSfJMhUpvLomHXHvgczu_avfT3xg9W9ZWOVXVXdz0S1pbVzFSuowPLsb_RYiC5aSD1uORFrx/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFYg-OGSfJMhUpvLomHXHvgczu_avfT3xg9W9ZWOVXVXdz0S1pbVzFSuowPLsb_RYiC5aSD1uORFrx/pub?gid=1154341460&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFYg-OGSfJMhUpvLomHXHvgczu_avfT3xg9W9ZWOVXVXdz0S1pbVzFSuowPLsb_RYiC5aSD1uORFrx/pub?gid=2085806024&single=true&output=csv",
+                // --- Bajaj: gid=0 (Criativos) | gid=1616551509 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vRvJ1FvvWmj3z8RXO04kYj88L6EbJRKcbMSKloS9wtgNh2ZG-8OIKXicqnYKgWN5fjauM_kso5mgPjc/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vRvJ1FvvWmj3z8RXO04kYj88L6EbJRKcbMSKloS9wtgNh2ZG-8OIKXicqnYKgWN5fjauM_kso5mgPjc/pub?gid=1616551509&single=true&output=csv",
+                // --- Shineray: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSPNtK6CUq9UaMHiSt1fulz6a5JvYIoYHuba5c_NnFuNSKf9TQ91DAbkfjis3GwgPbLbClnW6spu8Qu/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSPNtK6CUq9UaMHiSt1fulz6a5JvYIoYHuba5c_NnFuNSKf9TQ91DAbkfjis3GwgPbLbClnW6spu8Qu/pub?gid=1289448911&single=true&output=csv",
+                // --- Motos: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS-suHnz4Kra3M7t-LsXn56-GbTaLG7-WVN_a1OPCQDRDC_I07ec2YLl8jf3fh0JnSqgs7JjpUhCl9G/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS-suHnz4Kra3M7t-LsXn56-GbTaLG7-WVN_a1OPCQDRDC_I07ec2YLl8jf3fh0JnSqgs7JjpUhCl9G/pub?gid=1289448911&single=true&output=csv",
+                // --- Kobe: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnrJTaswtK_FufUhPGpmSGnsKV24Ck1Dvi9r28n4lbbB--xL6Qbm0VTmWgU7jqRvZI4MZAi26Pk2Jn/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnrJTaswtK_FufUhPGpmSGnsKV24Ck1Dvi9r28n4lbbB--xL6Qbm0VTmWgU7jqRvZI4MZAi26Pk2Jn/pub?gid=1289448911&single=true&output=csv",
+                // --- Avelloz: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vT14kU0_P-ky8zG0T_Oy2Hao4F7L2uaHqzXo3qdq2bGUjB7ryNVJPE7FXHfqdC9stmaddwRepeXVWfH/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vT14kU0_P-ky8zG0T_Oy2Hao4F7L2uaHqzXo3qdq2bGUjB7ryNVJPE7FXHfqdC9stmaddwRepeXVWfH/pub?gid=1289448911&single=true&output=csv",
+                // --- Noma: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vToTpsIsDzm0Idn97GA539egC2x8Ncnxw8n-3nt0q2RUeycrFv-AW5lfIPH_DkKInGq5EjHOmVzNJRY/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vToTpsIsDzm0Idn97GA539egC2x8Ncnxw8n-3nt0q2RUeycrFv-AW5lfIPH_DkKInGq5EjHOmVzNJRY/pub?gid=1289448911&single=true&output=csv",
+                // --- Dafra: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vTScb64d_wa4OJHB_GNg-FpQwD2WZTvM6pfw6DLwxTPbgotVpAw9W2m0Mlr2MTdc9UJURo8erOXihy6/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vTScb64d_wa4OJHB_GNg-FpQwD2WZTvM6pfw6DLwxTPbgotVpAw9W2m0Mlr2MTdc9UJURo8erOXihy6/pub?gid=1289448911&single=true&output=csv",
+                // --- XCMG: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8wZiq5siaBmXRLk0K0NjTZUwhNxQQWiGbgXs3FjcIYIhKI9Nvy3Y9Ur0OO7u_k6G8Pg5bgIllWuzW/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8wZiq5siaBmXRLk0K0NjTZUwhNxQQWiGbgXs3FjcIYIhKI9Nvy3Y9Ur0OO7u_k6G8Pg5bgIllWuzW/pub?gid=1289448911&single=true&output=csv",
+                // --- Representantes: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdkM3xpekqJ2Fp9s38KdyNZtjucHUP1I7G-eOWVC31KJAr2NpATz8lZbAwua9nIMD8l6sKQAaz8L_Y/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdkM3xpekqJ2Fp9s38KdyNZtjucHUP1I7G-eOWVC31KJAr2NpATz8lZbAwua9nIMD8l6sKQAaz8L_Y/pub?gid=1289448911&single=true&output=csv",
+                // --- Beija Flor: gid=0 (Criativos) | gid=1289448911 (Demográfico) ---
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=0&single=true&output=csv",
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=1289448911&single=true&output=csv",
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtbEP_0gEpNDaKn1BCzpLy9SofCQjUiCjcX8BmvMrKAboPsDo8H3arwN_OnGjTpP8zI2OBEeaa3y8E/pub?gid=0&single=true&output=csv",
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtbEP_0gEpNDaKn1BCzpLy9SofCQjUiCjcX8BmvMrKAboPsDo8H3arwN_OnGjTpP8zI2OBEeaa3y8E/pub?gid=1289448911&single=true&output=csv"
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=1289448911&single=true&output=csv"
             ];
 
             // Macro: 5 planilhas (Planejados, Vendas, e Performance das 3 plataformas)
@@ -703,7 +729,9 @@
             let hashKey   = keys.find(k => k.includes('Image Asset Hash')) || '';
             let hasAdName = keys.includes('Ad Name') || keys.includes('Ad ID');
 
-            // Se não tem nenhum breakdown de criativo nem de ad, é sheet macro → ignora
+            // FIX: sheets de criativos sem Image Asset Hash (exportações sem hash)
+            // são válidos se tiverem Ad Name/ID. Só descarta se não tiver
+            // nenhum indicador de breakdown (demográfico OU criativo).
             if (!ageKey && !hashKey && !hasAdName) return;
 
             data.forEach(d => {
@@ -738,7 +766,7 @@
                         Gasto: g, Leads: l, Impressoes: imp, Cliques: clk
                     });
                 } else if (hashVal || hasAdName) {
-                    // Se tem hash de imagem ou Ad Name → criativo
+                    // Se tem hash de imagem OU Ad Name → criativo (inclui sheets sem hash)
                     window.microData.push({
                         Data: dt, Frente: frente, Conta: conta,
                         Campanha:        d['Campaign Name'] || '',
@@ -1178,6 +1206,36 @@
                 card("Gasto", tot.g, tot.gp, true) +
                 card("Leads", tot.l, tot.lp, false) +
                 card("Vendas", tot.v, 0, false);
+        }
+
+        function carregarCSVsLocais(files) {
+            if (!files || !files.length) return;
+            let status = document.getElementById('v2_uploadStatus');
+            status.textContent = 'Carregando...';
+            let total = files.length, done = 0;
+            let antMicro = window.microData.length;
+            let antDemo  = window.demoData.length;
+
+            Array.from(files).forEach(file => {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: res => {
+                        if (res.data && res.data.length) parsePerfMicro(res.data);
+                        done++;
+                        if (done === total) {
+                            let novMicro = window.microData.length - antMicro;
+                            let novDemo  = window.demoData.length  - antDemo;
+                            status.textContent = `✅ +${novMicro} criativos | +${novDemo} demográfico carregados`;
+                            status.className = 'text-xs font-bold text-emerald-600';
+                            // Reinit micro filters with new data
+                            initMicro();
+                            renderAnalise();
+                        }
+                    },
+                    error: () => { done++; }
+                });
+            });
         }
 
         let v2_cachedFiltered = [];
