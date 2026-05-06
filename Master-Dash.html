@@ -8,8 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 8px;}
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
@@ -23,6 +21,21 @@
         .score-high { color: #15803d; background-color: #dcfce7; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
         .score-med { color: #b45309; background-color: #fef3c7; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
         .score-low { color: #b91c1c; background-color: #fee2e2; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
+
+        /* ── Print / PDF ── */
+        @media print {
+            body { overflow: visible !important; background: #fff; }
+            aside { display: none !important; }
+            main  { overflow: visible !important; height: auto !important; }
+            section { display: block !important; page-break-inside: avoid; }
+            section.hidden { display: none !important; }
+            .no-print { display: none !important; }
+            canvas { max-width: 100% !important; }
+            .custom-scrollbar { overflow: visible !important; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            @page { size: A4 landscape; margin: 12mm; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-gray-800 flex h-screen overflow-hidden">
@@ -52,13 +65,13 @@
             <div class="bg-white p-5 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Visão Macro</h2>
                 <div class="flex gap-2">
-                    <button id="pdfBtn_tab-master" onclick="downloadPDF('tab-master','visao_macro')" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2">⬇ PDF</button>
+                    <button id="pdfBtn_tab-master" onclick="downloadPDF('tab-master')" class="no-print bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2">⬇ PDF</button>
                     <button onclick="renderMaster()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-black text-xs px-6 h-9 uppercase transition">↺ Atualizar</button>
                 </div>
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
+            <div class="no-print bg-white rounded-xl border shadow-sm mb-6 p-5">
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
 
                     <!-- Período Atual -->
@@ -291,7 +304,7 @@
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Análise de Criativos</h2>
                 <div class="flex items-center gap-3">
                     <span class="text-xs text-slate-400 font-bold" id="v2_countLabel"></span>
-                    <button id="pdfBtn_tab-analise" onclick="downloadPDF('tab-analise','analise_criativos')" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2">⬇ PDF</button>
+                    <button id="pdfBtn_tab-analise" onclick="downloadPDF('tab-analise')" class="no-print bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2">⬇ PDF</button>
                     <button onclick="renderAnalise()" class="bg-purple-700 hover:bg-purple-900 text-white rounded-lg font-black text-xs px-5 h-9 uppercase transition">↺ Filtrar</button>
                 </div>
             </div>
@@ -432,14 +445,17 @@
 
             <!-- Tabela detalhada -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
-                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center flex-wrap gap-2">
                     <span class="font-black text-xs uppercase">📋 Detalhamento Completo</span>
-                    <select id="v2_detailGroup" class="text-xs border rounded p-1.5 bg-white font-bold" onchange="renderTabelaDetalhe()">
+                    <div class="flex items-center gap-2">
+                        <select id="v2_detailGroup" class="text-xs border rounded p-1.5 bg-white font-bold" onchange="renderTabelaDetalhe()">
                         <option value="Anuncio">Por Criativo (Ad)</option>
                         <option value="Conjunto">Por Conjunto</option>
                         <option value="Campanha">Por Campanha</option>
                         <option value="Conta">Por Conta</option>
-                    </select>
+                        </select>
+                        <button onclick="downloadTabelaCSV()" class="no-print bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3 h-7 rounded-lg uppercase transition">⬇ CSV</button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="min-w-full text-xs whitespace-nowrap">
@@ -1655,6 +1671,7 @@
         function renderTabelaDetalhe() {
             let grp = document.getElementById('v2_detailGroup').value;
             let grouped = calcScore(aggBy(v2_cachedFiltered, grp));
+            window._v2Grouped = grouped; // armazena para exportação CSV
             document.getElementById('v2_tabelaDetalhe').innerHTML = grouped.map(i => {
                 let linkEl = i.link ? `<a href="${i.link}" target="_blank" class="text-purple-500 hover:underline text-[10px]">↗ IG</a>` : '-';
                 return `<tr class="hover:bg-purple-50 text-right">
@@ -1674,60 +1691,50 @@
             }).join('') || '<tr><td colspan="12" class="text-center p-6 text-slate-400">Nenhum dado no período selecionado</td></tr>';
         }
 
-        async function downloadPDF(sectionId, filename) {
-            let btn = document.getElementById('pdfBtn_' + sectionId);
-            let origText = btn.innerHTML;
-            btn.innerHTML = '<div class="loader"></div> Gerando...';
-            btn.disabled = true;
-
-            let section = document.getElementById(sectionId);
-
-            // Captura a seção inteira com scroll
-            let canvas = await html2canvas(section, {
-                scale: 1.5,
-                useCORS: true,
-                allowTaint: true,
-                scrollY: 0,
-                windowWidth: section.scrollWidth,
-                windowHeight: section.scrollHeight,
-                height: section.scrollHeight,
-                width: section.scrollWidth,
+        // PDF com texto selecionável via print nativo do browser
+        function downloadPDF(sectionId) {
+            // Garante que só a seção alvo fique visível na impressão
+            // usando a classe 'hidden' já existente nas sections
+            document.querySelectorAll('section').forEach(s => {
+                if (s.id === sectionId) s.classList.remove('hidden');
             });
+            window.print();
+            // Restaura o estado visual correto após o print
+            document.querySelectorAll('section').forEach(s => {
+                if (s.id !== sectionId) s.classList.add('hidden');
+            });
+        }
 
-            let { jsPDF } = window.jspdf;
-            let imgData = canvas.toDataURL('image/jpeg', 0.92);
-            let imgW = canvas.width;
-            let imgH = canvas.height;
-
-            // A4 landscape em pontos (595 x 842 portrait, 842 x 595 landscape)
-            let pdfW = 842, pdfH = 595;
-            let ratio = pdfW / imgW;
-            let scaledH = imgH * ratio;
-
-            let pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
-
-            // Se a altura cabe numa página, insere direto. Se não, pagina.
-            let pageH = pdfH - 20;
-            let pagesCount = Math.ceil(scaledH / pageH);
-
-            for (let i = 0; i < pagesCount; i++) {
-                if (i > 0) pdf.addPage();
-                let srcY = (i * pageH) / ratio;
-                let srcH = Math.min(pageH / ratio, imgH - srcY);
-
-                // Cria canvas parcial para cada página
-                let pageCanvas = document.createElement('canvas');
-                pageCanvas.width  = imgW;
-                pageCanvas.height = srcH;
-                let ctx = pageCanvas.getContext('2d');
-                ctx.drawImage(canvas, 0, srcY, imgW, srcH, 0, 0, imgW, srcH);
-                let pageData = pageCanvas.toDataURL('image/jpeg', 0.92);
-                pdf.addImage(pageData, 'JPEG', 10, 10, pdfW - 20, Math.min(pageH, srcH * ratio) - 10);
+        // Download CSV da tabela final de criativos
+        function downloadTabelaCSV() {
+            let grp = document.getElementById('v2_detailGroup')?.value || 'Anuncio';
+            let grouped = (window._v2Grouped || []);
+            if (!grouped.length) {
+                alert('Aplique um filtro primeiro para gerar os dados.');
+                return;
             }
-
-            pdf.save(filename + '_' + new Date().toISOString().slice(0,10) + '.pdf');
-            btn.innerHTML = origText;
-            btn.disabled = false;
+            let headers = ['Nome','Gasto (R$)','Impressões','Cliques','CTR (%)','Leads','CPL (R$)','CVR (%)','Views 3s','Thruplay','Score'];
+            let rows = grouped.map(i => [
+                `"${(i.n||'').replace(/"/g,'""')}"`,
+                (i.g||0).toFixed(2),
+                Math.round(i.i||0),
+                Math.round(i.cl||0),
+                (i.ctr||0).toFixed(2),
+                Math.round(i.l||0),
+                (i.cpl||0).toFixed(2),
+                (i.cvr||0).toFixed(2),
+                Math.round(i.v3s||0),
+                Math.round(i.thr||0),
+                i.score||0,
+            ].join(','));
+            let csv = '﻿' + headers.join(',') + '
+' + rows.join('
+');
+            let blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8;' });
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'criativos_' + (grp||'').toLowerCase() + '_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.click();
         }
 
         window.onload = carregarTudo;
