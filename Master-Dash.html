@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v13</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v14</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -1113,16 +1113,32 @@
                 return;
             }
             let grp = document.getElementById('v1_grouping').value;
+            let s0t = document.getElementById('v1_p1Start').value;
+            let e0t = document.getElementById('v1_p1End').value;
+            let selFrenteT = getChecked('v1_frente_');
+
+            // Vendas ficam em Plataforma='Todas' — construir lookup por chave de agrupamento
+            let vendasMap = {};
+            window.macroData.filter(d =>
+                d.Plataforma === 'Todas' && d.Vendas > 0 &&
+                d.Data >= s0t && d.Data <= e0t &&
+                (selFrenteT.length === 0 || selFrenteT.includes(d.Frente))
+            ).forEach(d => {
+                let k = d[grp] || 'Outros';
+                vendasMap[k] = (vendasMap[k] || 0) + d.Vendas;
+            });
 
             // Agrupar e calcular sub-label de plataformas
             let tb = data.reduce((acc, d) => {
                 let k = d[grp] || 'Outros';
                 if (!acc[k]) acc[k] = { n: k, g:0, l:0, v:0, i:0, cl:0, plats: new Set() };
-                acc[k].g += d.Gasto; acc[k].l += d.Leads; acc[k].v += d.Vendas;
+                acc[k].g += d.Gasto; acc[k].l += d.Leads;
                 acc[k].i += d.Impressoes || 0; acc[k].cl += d.Cliques || 0;
                 if (d.Plataforma) acc[k].plats.add(d.Plataforma);
                 return acc;
             }, {});
+            // Injeta vendas no agrupamento
+            Object.keys(tb).forEach(k => { tb[k].v = vendasMap[k] || 0; });
 
             document.getElementById('v1_tableBody').innerHTML = Object.values(tb)
                 .sort((a, b) => b.g - a.g)
@@ -1156,9 +1172,11 @@
             let chartType = document.getElementById('v1_chartType').value;
             let grpBy     = document.getElementById('v1_chartGroup').value;
 
-            let getMet = (rows) => {
-                let tg=0, tl=0, tv=0;
-                rows.forEach(r => { tg += r.Gasto; tl += r.Leads; tv += r.Vendas; });
+            let getMet = (rows, dt, gk) => {
+                let tg=0, tl=0;
+                rows.forEach(r => { tg += r.Gasto; tl += r.Leads; });
+                let mapKey = (dt||'') + '|' + (gk||'__total__');
+                let tv = vendasMapChart[mapKey] || 0;
                 if (met === 'gasto')  return tg;
                 if (met === 'leads')  return tl;
                 if (met === 'cpl')    return tl > 0 ? tg/tl : 0;
@@ -1171,10 +1189,25 @@
             let dates = [...new Set(dataA.map(d => d.Data))].sort();
             let datasets = [];
 
+            // Pre-build vendas map: date+groupKey → total vendas
+            let s0c = document.getElementById('v1_p1Start').value;
+            let e0c = document.getElementById('v1_p1End').value;
+            let selFrenteC = getChecked('v1_frente_');
+            let vendasMapChart = {};
+            window.macroData.filter(d =>
+                d.Plataforma === 'Todas' && d.Vendas > 0 &&
+                d.Data >= s0c && d.Data <= e0c &&
+                (selFrenteC.length === 0 || selFrenteC.includes(d.Frente))
+            ).forEach(d => {
+                let gk = grpBy === 'total' ? '__total__' : (d[grpBy] || 'Outros');
+                let key = d.Data + '|' + gk;
+                vendasMapChart[key] = (vendasMapChart[key] || 0) + d.Vendas;
+            });
+
             if (grpBy === 'total') {
                 datasets = [{
                     label: met.toUpperCase(),
-                    data: dates.map(dt => getMet(dataA.filter(r => r.Data === dt))),
+                    data: dates.map(dt => getMet(dataA.filter(r => r.Data === dt), dt, '__total__')),
                     borderColor: CHART_COLORS[0],
                     backgroundColor: chartType === 'bar' ? CHART_COLORS[0] + '99' : 'rgba(59,130,246,0.08)',
                     tension: 0.4, fill: chartType === 'line', pointRadius: 3
@@ -1183,7 +1216,7 @@
                 let grupos = [...new Set(dataA.map(d => d[grpBy]))].filter(Boolean).sort();
                 datasets = grupos.map((g, idx) => ({
                     label: g,
-                    data: dates.map(dt => getMet(dataA.filter(r => r.Data === dt && r[grpBy] === g))),
+                    data: dates.map(dt => getMet(dataA.filter(r => r.Data === dt && r[grpBy] === g), dt, g)),
                     borderColor: CHART_COLORS[idx % CHART_COLORS.length],
                     backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] + (chartType === 'bar' ? 'bb' : '22'),
                     tension: 0.4, fill: false, pointRadius: 2
