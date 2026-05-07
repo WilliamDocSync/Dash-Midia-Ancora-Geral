@@ -983,6 +983,25 @@
             let ant  = sumData(prev);
             let met  = meta.reduce((a,d) => { a.gp += d.GastoPlan; a.lp += d.LeadsPlan; return a; }, {gp:0,lp:0});
 
+            // Vendas ficam em Plataforma='Todas' — buscar separadamente no período
+            let s0 = document.getElementById('v1_p1Start').value;
+            let e0 = document.getElementById('v1_p1End').value;
+            let s2 = document.getElementById('v1_p2Start').value;
+            let e2 = document.getElementById('v1_p2End').value;
+            let selFrente0 = getChecked('v1_frente_');
+            let vendasCur = window.macroData.filter(d =>
+                d.Plataforma === 'Todas' && d.Vendas > 0 &&
+                d.Data >= s0 && d.Data <= e0 &&
+                (selFrente0.length === 0 || selFrente0.includes(d.Frente))
+            ).reduce((a,d) => a + d.Vendas, 0);
+            let vendasAnt = (s2 && e2) ? window.macroData.filter(d =>
+                d.Plataforma === 'Todas' && d.Vendas > 0 &&
+                d.Data >= s2 && d.Data <= e2 &&
+                (selFrente0.length === 0 || selFrente0.includes(d.Frente))
+            ).reduce((a,d) => a + d.Vendas, 0) : 0;
+            cur.v = vendasCur;
+            ant.v = vendasAnt;
+
             // Projeção: dias corridos vs total do período
             let s = document.getElementById('v1_p1Start').value;
             let e = document.getElementById('v1_p1End').value;
@@ -994,6 +1013,11 @@
             // Pega só dados do mês atual dentro do filtro
             let dadosMes = v1_cachedData.filter(d => d.Data.startsWith(mesAtual));
             let curMes = sumData(dadosMes);
+            let vendasMes = window.macroData.filter(d =>
+                d.Plataforma === 'Todas' && d.Vendas > 0 && d.Data.startsWith(mesAtual) &&
+                (selFrente0.length === 0 || selFrente0.includes(d.Frente))
+            ).reduce((a,d) => a + d.Vendas, 0);
+            curMes.v = vendasMes;
             let projFactor = diaHoje > 0 ? diasNoMes / diaHoje : 1;
             let proj = { g: curMes.g * projFactor, l: curMes.l * projFactor, v: curMes.v * projFactor };
 
@@ -1031,9 +1055,11 @@
             let cpl    = cur.l > 0 ? cur.g / cur.l : 0;
             let cplA   = ant.l > 0 ? ant.g / ant.l : 0;
             // ── Média histórica de taxa de vendas ──────────────────────────────
-            let realBase = window.macroData.filter(d => d.Plataforma !== 'Todas');
-            let totBase  = realBase.reduce((a,d) => { a.l+=d.Leads; a.v+=d.Vendas; return a; }, {l:0,v:0});
-            let histTaxa = totBase.l > 0 ? (totBase.v / totBase.l) * 100 : 0;
+            let realBase  = window.macroData.filter(d => d.Plataforma !== 'Todas');
+            let vendasBase = window.macroData.filter(d => d.Plataforma === 'Todas' && d.Vendas > 0)
+                                             .reduce((a,d) => a + d.Vendas, 0);
+            let totBaseL  = realBase.reduce((a,d) => a + d.Leads, 0);
+            let histTaxa  = totBaseL > 0 ? (vendasBase / totBaseL) * 100 : 0;
 
             let cplMet   = met.lp > 0 ? met.gp / met.lp : 0;
             let cpa      = cur.v > 0 ? cur.g / cur.v : 0;
