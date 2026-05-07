@@ -27,8 +27,11 @@
             body { overflow: visible !important; background: #fff; }
             aside { display: none !important; }
             main  { overflow: visible !important; height: auto !important; }
-            section { display: block !important; page-break-inside: avoid; }
-            section.hidden { display: none !important; }
+            /* Mostra só a seção marcada para impressão */
+            section { display: none !important; }
+            body[data-print-section="tab-master"]  #tab-master  { display: block !important; }
+            body[data-print-section="tab-analise"] #tab-analise { display: block !important; }
+            body[data-print-section="tab-pacing"]  #tab-pacing  { display: block !important; }
             .no-print { display: none !important; }
             canvas { max-width: 100% !important; }
             .custom-scrollbar { overflow: visible !important; }
@@ -673,11 +676,7 @@
                         skipEmptyLines: true,
                         // Criativos/demo sheets NÃO têm tabela resumo duplicada → sem transformHeader
                         complete: res => {
-                            let antes = window.microData.length + window.demoData.length;
                             parsePerfMicro(res.data);
-                            let depois = window.microData.length + window.demoData.length;
-                            let headers = res.data && res.data[0] ? Object.keys(res.data[0]).slice(0,5) : [];
-                            console.log(`[MICRO ${i+1}/${MICRO_URLS.length}] rows:${res.data?.length||0} parsed:${depois-antes} headers:${headers.join('|')}`);
                             resolve();
                         },
                         error: () => resolve()
@@ -686,42 +685,6 @@
             }
             status.innerHTML = "✅ Sistema Online";
             status.classList.replace('text-orange-400', 'text-emerald-500');
-
-            // DEBUG: mostra no console o que foi carregado
-            let frentesM = [...new Set(window.microData.map(d => d.Frente))].filter(Boolean).sort();
-            let frentesD = [...new Set(window.demoData.map(d => d.Frente))].filter(Boolean).sort();
-            let contasM  = [...new Set(window.microData.map(d => d.Conta))].filter(Boolean).sort();
-            console.log('=== MICRO DATA DEBUG ===');
-            console.log('Total microData:', window.microData.length);
-            console.log('Total demoData:', window.demoData.length);
-            console.log('Frentes microData:', frentesM);
-            console.log('Frentes demoData:', frentesD);
-            console.log('Contas microData:', contasM);
-            // Mostra amostra de datas
-            let datas = [...new Set(window.microData.map(d=>d.Data))].sort();
-            console.log('Datas range:', datas[0], '->', datas[datas.length-1], '(total:', datas.length,')');
-            // Mostra breakdown por conta
-            let porConta = {};
-            window.microData.forEach(d => { porConta[d.Conta] = (porConta[d.Conta]||0)+1; });
-            console.log('Registros por conta:', porConta);
-            // Mostra painel de debug na tela
-            let debugDiv = document.getElementById('debugPanel');
-            if (debugDiv) {
-                debugDiv.innerHTML = `
-                    <div class="text-xs font-mono space-y-1">
-                        <p><b>microData:</b> ${window.microData.length} registros | Frentes: ${frentesM.join(', ')||'nenhuma'}</p>
-                        <p><b>demoData:</b> ${window.demoData.length} registros | Frentes: ${frentesD.join(', ')||'nenhuma'}</p>
-                        <p><b>Contas micro:</b> ${contasM.join(', ')||'nenhuma'}</p>
-                        <p><b>Datas:</b> ${datas[0]||'?'} → ${datas[datas.length-1]||'?'} (${datas.length} dias)</p>
-                        <details class="mt-2"><summary class="cursor-pointer font-bold text-blue-600">Registros por conta (clique)</summary>
-                        <pre class="mt-1 text-[10px] bg-slate-100 p-2 rounded overflow-auto max-h-32">${JSON.stringify(porConta, null, 2)}</pre>
-                        </details>
-                        <details><summary class="cursor-pointer font-bold text-orange-600">1ª linha microData</summary>
-                        <pre class="mt-1 text-[10px] bg-slate-100 p-2 rounded overflow-auto max-h-32">${JSON.stringify(window.microData[0]||{}, null, 2)}</pre>
-                        </details>
-                    </div>`;
-                debugDiv.classList.remove('hidden');
-            }
 
             initMicro();
         }
@@ -803,8 +766,7 @@
             // FIX: sheets de criativos sem Image Asset Hash (exportações sem hash)
             // são válidos se tiverem Ad Name/ID. Só descarta se não tiver
             // nenhum indicador de breakdown (demográfico OU criativo).
-            console.log('[parsePerfMicro] keys sample:', keys.slice(0,5), '| ageKey:', ageKey, '| hashKey:', hashKey, '| hasAdName:', hasAdName, '| rows:', data.length);
-            if (!ageKey && !hashKey && !hasAdName) { console.log('[parsePerfMicro] DESCARTADO'); return; }
+            if (!ageKey && !hashKey && !hasAdName) { return; }
 
             data.forEach(d => {
                 let dt = normData(d['Date'] || d['Data'] || d['Date (Segment)'] || d['Day'] || '');
@@ -1693,16 +1655,10 @@
 
         // PDF com texto selecionável via print nativo do browser
         function downloadPDF(sectionId) {
-            // Garante que só a seção alvo fique visível na impressão
-            // usando a classe 'hidden' já existente nas sections
-            document.querySelectorAll('section').forEach(s => {
-                if (s.id === sectionId) s.classList.remove('hidden');
-            });
+            // Marca qual seção imprimir via data-attribute (lida pelo CSS @media print)
+            document.body.setAttribute('data-print-section', sectionId);
             window.print();
-            // Restaura o estado visual correto após o print
-            document.querySelectorAll('section').forEach(s => {
-                if (s.id !== sectionId) s.classList.add('hidden');
-            });
+            document.body.removeAttribute('data-print-section');
         }
 
         // Download CSV da tabela final de criativos
