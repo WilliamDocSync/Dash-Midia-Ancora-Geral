@@ -636,7 +636,7 @@
                             if (!res.data || !res.data.length) { resolve(); return; }
                             let k = Object.keys(res.data[0] || {});
                             if (k.includes('Planejado Meta')) parsePlanejados(res.data);
-                            else if (k.includes('Data') && k.includes('Meta')) parseVendas(res.data);
+                            else if (k.includes('Tik tok') || k.includes('Tik Tok')) parseVendas(res.data);
                             else parsePerfMacro(res.data);
                             resolve();
                         },
