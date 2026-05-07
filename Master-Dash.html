@@ -21,22 +21,11 @@
         .score-high { color: #15803d; background-color: #dcfce7; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
         .score-med { color: #b45309; background-color: #fef3c7; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
         .score-low { color: #b91c1c; background-color: #fee2e2; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
-
-        /* ── Print / PDF ── */
         @media print {
-            body { overflow: visible !important; background: #fff; }
-            aside { display: none !important; }
-            main  { overflow: visible !important; height: auto !important; }
-            /* Mostra só a seção marcada para impressão */
-            section { display: none !important; }
-            body[data-print-section="tab-master"]  #tab-master  { display: block !important; }
-            body[data-print-section="tab-analise"] #tab-analise { display: block !important; }
-            body[data-print-section="tab-pacing"]  #tab-pacing  { display: block !important; }
-            .no-print { display: none !important; }
-            canvas { max-width: 100% !important; }
+            aside, .no-print { display: none !important; }
+            main { overflow: visible !important; height: auto !important; }
             .custom-scrollbar { overflow: visible !important; }
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            section.hidden { display: none !important; }
             @page { size: A4 landscape; margin: 12mm; }
         }
     </style>
@@ -67,14 +56,11 @@
             <!-- Header -->
             <div class="bg-white p-5 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Visão Macro</h2>
-                <div class="flex gap-2">
-                    <button id="pdfBtn_tab-master" onclick="downloadPDF('tab-master')" class="no-print bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2">⬇ PDF</button>
-                    <button onclick="renderMaster()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-black text-xs px-6 h-9 uppercase transition">↺ Atualizar</button>
-                </div>
+                <div class="flex gap-2"><button onclick="downloadPDF()" class="no-print bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition">⬇ PDF</button><button onclick="renderMaster()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-black text-xs px-6 h-9 uppercase transition">↺ Atualizar</button></div>
             </div>
 
             <!-- Filtros -->
-            <div class="no-print bg-white rounded-xl border shadow-sm mb-6 p-5">
+            <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
 
                     <!-- Período Atual -->
@@ -143,7 +129,7 @@
             </div>
 
             <!-- KPIs -->
-            <div id="v1_kpiContainer" class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6"></div>
+            <div id="v1_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6"></div>
 
             <!-- Gráfico -->
             <div class="bg-white p-5 rounded-xl border shadow-sm mb-6">
@@ -215,32 +201,20 @@
             </div>
         </section>
 
-        <section id="tab-pacing" class="hidden p-8 max-w-[1600px] mx-auto">
-            <!-- Header -->
-            <div class="bg-white p-5 rounded-xl border-b-4 border-emerald-600 mb-6 flex flex-wrap justify-between items-center gap-3 shadow-sm">
+        <section id="tab-pacing" class="hidden p-8">
+            <div class="bg-white p-6 rounded-xl border-b-4 border-emerald-600 mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-black uppercase">Controle de Pacing</h2>
-                <div class="flex flex-wrap gap-2 items-center">
-
-                    <!-- Mês -->
-                    <div>
-                        <label class="text-[9px] font-black text-slate-400 uppercase block mb-0.5">Mês</label>
-                        <select id="v3_month" class="border rounded p-1.5 text-xs font-bold bg-white" onchange="renderPacing()"></select>
-                    </div>
-
-                    <!-- Agrupar -->
-                    <div>
-                        <label class="text-[9px] font-black text-slate-400 uppercase block mb-0.5">Agrupar</label>
-                        <select id="v3_grouping" class="border rounded p-1.5 text-xs font-bold bg-white" onchange="renderPacing()">
+                <div class="flex gap-2">
+                    <select id="v3_month" class="border rounded p-2 text-xs font-bold" onchange="renderPacing()"></select>
+                    <select id="v3_grouping" class="border rounded p-2 text-xs font-bold" onchange="renderPacing()">
                             <option value="Frente">Por Frente</option>
                             <option value="Plataforma">Por Canal</option>
                             <option value="Conta">Por Conta</option>
                         </select>
-                    </div>
 
                     <!-- Contas dropdown -->
                     <div class="relative" id="dd_v3_conta_wrap">
-                        <label class="text-[9px] font-black text-slate-400 uppercase block mb-0.5">Contas</label>
-                        <button onclick="toggleDropdown('dd_v3_conta')" class="border rounded p-1.5 text-xs font-bold text-left bg-white flex items-center gap-2 min-w-[120px]">
+                        <button onclick="toggleDropdown('dd_v3_conta')" class="border rounded p-2 text-xs font-bold text-left bg-white flex items-center gap-2 min-w-[130px]">
                             <span id="dd_v3_conta_label">Todas</span><span class="ml-auto">▾</span>
                         </button>
                         <div id="dd_v3_conta" class="hidden absolute z-50 bg-white border rounded-xl shadow-xl mt-1 p-3 w-56 max-h-52 overflow-y-auto custom-scrollbar right-0">
@@ -250,15 +224,9 @@
                             <div id="dd_v3_conta_items" class="mt-1 space-y-0.5"></div>
                         </div>
                     </div>
-
-                    <button onclick="renderPacing()" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black text-xs px-4 h-8 uppercase transition mt-3">↺ Atualizar</button>
                 </div>
             </div>
-
-            <!-- KPIs -->
-            <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"></div>
-
-            <!-- Tabela -->
+            <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></div>
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-4 bg-slate-50 border-b flex justify-between items-center text-xs font-bold">
                     <span class="text-slate-700 font-black uppercase">📊 Status Meta vs Realizado</span>
@@ -307,8 +275,31 @@
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Análise de Criativos</h2>
                 <div class="flex items-center gap-3">
                     <span class="text-xs text-slate-400 font-bold" id="v2_countLabel"></span>
-                    <button id="pdfBtn_tab-analise" onclick="downloadPDF('tab-analise')" class="no-print bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-2">⬇ PDF</button>
-                    <button onclick="renderAnalise()" class="bg-purple-700 hover:bg-purple-900 text-white rounded-lg font-black text-xs px-5 h-9 uppercase transition">↺ Filtrar</button>
+                    <button onclick="downloadPDF()" class="no-print bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition">⬇ PDF</button> <button onclick="renderAnalise()" class="bg-purple-700 hover:bg-purple-900 text-white rounded-lg font-black text-xs px-5 h-9 uppercase transition">↺ Filtrar</button>
+                </div>
+            </div>
+
+            <!-- DEBUG PANEL - remover após diagnóstico -->
+            <div id="debugPanel" class="hidden bg-amber-50 border border-amber-300 rounded-xl p-4 mb-4 text-slate-700">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-black text-xs text-amber-700 uppercase">🔍 Painel de Diagnóstico (remova após confirmar)</span>
+                    <button onclick="document.getElementById('debugPanel').classList.add('hidden')" class="text-xs text-slate-400 hover:text-slate-600">✕ fechar</button>
+                </div>
+                <p class="text-xs text-slate-400">Carregando...</p>
+            </div>
+
+            <!-- Upload CSV local -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div>
+                        <p class="font-black text-xs text-blue-700 uppercase mb-0.5">📂 Carregar CSVs de Criativos / Demográfico</p>
+                        <p class="text-[10px] text-blue-500">Selecione um ou mais arquivos CSV exportados do Meta (Performance de Criativos ou Demográfico)</p>
+                    </div>
+                    <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-4 py-2 rounded-lg uppercase transition">
+                        Selecionar CSVs
+                        <input type="file" id="v2_csvUpload" multiple accept=".csv" class="hidden" onchange="carregarCSVsLocais(this.files)">
+                    </label>
+                    <span id="v2_uploadStatus" class="text-xs font-bold text-blue-600"></span>
                 </div>
             </div>
 
@@ -448,17 +439,15 @@
 
             <!-- Tabela detalhada -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
-                <div class="p-3 bg-slate-50 border-b flex justify-between items-center flex-wrap gap-2">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
                     <span class="font-black text-xs uppercase">📋 Detalhamento Completo</span>
-                    <div class="flex items-center gap-2">
-                        <select id="v2_detailGroup" class="text-xs border rounded p-1.5 bg-white font-bold" onchange="renderTabelaDetalhe()">
+                    <button onclick="downloadTabelaCSV()" class="no-print bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3 h-7 rounded-lg uppercase transition ml-auto">⬇ CSV</button>
+                    <select id="v2_detailGroup" class="text-xs border rounded p-1.5 bg-white font-bold" onchange="renderTabelaDetalhe()">
                         <option value="Anuncio">Por Criativo (Ad)</option>
                         <option value="Conjunto">Por Conjunto</option>
                         <option value="Campanha">Por Campanha</option>
                         <option value="Conta">Por Conta</option>
-                        </select>
-                        <button onclick="downloadTabelaCSV()" class="no-print bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3 h-7 rounded-lg uppercase transition">⬇ CSV</button>
-                    </div>
+                    </select>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="min-w-full text-xs whitespace-nowrap">
@@ -676,7 +665,11 @@
                         skipEmptyLines: true,
                         // Criativos/demo sheets NÃO têm tabela resumo duplicada → sem transformHeader
                         complete: res => {
+                            let antes = window.microData.length + window.demoData.length;
                             parsePerfMicro(res.data);
+                            let depois = window.microData.length + window.demoData.length;
+                            let headers = res.data && res.data[0] ? Object.keys(res.data[0]).slice(0,5) : [];
+                            console.log(`[MICRO ${i+1}/${MICRO_URLS.length}] rows:${res.data?.length||0} parsed:${depois-antes} headers:${headers.join('|')}`);
                             resolve();
                         },
                         error: () => resolve()
@@ -685,6 +678,42 @@
             }
             status.innerHTML = "✅ Sistema Online";
             status.classList.replace('text-orange-400', 'text-emerald-500');
+
+            // DEBUG: mostra no console o que foi carregado
+            let frentesM = [...new Set(window.microData.map(d => d.Frente))].filter(Boolean).sort();
+            let frentesD = [...new Set(window.demoData.map(d => d.Frente))].filter(Boolean).sort();
+            let contasM  = [...new Set(window.microData.map(d => d.Conta))].filter(Boolean).sort();
+            console.log('=== MICRO DATA DEBUG ===');
+            console.log('Total microData:', window.microData.length);
+            console.log('Total demoData:', window.demoData.length);
+            console.log('Frentes microData:', frentesM);
+            console.log('Frentes demoData:', frentesD);
+            console.log('Contas microData:', contasM);
+            // Mostra amostra de datas
+            let datas = [...new Set(window.microData.map(d=>d.Data))].sort();
+            console.log('Datas range:', datas[0], '->', datas[datas.length-1], '(total:', datas.length,')');
+            // Mostra breakdown por conta
+            let porConta = {};
+            window.microData.forEach(d => { porConta[d.Conta] = (porConta[d.Conta]||0)+1; });
+            console.log('Registros por conta:', porConta);
+            // Mostra painel de debug na tela
+            let debugDiv = document.getElementById('debugPanel');
+            if (debugDiv) {
+                debugDiv.innerHTML = `
+                    <div class="text-xs font-mono space-y-1">
+                        <p><b>microData:</b> ${window.microData.length} registros | Frentes: ${frentesM.join(', ')||'nenhuma'}</p>
+                        <p><b>demoData:</b> ${window.demoData.length} registros | Frentes: ${frentesD.join(', ')||'nenhuma'}</p>
+                        <p><b>Contas micro:</b> ${contasM.join(', ')||'nenhuma'}</p>
+                        <p><b>Datas:</b> ${datas[0]||'?'} → ${datas[datas.length-1]||'?'} (${datas.length} dias)</p>
+                        <details class="mt-2"><summary class="cursor-pointer font-bold text-blue-600">Registros por conta (clique)</summary>
+                        <pre class="mt-1 text-[10px] bg-slate-100 p-2 rounded overflow-auto max-h-32">${JSON.stringify(porConta, null, 2)}</pre>
+                        </details>
+                        <details><summary class="cursor-pointer font-bold text-orange-600">1ª linha microData</summary>
+                        <pre class="mt-1 text-[10px] bg-slate-100 p-2 rounded overflow-auto max-h-32">${JSON.stringify(window.microData[0]||{}, null, 2)}</pre>
+                        </details>
+                    </div>`;
+                debugDiv.classList.remove('hidden');
+            }
 
             initMicro();
         }
@@ -766,7 +795,8 @@
             // FIX: sheets de criativos sem Image Asset Hash (exportações sem hash)
             // são válidos se tiverem Ad Name/ID. Só descarta se não tiver
             // nenhum indicador de breakdown (demográfico OU criativo).
-            if (!ageKey && !hashKey && !hasAdName) { return; }
+            console.log('[parsePerfMicro] keys sample:', keys.slice(0,5), '| ageKey:', ageKey, '| hashKey:', hashKey, '| hasAdName:', hasAdName, '| rows:', data.length);
+            if (!ageKey && !hashKey && !hasAdName) { console.log('[parsePerfMicro] DESCARTADO'); return; }
 
             data.forEach(d => {
                 let dt = normData(d['Date'] || d['Data'] || d['Date (Segment)'] || d['Day'] || '');
@@ -853,7 +883,9 @@
             let boxes = document.querySelectorAll(`input[id^="${prefix}"]`);
             boxes.forEach(b => b.checked = allBox.checked);
             updateDropLabel(ddId, prefix);
-            renderMaster();
+            if (prefix.startsWith('v2_')) renderAnalise();
+            else if (prefix.startsWith('v3_')) renderPacing();
+            else renderMaster();
         }
 
         function updateDropLabel(ddId, prefix) {
@@ -889,10 +921,9 @@
             let contas = [...new Set(real.map(d => d.Conta))].filter(Boolean).sort();
             buildCheckboxList('dd_conta_items', 'dd_conta_all', 'v1_conta_', contas, "updateDropLabel('dd_conta','v1_conta_');renderMaster()");
 
-            // Pacing: contas (compartilha a mesma lista de contas do macro)
+            // Pacing: mesmo conjunto de contas do macro
             buildCheckboxList('dd_v3_conta_items', 'dd_v3_conta_all', 'v3_conta_', contas, "updateDropLabel('dd_v3_conta','v3_conta_');renderPacing()");
 
-            // Fecha dropdowns ao clicar fora (inclui v3)
             renderMaster();
             renderPacing();
         }
@@ -980,34 +1011,17 @@
             let ant  = sumData(prev);
             let met  = meta.reduce((a,d) => { a.gp += d.GastoPlan; a.lp += d.LeadsPlan; return a; }, {gp:0,lp:0});
 
-            // ── Média histórica de toda a base (apenas dados reais, sem plano) ───
-            // Usada como referência de meta quando não há planejamento cadastrado
-            let realBase = window.macroData.filter(d => d.Plataforma !== 'Todas');
-            let diasBase  = new Set(realBase.map(d => d.Data)).size || 1;
-            let totBase   = sumData(realBase);
-            // Número de dias do período atual selecionado
+            // Projeção: dias corridos vs total do período
             let s = document.getElementById('v1_p1Start').value;
             let e = document.getElementById('v1_p1End').value;
-            let diasPeriodo = (s && e) ? Math.max(1, (new Date(e) - new Date(s)) / 86400000 + 1) : 1;
-            // Média diária histórica × dias do período = meta histórica proporcional
-            let histMeta = {
-                g:  (totBase.g  / diasBase) * diasPeriodo,
-                l:  (totBase.l  / diasBase) * diasPeriodo,
-                v:  (totBase.v  / diasBase) * diasPeriodo,
-            };
-            // CPL e CPA médios históricos
-            let histCpl = totBase.l > 0 ? totBase.g / totBase.l : 0;
-            let histCpa = totBase.v > 0 ? totBase.g / totBase.v : 0;
-            // Taxa de conversão histórica (vendas/leads)
-            let histTaxa = totBase.l > 0 ? (totBase.v / totBase.l) * 100 : 0;
-
-            // ── Projeção para o mês atual ──────────────────────────────────────
+            // Projetado = extrapola para o mês atual completo
             let hoje = new Date();
-            let mesAtual  = hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0');
+            let mesAtual = hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0');
             let diasNoMes = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
-            let diaHoje   = hoje.getDate();
-            let dadosMes  = v1_cachedData.filter(d => d.Data.startsWith(mesAtual));
-            let curMes    = sumData(dadosMes);
+            let diaHoje = hoje.getDate();
+            // Pega só dados do mês atual dentro do filtro
+            let dadosMes = v1_cachedData.filter(d => d.Data.startsWith(mesAtual));
+            let curMes = sumData(dadosMes);
             let projFactor = diaHoje > 0 ? diasNoMes / diaHoje : 1;
             let proj = { g: curMes.g * projFactor, l: curMes.l * projFactor, v: curMes.v * projFactor };
 
@@ -1026,8 +1040,8 @@
                 return `<span class="${bg} text-[10px] font-black px-2 py-0.5 rounded-full">${p.toFixed(1)}%</span>`;
             };
 
-            // card padrão — usa Meta (Período) planejada
-            const card = (title, val, valPrev, metaV, projV, fv) => {
+            const card = (title, val, valPrev, metaV, projV, isMoney) => {
+                let fv = isMoney ? fmt.m : fmt.n;
                 return `<div class="bg-white border rounded-xl p-4 shadow-sm">
                     <div class="flex justify-between items-start mb-2">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-wide">${title}</span>
@@ -1035,19 +1049,29 @@
                     </div>
                     <p class="text-2xl font-black text-slate-800 mb-3">${fv(val)}</p>
                     <div class="flex justify-between items-center text-[10px]">
-                        <div>
-                            <span class="text-slate-400 font-bold uppercase block">Meta (Período)</span>
-                            <div class="flex items-center gap-1 mt-0.5">${metaV > 0 ? fv(metaV) : '<span class="text-slate-300">-</span>'} ${metaV > 0 ? pctBadge(val, metaV) : ''}</div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-blue-600 font-black uppercase block">Projetado</span>
-                            <span class="font-black text-slate-700">${fv(projV)}</span>
-                        </div>
+                        <div><span class="text-slate-400 font-bold uppercase block">Meta (Período)</span>
+                        <div class="flex items-center gap-1 mt-0.5">${metaV > 0 ? fv(metaV) : '<span class="text-slate-300">-</span>'} ${metaV > 0 ? pctBadge(val, metaV) : ''}</div></div>
+                        <div class="text-right"><span class="text-blue-600 font-black uppercase block">Projetado</span><span class="font-black text-slate-700">${fv(projV)}</span></div>
                     </div>
                 </div>`;
             };
 
-            // card Taxa de Vendas — usa Média Histórica como referência
+            let cpl    = cur.l > 0 ? cur.g / cur.l : 0;
+            let cplA   = ant.l > 0 ? ant.g / ant.l : 0;
+            // ── Média histórica de taxa de vendas ──────────────────────────────
+            let realBase = window.macroData.filter(d => d.Plataforma !== 'Todas');
+            let totBase  = realBase.reduce((a,d) => { a.l+=d.Leads; a.v+=d.Vendas; return a; }, {l:0,v:0});
+            let histTaxa = totBase.l > 0 ? (totBase.v / totBase.l) * 100 : 0;
+
+            let cplMet   = met.lp > 0 ? met.gp / met.lp : 0;
+            let cpa      = cur.v > 0 ? cur.g / cur.v : 0;
+            let cpaA     = ant.v > 0 ? ant.g / ant.v : 0;
+            let projCpl  = proj.l > 0 ? proj.g / proj.l : 0;
+            let projCpa  = proj.v > 0 ? proj.g / proj.v : 0;
+            let taxa     = cur.l  > 0 ? (cur.v  / cur.l)  * 100 : 0;
+            let taxaA    = ant.l  > 0 ? (ant.v  / ant.l)  * 100 : 0;
+            let projTaxa = proj.l > 0 ? (proj.v / proj.l) * 100 : 0;
+
             const cardTaxa = (val, valPrev, metaV, projV) => {
                 let fmt_ = v => v.toFixed(2) + '%';
                 return `<div class="bg-white border rounded-xl p-4 shadow-sm">
@@ -1069,25 +1093,12 @@
                 </div>`;
             };
 
-            let cpl    = cur.l > 0 ? cur.g / cur.l : 0;
-            let cplA   = ant.l > 0 ? ant.g / ant.l : 0;
-            let cpa    = cur.v > 0 ? cur.g / cur.v : 0;
-            let cpaA   = ant.v > 0 ? ant.g / ant.v : 0;
-            let taxa   = cur.l  > 0 ? (cur.v  / cur.l)  * 100 : 0;
-            let taxaA  = ant.l  > 0 ? (ant.v  / ant.l)  * 100 : 0;
-            let projCpl  = proj.l > 0 ? proj.g / proj.l : 0;
-            let projCpa  = proj.v > 0 ? proj.g / proj.v : 0;
-            let projTaxa = proj.l > 0 ? (proj.v / proj.l) * 100 : 0;
-
-            // Meta planejada via planilha (gp/lp); CPL/CPA meta calculada
-            let cplMet = met.lp > 0 ? met.gp / met.lp : 0;
-
             document.getElementById('v1_kpiContainer').innerHTML =
-                card('Investimento',     cur.g,  ant.g,  met.gp,   proj.g,   fmt.m) +
-                card('Leads Realizados', cur.l,  ant.l,  met.lp,   proj.l,   fmt.n) +
-                card('CPL Médio',        cpl,    cplA,   cplMet,   projCpl,  fmt.m) +
-                card('Vendas',           cur.v,  ant.v,  0,        proj.v,   fmt.n) +
-                card('CPA Médio',        cpa,    cpaA,   0,        projCpa,  fmt.m) +
+                card('Investimento',     cur.g,  ant.g,  met.gp,  proj.g,  true)  +
+                card('Leads Realizados', cur.l,  ant.l,  met.lp,  proj.l,  false) +
+                card('CPL Médio',        cpl,    cplA,   cplMet,  projCpl, true)  +
+                card('Vendas',           cur.v,  ant.v,  0,       proj.v,  false) +
+                card('CPA Médio',        cpa,    cpaA,   0,       projCpa, true)  +
                 cardTaxa(taxa, taxaA, histTaxa, projTaxa);
 
             renderMasterTable();
@@ -1097,7 +1108,7 @@
         function renderMasterTable() {
             let data = v1_cachedData;
             if (!data || !data.length) {
-                document.getElementById('v1_tableBody').innerHTML = '<tr><td colspan="10" class="text-center p-8 text-slate-400">Nenhum dado para os filtros selecionados</td></tr>';
+                document.getElementById('v1_tableBody').innerHTML = '<tr><td colspan="11" class="text-center p-8 text-slate-400">Nenhum dado para os filtros selecionados</td></tr>';
                 return;
             }
             let grp = document.getElementById('v1_grouping').value;
@@ -1184,6 +1195,7 @@
                 if (!v && v !== 0) return '';
                 if (met2 === 'gasto' || met2 === 'cpl' || met2 === 'cpa') return 'R$' + new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0}).format(v);
                 if (met2 === 'taxa') return v.toFixed(1) + '%';
+                if (met2 === 'taxa') return v.toFixed(1) + '%';
                 return new Intl.NumberFormat('pt-BR').format(Math.round(v));
             };
 
@@ -1224,13 +1236,14 @@
             let mo = document.getElementById('v3_month').value;
             if (!mo) return;
             let [ano, mes] = mo.split('-').map(Number);
-            let dTot  = new Date(ano, mes, 0).getDate();
-            let hoje  = new Date();
+            let dTot = new Date(ano, mes, 0).getDate();
+            let hoje = new Date();
             let dAtual = (hoje.getFullYear() === ano && hoje.getMonth() + 1 === mes)
-                ? hoje.getDate() : dTot;
+                ? hoje.getDate()
+                : dTot;
             let dRest = Math.max(dTot - dAtual + 1, 1);
 
-            // Data de ontem (formato YYYY-MM-DD)
+            // Data de ontem
             let ontem = new Date(hoje);
             ontem.setDate(hoje.getDate() - 1);
             let ontemStr = ontem.toISOString().substring(0, 10);
@@ -1239,13 +1252,10 @@
             document.getElementById('v3_lblRestantes').innerText = dRest;
             document.getElementById('v3_lblOntem').innerText = ontemStr.substring(5).replace('-','/');
 
-            // Filtro de contas
             let selContas = getChecked('v3_conta_');
-
             let grp = document.getElementById('v3_grouping').value;
             let obj = window.macroData.reduce((acc, d) => {
                 if (!d.Data.startsWith(mo)) return acc;
-                // Aplica filtro de conta (só em dados reais, não no planejado)
                 if (d.Plataforma !== 'Todas' && selContas.length > 0 && !selContas.includes(d.Conta || '')) return acc;
                 let k = d[grp] || 'Outros';
                 if (!acc[k]) acc[k] = { n: k, g:0, gp:0, l:0, lp:0, v:0, gO:0, lO:0, vO:0 };
@@ -1253,7 +1263,6 @@
                     acc[k].g += d.Gasto;
                     acc[k].l += d.Leads;
                     acc[k].v += d.Vendas;
-                    // Acumula ontem
                     if (d.Data === ontemStr) {
                         acc[k].gO += d.Gasto;
                         acc[k].lO += d.Leads;
@@ -1275,12 +1284,12 @@
             document.getElementById('v3_tableBody').innerHTML = Object.values(obj)
                 .sort((a, b) => b.g - a.g)
                 .map(d => {
-                    let pG  = dAtual > 0 ? (d.g / dAtual) * dTot : 0;
-                    let pL  = dAtual > 0 ? (d.l / dAtual) * dTot : 0;
-                    let objG = Math.max((d.gp - d.g) / dRest, 0);
-                    let objL = Math.max((d.lp - d.l) / dRest, 0);
-                    let pctG = d.gp > 0 ? Math.min((d.g / d.gp) * 100, 100) : 0;
-                    let pctL = d.lp > 0 ? Math.min((d.l / d.lp) * 100, 100) : 0;
+                    let pG    = dAtual > 0 ? (d.g / dAtual) * dTot : 0;
+                    let pL    = dAtual > 0 ? (d.l / dAtual) * dTot : 0;
+                    let objG  = Math.max((d.gp - d.g) / dRest, 0);
+                    let objL  = Math.max((d.lp - d.l) / dRest, 0);
+                    let pctG  = d.gp > 0 ? Math.min((d.g / d.gp) * 100, 100) : 0;
+                    let pctL  = d.lp > 0 ? Math.min((d.l / d.lp) * 100, 100) : 0;
                     let overG = pG > d.gp && d.gp > 0;
                     return `<tr class="hover:bg-slate-50 transition-colors">
                         <td class="p-2 pl-3 font-black text-left border-r-2 text-slate-800">
@@ -1310,11 +1319,11 @@
             let tot = Object.values(obj).reduce((a, c) => {
                 a.g += c.g; a.gp += c.gp; a.l += c.l; a.lp += c.lp; a.v += c.v;
                 return a;
-            }, { g:0, gp:0, l:0, lp:0, v:0 });
+            }, { g: 0, gp: 0, l: 0, lp: 0, v: 0 });
 
             const card = (t, v, m, mon) => {
                 let p = m > 0 ? (v / m) * 100 : 0;
-                let barColor = p >= 100 ? 'bg-emerald-500' : p >= 70 ? 'bg-blue-500' : 'bg-amber-400';
+                let barColor   = p >= 100 ? 'bg-emerald-500' : p >= 70 ? 'bg-blue-500' : 'bg-amber-400';
                 let badgeColor = p >= 100 ? 'text-emerald-600 bg-emerald-50' : p >= 70 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50';
                 return `<div class="bg-white p-5 border rounded-xl shadow-sm">
                     <div class="flex justify-between items-start mb-3">
@@ -1334,9 +1343,9 @@
                 </div>`;
             };
             document.getElementById('v3_kpiContainer').innerHTML =
-                card("Investimento", tot.g, tot.gp, true) +
-                card("Leads",        tot.l, tot.lp, false) +
-                card("Vendas",       tot.v, 0,      false);
+                card("Gasto", tot.g, tot.gp, true) +
+                card("Leads", tot.l, tot.lp, false) +
+                card("Vendas", tot.v, 0, false);
         }
 
         function carregarCSVsLocais(files) {
@@ -1633,7 +1642,7 @@
         function renderTabelaDetalhe() {
             let grp = document.getElementById('v2_detailGroup').value;
             let grouped = calcScore(aggBy(v2_cachedFiltered, grp));
-            window._v2Grouped = grouped; // armazena para exportação CSV
+            window._v2Grouped = grouped;
             document.getElementById('v2_tabelaDetalhe').innerHTML = grouped.map(i => {
                 let linkEl = i.link ? `<a href="${i.link}" target="_blank" class="text-purple-500 hover:underline text-[10px]">↗ IG</a>` : '-';
                 return `<tr class="hover:bg-purple-50 text-right">
@@ -1653,43 +1662,24 @@
             }).join('') || '<tr><td colspan="12" class="text-center p-6 text-slate-400">Nenhum dado no período selecionado</td></tr>';
         }
 
-        // PDF com texto selecionável via print nativo do browser
-        function downloadPDF(sectionId) {
-            // Marca qual seção imprimir via data-attribute (lida pelo CSS @media print)
-            document.body.setAttribute('data-print-section', sectionId);
-            window.print();
-            document.body.removeAttribute('data-print-section');
-        }
+        function downloadPDF() { window.print(); }
 
-        // Download CSV da tabela final de criativos
         function downloadTabelaCSV() {
             let grp = document.getElementById('v2_detailGroup')?.value || 'Anuncio';
-            let grouped = (window._v2Grouped || []);
-            if (!grouped.length) {
-                alert('Aplique um filtro primeiro para gerar os dados.');
-                return;
-            }
-            let headers = ['Nome','Gasto (R$)','Impressões','Cliques','CTR (%)','Leads','CPL (R$)','CVR (%)','Views 3s','Thruplay','Score'];
+            let grouped = window._v2Grouped || [];
+            if (!grouped.length) { alert('Aplique um filtro primeiro para gerar os dados.'); return; }
+            let headers = ['Nome','Gasto (R$)','Impressoes','Cliques','CTR (%)','Leads','CPL (R$)','CVR (%)','Views 3s','Thruplay','Score'];
             let rows = grouped.map(i => [
-                `"${(i.n||'').replace(/"/g,'""')}"`,
-                (i.g||0).toFixed(2),
-                Math.round(i.i||0),
-                Math.round(i.cl||0),
-                (i.ctr||0).toFixed(2),
-                Math.round(i.l||0),
-                (i.cpl||0).toFixed(2),
-                (i.cvr||0).toFixed(2),
-                Math.round(i.v3s||0),
-                Math.round(i.thr||0),
-                i.score||0,
+                '"' + (i.n||'').replace(/"/g,'""') + '"',
+                (i.g||0).toFixed(2), Math.round(i.i||0), Math.round(i.cl||0),
+                (i.ctr||0).toFixed(2), Math.round(i.l||0), (i.cpl||0).toFixed(2),
+                (i.cvr||0).toFixed(2), Math.round(i.v3s||0), Math.round(i.thr||0), i.score||0
             ].join(','));
-            let csv = '﻿' + headers.join(',') + '
-' + rows.join('
-');
-            let blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8;' });
+            let csv = headers.join(',') + '\n' + rows.join('\n');
+            let blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8;' });
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'criativos_' + (grp||'').toLowerCase() + '_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.download = 'criativos_' + grp.toLowerCase() + '_' + new Date().toISOString().slice(0,10) + '.csv';
             a.click();
         }
 
