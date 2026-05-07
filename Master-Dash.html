@@ -279,15 +279,6 @@
                 </div>
             </div>
 
-            <!-- DEBUG PANEL - remover após diagnóstico -->
-            <div id="debugPanel" class="hidden bg-amber-50 border border-amber-300 rounded-xl p-4 mb-4 text-slate-700">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="font-black text-xs text-amber-700 uppercase">🔍 Painel de Diagnóstico (remova após confirmar)</span>
-                    <button onclick="document.getElementById('debugPanel').classList.add('hidden')" class="text-xs text-slate-400 hover:text-slate-600">✕ fechar</button>
-                </div>
-                <p class="text-xs text-slate-400">Carregando...</p>
-            </div>
-
             <!-- Upload CSV local -->
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
                 <div class="flex flex-wrap items-center gap-4">
@@ -582,8 +573,8 @@
         async function carregarTudo() {
             const status = document.getElementById('globalStatus');
             const MACRO_URLS = [
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=574214236&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=1227414686&single=true&output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=574214236&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1254441910&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1347821527&single=true&output=csv"
@@ -696,25 +687,6 @@
             let porConta = {};
             window.microData.forEach(d => { porConta[d.Conta] = (porConta[d.Conta]||0)+1; });
             console.log('Registros por conta:', porConta);
-            // Mostra painel de debug na tela
-            let debugDiv = document.getElementById('debugPanel');
-            if (debugDiv) {
-                debugDiv.innerHTML = `
-                    <div class="text-xs font-mono space-y-1">
-                        <p><b>microData:</b> ${window.microData.length} registros | Frentes: ${frentesM.join(', ')||'nenhuma'}</p>
-                        <p><b>demoData:</b> ${window.demoData.length} registros | Frentes: ${frentesD.join(', ')||'nenhuma'}</p>
-                        <p><b>Contas micro:</b> ${contasM.join(', ')||'nenhuma'}</p>
-                        <p><b>Datas:</b> ${datas[0]||'?'} → ${datas[datas.length-1]||'?'} (${datas.length} dias)</p>
-                        <details class="mt-2"><summary class="cursor-pointer font-bold text-blue-600">Registros por conta (clique)</summary>
-                        <pre class="mt-1 text-[10px] bg-slate-100 p-2 rounded overflow-auto max-h-32">${JSON.stringify(porConta, null, 2)}</pre>
-                        </details>
-                        <details><summary class="cursor-pointer font-bold text-orange-600">1ª linha microData</summary>
-                        <pre class="mt-1 text-[10px] bg-slate-100 p-2 rounded overflow-auto max-h-32">${JSON.stringify(window.microData[0]||{}, null, 2)}</pre>
-                        </details>
-                    </div>`;
-                debugDiv.classList.remove('hidden');
-            }
-
             initMicro();
         }
 
