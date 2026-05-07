@@ -1269,6 +1269,10 @@
                 } else {
                     acc[k].gp += d.GastoPlan;
                     acc[k].lp += d.LeadsPlan;
+                    if (d.Vendas > 0) {
+                        acc[k].v += d.Vendas;
+                        if (d.Data === ontemStr) acc[k].vO += d.Vendas;
+                    }
                 }
                 return acc;
             }, {});
