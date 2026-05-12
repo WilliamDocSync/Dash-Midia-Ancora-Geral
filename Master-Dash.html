@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v15</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v16</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -880,6 +880,25 @@
             return [...document.querySelectorAll(`input[id^="${prefix}"]:checked`)].map(b => b.value);
         }
 
+        function resolveVendasContas() {
+            // Monta lookup: frente → lista de contas reais da performance
+            let contasPorFrente = {};
+            window.macroData.filter(d => d.Plataforma !== 'Todas' && d.Conta).forEach(d => {
+                if (!contasPorFrente[d.Frente]) contasPorFrente[d.Frente] = new Set();
+                contasPorFrente[d.Frente].add(d.Conta);
+            });
+
+            // Para cada linha de vendas, tenta casar o nome simplificado
+            window.macroData.filter(d => d.Plataforma === 'Todas' && d.Vendas > 0).forEach(d => {
+                let contas = contasPorFrente[d.Frente];
+                if (!contas || !d.Conta) return;
+                let nomeBusca = normStr(d.Conta); // ex: "whatsapp", "rci"
+                // Tenta achar conta de performance que contenha o termo
+                let match = [...contas].find(c => normStr(c).includes(nomeBusca) || nomeBusca.includes(normStr(c).split(' ')[0]));
+                if (match) d.Conta = match;
+            });
+        }
+
         function initMacro() {
             let real = window.macroData.filter(d => d.Plataforma !== 'Todas');
             let dates = [...new Set(real.map(d => d.Data))].filter(Boolean).sort();
@@ -901,6 +920,7 @@
             // Pacing: mesmo conjunto de contas do macro
             buildCheckboxList('dd_v3_conta_items', 'dd_v3_conta_all', 'v3_conta_', contas, "updateDropLabel('dd_v3_conta','v3_conta_');renderPacing()");
 
+            resolveVendasContas();
             renderMaster();
             renderPacing();
         }
