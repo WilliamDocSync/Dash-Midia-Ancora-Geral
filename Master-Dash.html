@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v20</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v25</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -429,6 +429,60 @@
                 <canvas id="v2_demoChart" height="60"></canvas>
             </div>
 
+            <!-- Regiões -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Card Top Regiões -->
+                <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
+                    <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                        <span class="font-black text-[10px] uppercase text-slate-600">🗺️ Top Regiões</span>
+                        <select id="v2_regiaoMetric" class="text-xs border rounded p-1 bg-white font-bold" onchange="renderRegioes()">
+                            <option value="leads">Leads</option>
+                            <option value="gasto">Gasto</option>
+                            <option value="cpl">CPL</option>
+                        </select>
+                    </div>
+                    <table class="w-full text-xs">
+                        <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
+                            <th class="text-left p-2">Estado</th>
+                            <th class="text-right p-2">Leads</th>
+                            <th class="text-right p-2">Gasto</th>
+                            <th class="text-right p-2 text-orange-600">CPL</th>
+                        </tr></thead>
+                        <tbody id="v2_topRegiao" class="divide-y"></tbody>
+                    </table>
+                </div>
+                <!-- Gráfico de Regiões -->
+                <div class="bg-white rounded-xl border p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-2 border-b pb-2">
+                        <h3 class="font-black text-[10px] uppercase text-slate-700">🗺️ Distribuição por Estado</h3>
+                    </div>
+                    <canvas id="v2_regiaoChart" height="120"></canvas>
+                </div>
+            </div>
+            <!-- Tabela de Regiões detalhada -->
+            <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <span class="font-black text-xs uppercase">🗺️ Detalhamento por Região</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="min-w-full text-xs whitespace-nowrap">
+                        <thead class="bg-slate-50 border-b uppercase text-slate-400 font-black text-[9px] tracking-wide">
+                            <tr>
+                                <th class="text-left p-3">Estado</th>
+                                <th class="text-right p-3">Leads</th>
+                                <th class="text-right p-3">Gasto</th>
+                                <th class="text-right p-3">Impressões</th>
+                                <th class="text-right p-3">Cliques</th>
+                                <th class="text-right p-3 text-orange-600">CPL</th>
+                                <th class="text-right p-3 text-emerald-600">CVR</th>
+                                <th class="text-right p-3">% Leads</th>
+                            </tr>
+                        </thead>
+                        <tbody id="v2_tabelaRegiao" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Tabela detalhada -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -468,7 +522,7 @@
 
     <script>
         Chart.register(ChartDataLabels); // registra plugin globalmente
-        window.macroData = []; window.microData = []; window.demoData = [];
+        window.macroData = []; window.microData = []; window.demoData = []; window.regiaoData = [];
         let v1_ChartObj = null, v2_ChartObj = null;
 
         const fmt = { m: v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0), n: v => new Intl.NumberFormat('pt-BR').format(Math.round(v || 0)), p: v => (v || 0).toFixed(2) + '%' };
@@ -516,6 +570,7 @@
             if (s.includes("represent")) return "Representantes";
             if (s.includes("novato")) return "Novatos";
             if (s.includes("espelho")) return "CKB Espelho";
+            if (s.includes("pastre")) return "Pastre";
             return s.split(/[\s\-\|]+/)[0].toUpperCase() || "OUTROS";
         }
 
@@ -528,12 +583,14 @@
                 return "CKB Espelho";
             if (n.includes("ckb") && (n.includes("whatsapp") || n.includes("wpp") || n.includes("whats")))
                 return "CKB - WhatsApp";
-            if (n.includes("ckb") && (n.includes("google") || n.includes("ancora") || n.includes("ancora")))
-                return "Âncora | CKB";
-            if ((n.includes("kawasaki") || n.includes("consorcio")) && n.includes("ckb"))
+            if (n.includes("kawasaki") || (n.includes("consorcio") && n.includes("ckb")))
                 return "CKB - Consórcio Kawasaki";
-            if (n === "ckb")
-                return "CKB - WhatsApp"; // fallback genérico CKB → conta principal
+            if (n.includes("ckb")) {
+                // Usa o separador original para distinguir Google (|) de Meta (- ou sem separador)
+                let raw = String(nomeBruto || '');
+                if (raw.includes('|')) return "Âncora | CKB";   // Google
+                return "Âncora - CKB";                           // Meta (- ou sem separador)
+            }
 
             // ── Bajaj ────────────────────────────────────────────────────────
             if (n.includes("bajaj") && (n.includes("google") || n.includes("ancora")))
@@ -553,6 +610,7 @@
             if (n.includes("beijar") || n.includes("flor")) return "Beijar Flor";
             if (n.includes("carros") || n.includes("gm") || n.includes("byd")) return "Âncora Carros";
             if (n.includes("imoveis") || n.includes("imov")) return "Imóveis Mix";
+            if (n.includes("pastre")) return "Pastre";
 
             return nomeBruto;
         }
@@ -608,7 +666,9 @@
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1254441910&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1347821527&single=true&output=csv",
                 // Vendas consolidadas (aba principal)
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?output=csv"
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?output=csv",
+                // Pastre (Geral)
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwPdfZiZxug-f6BHlAY86GiF_vTgy8NIXsGVczaFsxuxhNhSCZJqWX8xJ9iZEM4OiR-jY_1-u_lyT1/pub?output=csv"
             ];
             
             const MICRO_URLS = [
@@ -653,7 +713,9 @@
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_2BPcENIVO5_E3o-6OoPYSuCyGl2JPhffkxOWzwOx3dZog4TdxDFjOeQ6qiIEZt944B_jcpkmI-gR/pub?gid=1289448911&single=true&output=csv",
                 // CKB WhatsApp isolado (Criativos)
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5Hm3br9DZjat2EYD1ELEDYnHt-h6yPomkPnLevpUi-yj0jXPQpI1KKmXsitNHTFVC6n1rEEuHx_3d/pub?output=csv"
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5Hm3br9DZjat2EYD1ELEDYnHt-h6yPomkPnLevpUi-yj0jXPQpI1KKmXsitNHTFVC6n1rEEuHx_3d/pub?output=csv",
+                // Pastre (Criativos)
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwPdfZiZxug-f6BHlAY86GiF_vTgy8NIXsGVczaFsxuxhNhSCZJqWX8xJ9iZEM4OiR-jY_1-u_lyT1/pub?gid=1289448911&single=true&output=csv"
             ];
 
             // Macro: 5 planilhas (Planejados, Vendas, e Performance das 3 plataformas)
@@ -719,7 +781,28 @@
             // Mostra breakdown por conta
             let porConta = {};
             window.microData.forEach(d => { porConta[d.Conta] = (porConta[d.Conta]||0)+1; });
-            console.log('Registros por conta:', porConta);
+            // Regiões
+            const REGIAO_URLS = [
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vRxdpLdLNBJ12kJCs-QhrK8n-4-x2bgkw2uI4Ky4GWjUkiMS8z3_5hEzTOarEKrL89BmSjT5VNu03wU/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSL2l5uobxYxyz9kI4gtzJf_auqlGm_0g-gT0byqo5X5eU9L5BGAFlLyEutEnmFho79FpwTORUfZVEo/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQuNvmMg6Nu3DIcbgsg6IYZbYmaPPJz2i4Qvn7MVjx1cRlIMvLUwfmYxeMovhIz87opP3GdXkk6kMaR/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSGIhcFoiR3YVfEKHBxY_sdDoaNqm9tL1dVS3BixTM3YJE1T1rj2LN40KYVGBOvrC9XwLe2z7q4lQvY/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8sPcDL5OBAFoulFVsLr664rSUNWVOTAyzIevmXJjPLEFS-0V1pucpt6qFpXvzonZgq2FVVVU70ie2/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQByobfNwuQZyBs0K9BM_g794uZqUfbqjZ6fejlghm57qIXcKlBDgNGjcv5QmTaaogpiniNST7Fu0Up/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQJwP_YbDSAdoPyGHRhsTGI211xZU9mZl8KLBu5yV1nmF89jS73lT48E38iVwXymYAuN43fzMr_u_9y/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0Vtd5aW9zKUfOJ2NiaDjKvWYRdte2JlvgIsdmLQVkkQpE7-0uKRrr_d0pqF9GGi16sKR87E8YRCSD/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHecxbiz4ZwkGzY_sgvjxU_yBaCDyjdeqMb60rd1_5RZRrC5ldMCREAHaHA3lH4FtRStt65ngtlqCF/pub?output=csv"
+            ];
+            for (let i = 0; i < REGIAO_URLS.length; i++) {
+                status.innerHTML = `<div class="loader"></div> Regiões (${i+1}/${REGIAO_URLS.length})`;
+                await new Promise(resolve => {
+                    Papa.parse(REGIAO_URLS[i], {
+                        download: true, header: true, skipEmptyLines: true,
+                        complete: res => { parseRegiao(res.data); resolve(); },
+                        error: () => resolve()
+                    });
+                });
+            }
             initMicro();
         }
 
@@ -732,23 +815,26 @@
                 let gTotal  = gMeta + gGoogle + gTikTok;
                 let l       = parseNum(d['Leads Planejados']);
                 let frente  = extrairFrente(d.Frente || d.Conta || '');
-                let conta   = String(d.Conta || d.Frente || '').trim();
+                let conta   = padronizarConta(String(d.Conta || d.Frente || '').trim());
                 let { ano, mes, dias } = parseMesCSV(d['Mês'] || d['Mes'] || '');
+
+                // Distribui leads proporcionalmente por plataforma (baseado no peso do gasto)
+                let lMeta   = gTotal > 0 && gMeta   > 0 ? (l * gMeta   / gTotal) : 0;
+                let lGoogle = gTotal > 0 && gGoogle  > 0 ? (l * gGoogle  / gTotal) : 0;
+                let lTikTok = gTotal > 0 && gTikTok  > 0 ? (l * gTikTok  / gTotal) : 0;
 
                 for (let i = 1; i <= dias; i++) {
                     let dia = i < 10 ? '0' + i : String(i);
-                    let base = { Data: `${ano}-${mes}-${dia}`, Frente: frente, Conta: conta, Gasto: 0, Leads: 0, Vendas: 0, LeadsPlan: l / dias };
+                    let base = { Data: `${ano}-${mes}-${dia}`, Frente: frente, Conta: conta,
+                                 Gasto: 0, Leads: 0, Vendas: 0 };
 
-                    // Distribui gasto planejado por plataforma (se tiver breakdown)
-                    if (gMeta > 0 || gGoogle > 0 || gTikTok > 0) {
-                        if (gMeta   > 0) window.macroData.push({ ...base, Plataforma: 'Facebook Ads', GastoPlan: gMeta   / dias, LeadsPlan: 0 });
-                        if (gGoogle > 0) window.macroData.push({ ...base, Plataforma: 'Google Ads',   GastoPlan: gGoogle / dias, LeadsPlan: 0 });
-                        if (gTikTok > 0) window.macroData.push({ ...base, Plataforma: 'TikTok Ads',  GastoPlan: gTikTok / dias, LeadsPlan: 0 });
-                        // Linha agregada para "Todas" (leads + total gasto)
-                        window.macroData.push({ ...base, Plataforma: 'Todas', GastoPlan: gTotal / dias, LeadsPlan: l / dias });
-                    } else {
-                        window.macroData.push({ ...base, Plataforma: 'Todas', GastoPlan: gTotal / dias, LeadsPlan: l / dias });
-                    }
+                    // Linha por plataforma — usada no agrupamento Por Canal
+                    if (gMeta   > 0) window.macroData.push({ ...base, Plataforma: 'Facebook Ads', GastoPlan: gMeta   / dias, LeadsPlan: lMeta   / dias });
+                    if (gGoogle > 0) window.macroData.push({ ...base, Plataforma: 'Google Ads',   GastoPlan: gGoogle / dias, LeadsPlan: lGoogle / dias });
+                    if (gTikTok > 0) window.macroData.push({ ...base, Plataforma: 'TikTok Ads',   GastoPlan: gTikTok / dias, LeadsPlan: lTikTok / dias });
+
+                    // Linha agregada Todas — usada nos KPIs e agrupamento Por Frente/Conta
+                    window.macroData.push({ ...base, Plataforma: 'Todas', GastoPlan: gTotal / dias, LeadsPlan: l / dias });
                 }
             });
         }
@@ -757,14 +843,22 @@
             data.forEach(d => {
                 let dt = normData(d.Data);
                 if (!dt) return;
-                window.macroData.push({
-                    Data: dt,
-                    Frente: extrairFrente(d.Frente || d.Conta),
-                    Gasto: 0, Leads: 0,
-                    Vendas: parseNum(d.Meta) + parseNum(d.Google) + parseNum(d['Tik tok']),
-                    GastoPlan: 0, LeadsPlan: 0,
-                    Plataforma: 'Todas'
-                });
+                let frente = extrairFrente(d.Frente || d.Conta || '');
+                let conta  = String(d.Conta || d.Frente || '').trim();
+                let vMeta   = parseNum(d.Meta);
+                let vGoogle = parseNum(d.Google);
+                let vTikTok = parseNum(d['Tik tok'] || d['Tik Tok'] || d['TikTok'] || 0);
+                let vTotal  = vMeta + vGoogle + vTikTok;
+
+                let base = { Data: dt, Frente: frente, Conta: padronizarConta(conta), Gasto: 0, Leads: 0, GastoPlan: 0, LeadsPlan: 0 };
+
+                // Linha agregada (Todas) — usada pelos KPIs e agrupamento por Frente
+                window.macroData.push({ ...base, Vendas: vTotal, Plataforma: 'Todas' });
+
+                // Linhas por plataforma — usadas no agrupamento por Canal
+                if (vMeta   > 0) window.macroData.push({ ...base, Vendas: vMeta,   Plataforma: 'Facebook Ads' });
+                if (vGoogle > 0) window.macroData.push({ ...base, Vendas: vGoogle, Plataforma: 'Google Ads'  });
+                if (vTikTok > 0) window.macroData.push({ ...base, Vendas: vTikTok, Plataforma: 'TikTok Ads'  });
             });
         }
 
@@ -793,6 +887,32 @@
                     GastoPlan: 0, LeadsPlan: 0,
                     Impressoes: parseNum(d.Impressions || d.Impressoes || 0),
                     Cliques: parseNum(d.Clicks || d.Cliques || 0)
+                });
+            });
+        }
+
+        function parseRegiao(data) {
+            if (!data || !data.length) return;
+            let keys = Object.keys(data[0]);
+            let regKey = keys.find(k => k.includes('Region') && k.includes('Breakdown')) || '';
+            if (!regKey) return; // não é sheet de região
+            data.forEach(d => {
+                let regiao = (d[regKey] || '').trim();
+                if (!regiao) return;
+                let dt = normData(d.Date || d.Data || '');
+                if (!dt) return;
+                let c = d['Account Name'] || d['Advertiser Name'] || '';
+                let g = parseNum(d['Spend (Cost, Amount Spent)'] || d['Cost (Spend, Amount Spent)'] || 0);
+                let l = parseNum(d['Action Leads'] || 0) + parseNum(d['Action Messaging Conversations Started (Onsite Conversion)'] || 0);
+                let imp = parseNum(d.Impressions || 0);
+                let clk = parseNum(d['Action Link Clicks'] || d.Clicks || 0);
+                window.regiaoData.push({
+                    Data: dt,
+                    Frente: extrairFrente(padronizarConta(c)),
+                    Conta: String(c || '').trim(),
+                    Regiao: regiao,
+                    Campanha: d['Campaign Name'] || '',
+                    Gasto: g, Leads: l, Impressoes: imp, Cliques: clk
                 });
             });
         }
@@ -1742,6 +1862,7 @@
             document.getElementById('v2_topPublico').innerHTML = topPublico.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados demográficos</td></tr>`;
 
             renderDemoChart();
+            renderRegioes();
             renderTabelaDetalhe();
         }
 
@@ -1799,6 +1920,95 @@
                         x: { grid: { display: false }, ticks: { font: { size: 10 } } },
                         y: { beginAtZero: true, ticks: { font: { size: 10 } } }
                     }
+                }
+            });
+        }
+
+        let v2_RegiaoChart = null;
+
+        function renderRegioes() {
+            let f  = getV2Filtros();
+            let s  = f.s, e = f.e;
+            let selFrente = f.frentes;
+            let selConta  = f.contas;
+
+            let data = window.regiaoData.filter(d =>
+                d.Data >= s && d.Data <= e &&
+                (selFrente.length === 0 || selFrente.includes(d.Frente)) &&
+                (selConta.length  === 0 || selConta.includes(d.Conta))
+            );
+
+            // Agrupa por estado
+            let byEstado = Object.values(data.reduce((acc, d) => {
+                let k = d.Regiao;
+                if (!acc[k]) acc[k] = { n: k, l: 0, g: 0, i: 0, cl: 0 };
+                acc[k].l += d.Leads; acc[k].g += d.Gasto;
+                acc[k].i += d.Impressoes || 0; acc[k].cl += d.Cliques || 0;
+                return acc;
+            }, {})).map(i => { i.cpl = i.l > 0 ? i.g / i.l : 0; i.cvr = i.cl > 0 ? (i.l/i.cl)*100 : 0; return i; });
+
+            let met = document.getElementById('v2_regiaoMetric').value;
+            byEstado.sort((a, b) => met === 'cpl' ? a.cpl - b.cpl : b[met === 'gasto' ? 'g' : 'l'] - a[met === 'gasto' ? 'g' : 'l']);
+
+            let totalLeads = byEstado.reduce((s, i) => s + i.l, 0);
+
+            // Card Top 10
+            document.getElementById('v2_topRegiao').innerHTML = byEstado.slice(0, 10).map((i, idx) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2 font-bold text-slate-700">${idx+1}. ${i.n}</td>
+                    <td class="text-right text-blue-600 font-black px-2">${fmt.n(i.l)}</td>
+                    <td class="text-right px-2">${fmt.m(i.g)}</td>
+                    <td class="text-right text-orange-600 font-bold px-2">${fmt.m(i.cpl)}</td>
+                </tr>`).join('') || '<tr><td colspan="4" class="p-3 text-slate-400 text-center text-xs">Sem dados de região</td></tr>';
+
+            // Tabela completa
+            document.getElementById('v2_tabelaRegiao').innerHTML = byEstado.map(i => `
+                <tr class="hover:bg-slate-50 text-right">
+                    <td class="text-left p-3 font-bold text-slate-800">${i.n}</td>
+                    <td class="px-3 text-blue-600 font-black">${fmt.n(i.l)}</td>
+                    <td class="px-3">${fmt.m(i.g)}</td>
+                    <td class="px-3 text-slate-500">${fmt.n(i.i)}</td>
+                    <td class="px-3 text-slate-500">${fmt.n(i.cl)}</td>
+                    <td class="px-3 text-orange-600 font-bold">${fmt.m(i.cpl)}</td>
+                    <td class="px-3 text-emerald-600 font-bold">${fmt.p(i.cvr)}</td>
+                    <td class="px-3">${totalLeads > 0 ? ((i.l/totalLeads)*100).toFixed(1)+'%' : '-'}</td>
+                </tr>`).join('') || '<tr><td colspan="8" class="text-center p-6 text-slate-400">Sem dados no período</td></tr>';
+
+            // Gráfico top 15 estados
+            let top15 = byEstado.slice(0, 15);
+            if (v2_RegiaoChart) v2_RegiaoChart.destroy();
+            v2_RegiaoChart = new Chart(document.getElementById('v2_regiaoChart'), {
+                type: 'bar',
+                data: {
+                    labels: top15.map(i => i.n),
+                    datasets: [{
+                        label: met === 'cpl' ? 'CPL (R$)' : met === 'gasto' ? 'Gasto (R$)' : 'Leads',
+                        data: top15.map(i => met === 'cpl' ? i.cpl : met === 'gasto' ? i.g : i.l),
+                        backgroundColor: '#8b5cf6bb',
+                        borderColor: '#7c3aed',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        datalabels: {
+                            display: true,
+                            anchor: 'end', align: 'end',
+                            font: { size: 8, weight: 'bold' },
+                            color: '#7c3aed',
+                            formatter: v => met === 'cpl' || met === 'gasto'
+                                ? 'R$' + new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0}).format(v)
+                                : fmt.n(v)
+                        },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { font: { size: 9 } } },
+                        y: { ticks: { font: { size: 9 } }, grid: { display: false } }
+                    },
+                    layout: { padding: { right: 40 } }
                 }
             });
         }
