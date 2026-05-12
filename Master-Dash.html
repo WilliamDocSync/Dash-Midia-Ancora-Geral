@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v26</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v27</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -436,17 +436,20 @@
                     <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
                         <span class="font-black text-[10px] uppercase text-slate-600">🗺️ Top Regiões</span>
                         <select id="v2_regiaoMetric" class="text-xs border rounded p-1 bg-white font-bold" onchange="renderRegioes()">
-                            <option value="leads">Leads</option>
-                            <option value="gasto">Gasto</option>
-                            <option value="cpl">CPL</option>
+                            <option value="impressoes">Impressões</option>
+                            <option value="cliques">Cliques</option>
+                            <option value="ctr">CTR (%)</option>
+                            <option value="cpm">CPM (R$)</option>
+                            <option value="cpc">CPC (R$)</option>
                         </select>
                     </div>
                     <table class="w-full text-xs">
                         <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
                             <th class="text-left p-2">Estado</th>
-                            <th class="text-right p-2">Leads</th>
-                            <th class="text-right p-2">Gasto</th>
-                            <th class="text-right p-2 text-orange-600">CPL</th>
+                            <th class="text-right p-2">Impr.</th>
+                            <th class="text-right p-2">Cliques</th>
+                            <th class="text-right p-2 text-blue-600">CTR</th>
+                            <th class="text-right p-2 text-orange-600">CPM</th>
                         </tr></thead>
                         <tbody id="v2_topRegiao" class="divide-y"></tbody>
                     </table>
@@ -469,13 +472,13 @@
                         <thead class="bg-slate-50 border-b uppercase text-slate-400 font-black text-[9px] tracking-wide">
                             <tr>
                                 <th class="text-left p-3">Estado</th>
-                                <th class="text-right p-3">Leads</th>
                                 <th class="text-right p-3">Gasto</th>
                                 <th class="text-right p-3">Impressões</th>
                                 <th class="text-right p-3">Cliques</th>
-                                <th class="text-right p-3 text-orange-600">CPL</th>
-                                <th class="text-right p-3 text-emerald-600">CVR</th>
-                                <th class="text-right p-3">% Leads</th>
+                                <th class="text-right p-3 text-blue-600">CTR</th>
+                                <th class="text-right p-3 text-orange-600">CPM</th>
+                                <th class="text-right p-3 text-violet-600">CPC</th>
+                                <th class="text-right p-3">% Impr.</th>
                             </tr>
                         </thead>
                         <tbody id="v2_tabelaRegiao" class="divide-y divide-slate-100"></tbody>
@@ -1919,79 +1922,91 @@
 
         function renderRegioes() {
             let f  = getV2Filtros();
-            let s  = f.s, e = f.e;
-            let selFrente = f.frentes;
-            let selConta  = f.contas;
-
             let data = window.regiaoData.filter(d =>
-                d.Data >= s && d.Data <= e &&
-                (selFrente.length === 0 || selFrente.includes(d.Frente)) &&
-                (selConta.length  === 0 || selConta.includes(d.Conta))
+                d.Data >= f.s && d.Data <= f.e &&
+                (f.frentes.length === 0 || f.frentes.includes(d.Frente)) &&
+                (f.contas.length  === 0 || f.contas.includes(d.Conta))
             );
 
-            // Agrupa por estado
+            // Agrupa por estado — sem leads/CPL, foco em métricas de entrega
             let byEstado = Object.values(data.reduce((acc, d) => {
                 let k = d.Regiao;
-                if (!acc[k]) acc[k] = { n: k, l: 0, g: 0, i: 0, cl: 0 };
-                acc[k].l += d.Leads; acc[k].g += d.Gasto;
-                acc[k].i += d.Impressoes || 0; acc[k].cl += d.Cliques || 0;
+                if (!acc[k]) acc[k] = { n: k, g: 0, i: 0, cl: 0 };
+                acc[k].g += d.Gasto;
+                acc[k].i += d.Impressoes || 0;
+                acc[k].cl += d.Cliques || 0;
                 return acc;
-            }, {})).map(i => { i.cpl = i.l > 0 ? i.g / i.l : 0; i.cvr = i.cl > 0 ? (i.l/i.cl)*100 : 0; return i; });
+            }, {})).map(i => {
+                i.ctr = i.i > 0 ? (i.cl / i.i) * 100 : 0;
+                i.cpm = i.i > 0 ? (i.g / i.i) * 1000 : 0;
+                i.cpc = i.cl > 0 ? i.g / i.cl : 0;
+                return i;
+            });
 
             let met = document.getElementById('v2_regiaoMetric').value;
-            byEstado.sort((a, b) => met === 'cpl' ? a.cpl - b.cpl : b[met === 'gasto' ? 'g' : 'l'] - a[met === 'gasto' ? 'g' : 'l']);
+            // Ordenação: CPM e CPC crescente (menor = melhor), demais decrescente
+            if (met === 'cpm' || met === 'cpc') byEstado.sort((a, b) => a[met] - b[met]);
+            else if (met === 'ctr')              byEstado.sort((a, b) => b.ctr - a.ctr);
+            else if (met === 'cliques')          byEstado.sort((a, b) => b.cl - a.cl);
+            else                                  byEstado.sort((a, b) => b.i - a.i);
 
-            let totalLeads = byEstado.reduce((s, i) => s + i.l, 0);
+            let totalImpr = byEstado.reduce((s, i) => s + i.i, 0);
+
+            const fmtMet = (i) => {
+                if (met === 'impressoes') return fmt.n(i.i);
+                if (met === 'cliques')    return fmt.n(i.cl);
+                if (met === 'ctr')        return i.ctr.toFixed(2) + '%';
+                if (met === 'cpm')        return fmt.m(i.cpm);
+                if (met === 'cpc')        return fmt.m(i.cpc);
+                return fmt.n(i.i);
+            };
 
             // Card Top 10
             document.getElementById('v2_topRegiao').innerHTML = byEstado.slice(0, 10).map((i, idx) => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-2 font-bold text-slate-700">${idx+1}. ${i.n}</td>
-                    <td class="text-right text-blue-600 font-black px-2">${fmt.n(i.l)}</td>
-                    <td class="text-right px-2">${fmt.m(i.g)}</td>
-                    <td class="text-right text-orange-600 font-bold px-2">${fmt.m(i.cpl)}</td>
-                </tr>`).join('') || '<tr><td colspan="4" class="p-3 text-slate-400 text-center text-xs">Sem dados de região</td></tr>';
+                    <td class="text-right px-2 text-slate-600">${fmt.n(i.i)}</td>
+                    <td class="text-right px-2 text-slate-600">${fmt.n(i.cl)}</td>
+                    <td class="text-right px-2 text-blue-600 font-bold">${i.ctr.toFixed(2)}%</td>
+                    <td class="text-right px-2 text-orange-600 font-bold">${fmt.m(i.cpm)}</td>
+                </tr>`).join('') || '<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados de região</td></tr>';
 
             // Tabela completa
             document.getElementById('v2_tabelaRegiao').innerHTML = byEstado.map(i => `
                 <tr class="hover:bg-slate-50 text-right">
                     <td class="text-left p-3 font-bold text-slate-800">${i.n}</td>
-                    <td class="px-3 text-blue-600 font-black">${fmt.n(i.l)}</td>
-                    <td class="px-3">${fmt.m(i.g)}</td>
-                    <td class="px-3 text-slate-500">${fmt.n(i.i)}</td>
-                    <td class="px-3 text-slate-500">${fmt.n(i.cl)}</td>
-                    <td class="px-3 text-orange-600 font-bold">${fmt.m(i.cpl)}</td>
-                    <td class="px-3 text-emerald-600 font-bold">${fmt.p(i.cvr)}</td>
-                    <td class="px-3">${totalLeads > 0 ? ((i.l/totalLeads)*100).toFixed(1)+'%' : '-'}</td>
+                    <td class="px-3 font-bold">${fmt.m(i.g)}</td>
+                    <td class="px-3 text-slate-600">${fmt.n(i.i)}</td>
+                    <td class="px-3 text-slate-600">${fmt.n(i.cl)}</td>
+                    <td class="px-3 text-blue-600 font-bold">${i.ctr.toFixed(2)}%</td>
+                    <td class="px-3 text-orange-600 font-bold">${fmt.m(i.cpm)}</td>
+                    <td class="px-3 text-violet-600 font-bold">${fmt.m(i.cpc)}</td>
+                    <td class="px-3 text-slate-400">${totalImpr > 0 ? ((i.i/totalImpr)*100).toFixed(1)+'%' : '-'}</td>
                 </tr>`).join('') || '<tr><td colspan="8" class="text-center p-6 text-slate-400">Sem dados no período</td></tr>';
 
-            // Gráfico top 15 estados
+            // Gráfico top 15 estados (barras horizontais)
             let top15 = byEstado.slice(0, 15);
+            let metLabel = { impressoes:'Impressões', cliques:'Cliques', ctr:'CTR (%)', cpm:'CPM (R$)', cpc:'CPC (R$)' }[met] || 'Impressões';
+            let metData  = top15.map(i => met==='impressoes'?i.i : met==='cliques'?i.cl : met==='ctr'?i.ctr : met==='cpm'?i.cpm : i.cpc);
+            let isMoney  = met === 'cpm' || met === 'cpc';
+            let isPct    = met === 'ctr';
+
             if (v2_RegiaoChart) v2_RegiaoChart.destroy();
             v2_RegiaoChart = new Chart(document.getElementById('v2_regiaoChart'), {
                 type: 'bar',
                 data: {
                     labels: top15.map(i => i.n),
-                    datasets: [{
-                        label: met === 'cpl' ? 'CPL (R$)' : met === 'gasto' ? 'Gasto (R$)' : 'Leads',
-                        data: top15.map(i => met === 'cpl' ? i.cpl : met === 'gasto' ? i.g : i.l),
-                        backgroundColor: '#8b5cf6bb',
-                        borderColor: '#7c3aed',
-                        borderWidth: 1
-                    }]
+                    datasets: [{ label: metLabel, data: metData, backgroundColor: '#8b5cf6bb', borderColor: '#7c3aed', borderWidth: 1 }]
                 },
                 options: {
-                    indexAxis: 'y',
-                    responsive: true,
+                    indexAxis: 'y', responsive: true,
                     plugins: {
                         datalabels: {
-                            display: true,
-                            anchor: 'end', align: 'end',
-                            font: { size: 8, weight: 'bold' },
-                            color: '#7c3aed',
-                            formatter: v => met === 'cpl' || met === 'gasto'
-                                ? 'R$' + new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0}).format(v)
-                                : fmt.n(v)
+                            display: true, anchor: 'end', align: 'end',
+                            font: { size: 8, weight: 'bold' }, color: '#7c3aed',
+                            formatter: v => isMoney ? 'R$' + new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0}).format(v)
+                                         : isPct   ? v.toFixed(2)+'%'
+                                         : fmt.n(v)
                         },
                         legend: { display: false }
                     },
@@ -1999,7 +2014,7 @@
                         x: { beginAtZero: true, ticks: { font: { size: 9 } } },
                         y: { ticks: { font: { size: 9 } }, grid: { display: false } }
                     },
-                    layout: { padding: { right: 40 } }
+                    layout: { padding: { right: 50 } }
                 }
             });
         }
