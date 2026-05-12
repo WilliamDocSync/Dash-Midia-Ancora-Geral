@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v17</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v19</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -698,19 +698,29 @@
         // FIX: lê o mês/ano do CSV em vez de hardcodar "2026-04"
         function parsePlanejados(data) {
             data.forEach(d => {
-                let g = parseNum(d['Planejado Meta']) + parseNum(d['Planejado Google']) + parseNum(d['Planejado Tik Tok']);
-                let l = parseNum(d['Leads Planejados']);
+                let gMeta   = parseNum(d['Planejado Meta']);
+                let gGoogle = parseNum(d['Planejado Google']);
+                let gTikTok = parseNum(d['Planejado Tik Tok']);
+                let gTotal  = gMeta + gGoogle + gTikTok;
+                let l       = parseNum(d['Leads Planejados']);
+                let frente  = extrairFrente(d.Frente || d.Conta || '');
+                let conta   = String(d.Conta || d.Frente || '').trim();
                 let { ano, mes, dias } = parseMesCSV(d['Mês'] || d['Mes'] || '');
+
                 for (let i = 1; i <= dias; i++) {
                     let dia = i < 10 ? '0' + i : String(i);
-                    window.macroData.push({
-                        Data: `${ano}-${mes}-${dia}`,
-                        Frente: extrairFrente(d.Conta),
-                        Gasto: 0, Leads: 0, Vendas: 0,
-                        GastoPlan: g / dias,
-                        LeadsPlan: l / dias,
-                        Plataforma: 'Todas'
-                    });
+                    let base = { Data: `${ano}-${mes}-${dia}`, Frente: frente, Conta: conta, Gasto: 0, Leads: 0, Vendas: 0, LeadsPlan: l / dias };
+
+                    // Distribui gasto planejado por plataforma (se tiver breakdown)
+                    if (gMeta > 0 || gGoogle > 0 || gTikTok > 0) {
+                        if (gMeta   > 0) window.macroData.push({ ...base, Plataforma: 'Facebook Ads', GastoPlan: gMeta   / dias, LeadsPlan: 0 });
+                        if (gGoogle > 0) window.macroData.push({ ...base, Plataforma: 'Google Ads',   GastoPlan: gGoogle / dias, LeadsPlan: 0 });
+                        if (gTikTok > 0) window.macroData.push({ ...base, Plataforma: 'TikTok Ads',  GastoPlan: gTikTok / dias, LeadsPlan: 0 });
+                        // Linha agregada para "Todas" (leads + total gasto)
+                        window.macroData.push({ ...base, Plataforma: 'Todas', GastoPlan: gTotal / dias, LeadsPlan: l / dias });
+                    } else {
+                        window.macroData.push({ ...base, Plataforma: 'Todas', GastoPlan: gTotal / dias, LeadsPlan: l / dias });
+                    }
                 }
             });
         }
@@ -872,9 +882,62 @@
             let boxes = document.querySelectorAll(`input[id^="${prefix}"]`);
             boxes.forEach(b => b.checked = allBox.checked);
             updateDropLabel(ddId, prefix);
-            if (prefix.startsWith('v2_')) renderAnalise();
-            else if (prefix.startsWith('v3_')) renderPacing();
-            else renderMaster();
+            cascadeFilters(prefix);
+        }
+
+        // ── Filtros em cascata ────────────────────────────────────────────────
+        function cascadeFilters(changedPrefix) {
+            if (changedPrefix.startsWith('v2_frente_')) { rebuildV2Contas(); rebuildV2Camps(); renderAnalise(); }
+            else if (changedPrefix.startsWith('v2_conta_')) { rebuildV2Camps(); renderAnalise(); }
+            else if (changedPrefix.startsWith('v2_camp_')) { renderAnalise(); }
+            else if (changedPrefix.startsWith('v3_conta_')) { renderPacing(); }
+            else if (changedPrefix.startsWith('v1_frente_')) { rebuildV1Contas(); renderMaster(); }
+            else if (changedPrefix.startsWith('v1_conta_') || changedPrefix.startsWith('v1_plat_')) { renderMaster(); }
+            else if (changedPrefix.startsWith('v3_')) { renderPacing(); }
+            else { renderMaster(); }
+        }
+
+        function rebuildV1Contas() {
+            let selFrente = getChecked('v1_frente_');
+            let real = window.macroData.filter(d => d.Plataforma !== 'Todas');
+            let contas = [...new Set(
+                real.filter(d => selFrente.length === 0 || selFrente.includes(d.Frente))
+                    .map(d => d.Conta)
+            )].filter(Boolean).sort();
+            buildCheckboxList('dd_conta_items', 'dd_conta_all', 'v1_conta_', contas,
+                "updateDropLabel('dd_conta','v1_conta_');cascadeFilters('v1_conta_')");
+            updateDropLabel('dd_conta', 'v1_conta_');
+            // Also rebuild pacing contas
+            buildCheckboxList('dd_v3_conta_items', 'dd_v3_conta_all', 'v3_conta_', contas,
+                "updateDropLabel('dd_v3_conta','v3_conta_');cascadeFilters('v3_conta_')");
+            updateDropLabel('dd_v3_conta', 'v3_conta_');
+        }
+
+        function rebuildV2Contas() {
+            let selFrente = getChecked('v2_frente_');
+            let allMicro = [...window.microData, ...window.demoData];
+            let contas = [...new Set(
+                allMicro.filter(d => selFrente.length === 0 || selFrente.includes(d.Frente))
+                        .map(d => d.Conta)
+            )].filter(Boolean).sort();
+            buildCheckboxList('dd_v2_conta_items', 'dd_v2_conta_all', 'v2_conta_', contas,
+                "updateDropLabel('dd_v2_conta','v2_conta_');cascadeFilters('v2_conta_')");
+            updateDropLabel('dd_v2_conta', 'v2_conta_');
+        }
+
+        function rebuildV2Camps() {
+            let selFrente = getChecked('v2_frente_');
+            let selConta  = getChecked('v2_conta_');
+            let camps = [...new Set(
+                [...window.microData, ...window.demoData]
+                    .filter(d =>
+                        (selFrente.length === 0 || selFrente.includes(d.Frente)) &&
+                        (selConta.length  === 0 || selConta.includes(d.Conta))
+                    ).map(d => d.Campanha)
+            )].filter(Boolean).sort();
+            buildCheckboxList('dd_v2_camp_items', 'dd_v2_camp_all', 'v2_camp_', camps,
+                "updateDropLabel('dd_v2_camp','v2_camp_');cascadeFilters('v2_camp_')");
+            updateDropLabel('dd_v2_camp', 'v2_camp_');
         }
 
         function updateDropLabel(ddId, prefix) {
@@ -921,16 +984,16 @@
                 document.getElementById('v3_month').innerHTML = mos.map(m => `<option value="${m}">${m}</option>`).join('');
             }
             let plats = [...new Set(real.map(d => d.Plataforma))].filter(Boolean).sort();
-            buildCheckboxList('dd_plat_items', 'dd_plat_all', 'v1_plat_', plats, "updateDropLabel('dd_plat','v1_plat_');renderMaster()");
+            buildCheckboxList('dd_plat_items', 'dd_plat_all', 'v1_plat_', plats, "updateDropLabel('dd_plat','v1_plat_');cascadeFilters('v1_plat_')");
 
             let frentes = [...new Set(real.map(d => d.Frente))].filter(Boolean).sort();
-            buildCheckboxList('dd_frente_items', 'dd_frente_all', 'v1_frente_', frentes, "updateDropLabel('dd_frente','v1_frente_');renderMaster()");
+            buildCheckboxList('dd_frente_items', 'dd_frente_all', 'v1_frente_', frentes, "updateDropLabel('dd_frente','v1_frente_');cascadeFilters('v1_frente_')");
 
             let contas = [...new Set(real.map(d => d.Conta))].filter(Boolean).sort();
-            buildCheckboxList('dd_conta_items', 'dd_conta_all', 'v1_conta_', contas, "updateDropLabel('dd_conta','v1_conta_');renderMaster()");
+            buildCheckboxList('dd_conta_items', 'dd_conta_all', 'v1_conta_', contas, "updateDropLabel('dd_conta','v1_conta_');cascadeFilters('v1_conta_')");
 
             // Pacing: mesmo conjunto de contas do macro
-            buildCheckboxList('dd_v3_conta_items', 'dd_v3_conta_all', 'v3_conta_', contas, "updateDropLabel('dd_v3_conta','v3_conta_');renderPacing()");
+            buildCheckboxList('dd_v3_conta_items', 'dd_v3_conta_all', 'v3_conta_', contas, "updateDropLabel('dd_v3_conta','v3_conta_');cascadeFilters('v3_conta_')");
 
             resolveVendasContas();
             renderMaster();
@@ -940,13 +1003,13 @@
         function initMicro() {
             let allMicro = [...window.microData, ...window.demoData];
             let frentes = [...new Set(allMicro.map(d => d.Frente))].filter(Boolean).sort();
-            buildCheckboxList('dd_v2_frente_items', 'dd_v2_frente_all', 'v2_frente_', frentes, "updateDropLabel('dd_v2_frente','v2_frente_');renderAnalise()");
+            buildCheckboxList('dd_v2_frente_items', 'dd_v2_frente_all', 'v2_frente_', frentes, "updateDropLabel('dd_v2_frente','v2_frente_');cascadeFilters('v2_frente_')");
 
             let contas = [...new Set(allMicro.map(d => d.Conta))].filter(Boolean).sort();
-            buildCheckboxList('dd_v2_conta_items', 'dd_v2_conta_all', 'v2_conta_', contas, "updateDropLabel('dd_v2_conta','v2_conta_');renderAnalise()");
+            buildCheckboxList('dd_v2_conta_items', 'dd_v2_conta_all', 'v2_conta_', contas, "updateDropLabel('dd_v2_conta','v2_conta_');cascadeFilters('v2_conta_')");
 
             let camps = [...new Set([...window.demoData, ...window.microData].map(d => d.Campanha))].filter(Boolean).sort();
-            buildCheckboxList('dd_v2_camp_items', 'dd_v2_camp_all', 'v2_camp_', camps, "updateDropLabel('dd_v2_camp','v2_camp_');renderAnalise()");
+            buildCheckboxList('dd_v2_camp_items', 'dd_v2_camp_all', 'v2_camp_', camps, "updateDropLabel('dd_v2_camp','v2_camp_');cascadeFilters('v2_camp_')");
 
             document.getElementById('v2_p1Start').value = document.getElementById('v1_p1Start').value;
             document.getElementById('v2_p1End').value = document.getElementById('v1_p1End').value;
@@ -1324,7 +1387,8 @@
             let grp = document.getElementById('v3_grouping').value;
             let obj = window.macroData.reduce((acc, d) => {
                 if (!d.Data.startsWith(mo)) return acc;
-                if (d.Plataforma !== 'Todas' && selContas.length > 0 && !selContas.includes(d.Conta || '')) return acc;
+                // Aplica filtro de conta: para dados reais E planejados (agora planejados têm Conta)
+                if (selContas.length > 0 && (d.Conta || '') && !selContas.includes(d.Conta || '')) return acc;
                 let k = d[grp] || 'Outros';
                 if (!acc[k]) acc[k] = { n: k, g:0, gp:0, l:0, lp:0, v:0, gO:0, lO:0, vO:0 };
                 if (d.Plataforma !== 'Todas') {
