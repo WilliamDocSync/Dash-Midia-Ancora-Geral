@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v16</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v17</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -829,11 +829,23 @@
 
         function buildCheckboxList(containerId, allId, prefix, items, onChangeFn) {
             let c = document.getElementById(containerId);
-            c.innerHTML = items.map(v => `
-                <label class="flex items-center gap-2 text-xs py-1 cursor-pointer hover:bg-slate-50 px-1 rounded">
+            // Search input + items
+            c.innerHTML = `<input type="text" placeholder="🔍 buscar..." oninput="filterDropdown(this,'${containerId}')"
+                class="w-full border rounded p-1 text-xs mb-2 sticky top-0 bg-white">` +
+                items.map(v => `
+                <label class="flex items-center gap-2 text-xs py-1 cursor-pointer hover:bg-slate-50 px-1 rounded dd-item">
                     <input type="checkbox" id="${prefix}${v.replace(/[^a-zA-Z0-9]/g,'_')}" value="${v}" checked class="accent-blue-600" onchange="${onChangeFn}">
                     <span class="truncate max-w-[160px]">${v}</span>
                 </label>`).join('');
+        }
+
+        function filterDropdown(input, containerId) {
+            let term = input.value.toLowerCase();
+            let container = document.getElementById(containerId);
+            container.querySelectorAll('label.dd-item').forEach(lbl => {
+                let text = lbl.querySelector('span').textContent.toLowerCase();
+                lbl.style.display = text.includes(term) ? '' : 'none';
+            });
         }
 
         function toggleDropdown(id) {
