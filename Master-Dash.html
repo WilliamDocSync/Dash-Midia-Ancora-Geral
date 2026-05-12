@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v19</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v20</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -522,10 +522,38 @@
         function padronizarConta(nomeBruto) {
             if (!nomeBruto) return "Outros";
             let n = normStr(nomeBruto);
-            if (n.includes("ckb") && n.includes("espelho")) return "CKB Espelho";
-            if (n.includes("ckb") && n.includes("whatsapp")) return "CKB - WhatsApp";
-            if (n.includes("ckb") && n.includes("google")) return "Âncora | CKB";
-            if (n.includes("bajaj") && n.includes("google")) return "Ancora | Bajaj";
+
+            // ── CKB ──────────────────────────────────────────────────────────
+            if (n.includes("ckb") && (n.includes("espelho") || n.includes("mirror")))
+                return "CKB Espelho";
+            if (n.includes("ckb") && (n.includes("whatsapp") || n.includes("wpp") || n.includes("whats")))
+                return "CKB - WhatsApp";
+            if (n.includes("ckb") && (n.includes("google") || n.includes("ancora") || n.includes("ancora")))
+                return "Âncora | CKB";
+            if ((n.includes("kawasaki") || n.includes("consorcio")) && n.includes("ckb"))
+                return "CKB - Consórcio Kawasaki";
+            if (n === "ckb")
+                return "CKB - WhatsApp"; // fallback genérico CKB → conta principal
+
+            // ── Bajaj ────────────────────────────────────────────────────────
+            if (n.includes("bajaj") && (n.includes("google") || n.includes("ancora")))
+                return "Ancora | Bajaj";
+            if (n.includes("bajaj"))
+                return "Bajaj";
+
+            // ── Outras frentes ───────────────────────────────────────────────
+            if (n.includes("shineray")) return "Shineray";
+            if (n.includes("dafra"))    return "Dafra";
+            if (n.includes("noma"))     return "Noma";
+            if (n.includes("xcmg"))     return "XCMG";
+            if (n.includes("kobe"))     return "Âncora Concessionárias - Kobe";
+            if (n.includes("avell"))    return "Avelloz";
+            if (n.includes("bmw"))      return "BMW";
+            if (n.includes("represent")) return "Representantes";
+            if (n.includes("beijar") || n.includes("flor")) return "Beijar Flor";
+            if (n.includes("carros") || n.includes("gm") || n.includes("byd")) return "Âncora Carros";
+            if (n.includes("imoveis") || n.includes("imov")) return "Imóveis Mix";
+
             return nomeBruto;
         }
 
