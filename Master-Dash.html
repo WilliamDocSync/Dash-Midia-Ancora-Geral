@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v25</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v26</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -722,20 +722,24 @@
             for (let i = 0; i < MACRO_URLS.length; i++) {
                 status.innerHTML = `<div class="loader"></div> Macro (${i+1}/${MACRO_URLS.length})`;
                 await new Promise(resolve => {
+                    let done = false;
+                    let timer = setTimeout(() => { if (!done) { done = true; resolve(); } }, 12000);
                     Papa.parse(MACRO_URLS[i], {
-                        download: true,
-                        header: true,
-                        skipEmptyLines: true,
-                        transformHeader: makeHeaderTransformer(), // FIX: deduplicação de headers
+                        download: true, header: true, skipEmptyLines: true,
+                        transformHeader: makeHeaderTransformer(),
                         complete: res => {
-                            if (!res.data || !res.data.length) { resolve(); return; }
-                            let k = Object.keys(res.data[0] || {});
-                            if (k.includes('Planejado Meta')) parsePlanejados(res.data);
-                            else if (k.includes('Tik tok') || k.includes('Tik Tok')) parseVendas(res.data);
-                            else parsePerfMacro(res.data);
-                            resolve();
+                            if (!done) {
+                                done = true; clearTimeout(timer);
+                                if (res.data && res.data.length) {
+                                    let k = Object.keys(res.data[0] || {});
+                                    if (k.includes('Planejado Meta')) parsePlanejados(res.data);
+                                    else if (k.includes('Tik tok') || k.includes('Tik Tok')) parseVendas(res.data);
+                                    else parsePerfMacro(res.data);
+                                }
+                                resolve();
+                            }
                         },
-                        error: () => resolve()
+                        error: () => { if (!done) { done = true; clearTimeout(timer); resolve(); } }
                     });
                 });
             }
@@ -745,20 +749,12 @@
             for (let i = 0; i < MICRO_URLS.length; i++) {
                 status.innerHTML = `<div class="loader"></div> Detalhado (${i+1}/${MICRO_URLS.length})`;
                 await new Promise(resolve => {
+                    let done = false;
+                    let timer = setTimeout(() => { if (!done) { done = true; resolve(); } }, 12000);
                     Papa.parse(MICRO_URLS[i], {
-                        download: true,
-                        header: true,
-                        skipEmptyLines: true,
-                        // Criativos/demo sheets NÃO têm tabela resumo duplicada → sem transformHeader
-                        complete: res => {
-                            let antes = window.microData.length + window.demoData.length;
-                            parsePerfMicro(res.data);
-                            let depois = window.microData.length + window.demoData.length;
-                            let headers = res.data && res.data[0] ? Object.keys(res.data[0]).slice(0,5) : [];
-                            console.log(`[MICRO ${i+1}/${MICRO_URLS.length}] rows:${res.data?.length||0} parsed:${depois-antes} headers:${headers.join('|')}`);
-                            resolve();
-                        },
-                        error: () => resolve()
+                        download: true, header: true, skipEmptyLines: true,
+                        complete: res => { if (!done) { done = true; clearTimeout(timer); parsePerfMicro(res.data); resolve(); } },
+                        error:    ()  => { if (!done) { done = true; clearTimeout(timer); resolve(); } }
                     });
                 });
             }
@@ -769,15 +765,8 @@
             let frentesM = [...new Set(window.microData.map(d => d.Frente))].filter(Boolean).sort();
             let frentesD = [...new Set(window.demoData.map(d => d.Frente))].filter(Boolean).sort();
             let contasM  = [...new Set(window.microData.map(d => d.Conta))].filter(Boolean).sort();
-            console.log('=== MICRO DATA DEBUG ===');
-            console.log('Total microData:', window.microData.length);
-            console.log('Total demoData:', window.demoData.length);
-            console.log('Frentes microData:', frentesM);
-            console.log('Frentes demoData:', frentesD);
-            console.log('Contas microData:', contasM);
             // Mostra amostra de datas
             let datas = [...new Set(window.microData.map(d=>d.Data))].sort();
-            console.log('Datas range:', datas[0], '->', datas[datas.length-1], '(total:', datas.length,')');
             // Mostra breakdown por conta
             let porConta = {};
             window.microData.forEach(d => { porConta[d.Conta] = (porConta[d.Conta]||0)+1; });
@@ -796,10 +785,13 @@
             for (let i = 0; i < REGIAO_URLS.length; i++) {
                 status.innerHTML = `<div class="loader"></div> Regiões (${i+1}/${REGIAO_URLS.length})`;
                 await new Promise(resolve => {
+                    let done = false;
+                    // Timeout de 12s — se não responder, pula e segue
+                    let timer = setTimeout(() => { if (!done) { done = true; resolve(); } }, 12000);
                     Papa.parse(REGIAO_URLS[i], {
                         download: true, header: true, skipEmptyLines: true,
-                        complete: res => { parseRegiao(res.data); resolve(); },
-                        error: () => resolve()
+                        complete: res => { if (!done) { done = true; clearTimeout(timer); parseRegiao(res.data); resolve(); } },
+                        error:    ()  => { if (!done) { done = true; clearTimeout(timer); resolve(); } }
                     });
                 });
             }
@@ -930,8 +922,7 @@
             // FIX: sheets de criativos sem Image Asset Hash (exportações sem hash)
             // são válidos se tiverem Ad Name/ID. Só descarta se não tiver
             // nenhum indicador de breakdown (demográfico OU criativo).
-            console.log('[parsePerfMicro] keys sample:', keys.slice(0,5), '| ageKey:', ageKey, '| hashKey:', hashKey, '| hasAdName:', hasAdName, '| rows:', data.length);
-            if (!ageKey && !hashKey && !hasAdName) { console.log('[parsePerfMicro] DESCARTADO'); return; }
+            if (!ageKey && !hashKey && !hasAdName) return;
 
             data.forEach(d => {
                 let dt = normData(d['Date'] || d['Data'] || d['Date (Segment)'] || d['Day'] || '');
