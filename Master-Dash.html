@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v39</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v40</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -229,7 +229,7 @@
                     </div>
                 </div>
             </div>
-            <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"></div>
+            <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8"></div>
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-4 bg-slate-50 border-b flex justify-between items-center text-xs font-bold">
                     <span class="text-slate-700 font-black uppercase">📊 Status Meta vs Realizado</span>
@@ -246,7 +246,7 @@
                                 <th class="text-left p-3 border-r-2 min-w-[140px]">Estrutura</th>
                                 <th colspan="5" class="border-r-2 py-2 bg-emerald-50 text-emerald-800">💰 Investimento (R$)</th>
                                 <th colspan="5" class="border-r-2 py-2 bg-blue-50 text-blue-800">🎯 Leads</th>
-                                <th colspan="4" class="py-2 bg-green-50 text-green-800">🏆 Vendas</th>
+                                <th colspan="5" class="py-2 bg-green-50 text-green-800">🏆 Vendas</th>
                             </tr>
                             <tr class="bg-slate-50 text-[9px] border-b text-slate-500 text-center">
                                 <th class="text-left p-2 border-r-2"></th>
@@ -264,6 +264,7 @@
                                 <th class="p-2 font-black text-slate-700">Real</th>
                                 <th class="p-2">Meta</th>
                                 <th class="p-2 text-green-600">Obj/Dia</th>
+                                <th class="p-2 text-violet-600">Taxa Venda</th>
                             </tr>
                         </thead>
                         <tbody id="v3_tableBody" class="divide-y divide-slate-100"></tbody>
@@ -1317,17 +1318,14 @@
             let vendasPlatFilter = d => platEfetiva0 === null
                 ? d.Plataforma === 'Todas'
                 : platEfetiva0.includes(d.Plataforma);
-            // Vendas: filtra por conta exata quando disponível (planilha tem contas específicas)
-            // SWR: agrega por frente+plataforma (não tem conta individual)
+            // Vendas/SWR: filtra por frente (inferida das contas selecionadas)
+            // Conta exata não é usada pois vendas/SWR são agregados por frente+plataforma
+            let frentesSelConta = selConta0.length > 0
+                ? [...new Set(selConta0.map(c => extrairFrente(c)))]
+                : [];
             let vendasFrenteFilter = d => {
                 if (selFrente0.length > 0 && !selFrente0.includes(d.Frente)) return false;
-                if (selConta0.length > 0) {
-                    // Tenta match exato de conta primeiro
-                    if (d.Conta && selConta0.includes(d.Conta)) return true;
-                    // Fallback: match por frente inferida (para contas sem dados próprios)
-                    let frentesInf = selConta0.map(c => extrairFrente(c));
-                    return frentesInf.includes(d.Frente);
-                }
+                if (frentesSelConta.length > 0 && !frentesSelConta.includes(d.Frente)) return false;
                 return true;
             };
             let vendasCur = window.macroData.filter(d =>
@@ -1794,8 +1792,9 @@
                         <td class="px-3 py-2 font-black text-green-700">${fmt.n(d.v)}</td>
                         <td class="px-3 py-2 text-slate-500">—</td>
                         <td class="px-3 py-2 text-green-600 font-black bg-green-50">—</td>
+                        <td class="px-3 py-2 text-violet-600 font-black">${(d.ls||0) > 0 ? ((d.v/(d.ls||1))*100).toFixed(2)+'%' : d.l > 0 ? ((d.v/d.l)*100).toFixed(2)+'%' : '—'}</td>
                     </tr>`;
-                }).join('') || '<tr><td colspan="15" class="text-center p-8 text-slate-400">Nenhum dado para o período selecionado</td></tr>';
+                }).join('') || '<tr><td colspan="16" class="text-center p-8 text-slate-400">Nenhum dado para o período selecionado</td></tr>';
 
             let tot = Object.values(obj).reduce((a, c) => {
                 a.g += c.g; a.gp += c.gp; a.l += c.l; a.lp += c.lp; a.v += c.v;
@@ -1846,11 +1845,40 @@
                 </div>`;
             };
 
+            let taxaPacing  = totSWR.ls > 0 ? (tot.v / totSWR.ls) * 100 : (tot.l > 0 ? (tot.v / tot.l) * 100 : 0);
+            let histTaxaP   = window.macroData.filter(d => d.Plataforma !== 'Todas')
+                .reduce((a,d) => { a.l+=d.Leads; return a; }, {l:0});
+            let histVendasP = window.macroData.filter(d => d.Plataforma === 'Todas' && d.Vendas > 0)
+                .reduce((a,d) => a + d.Vendas, 0);
+            let histTaxaVal = histTaxaP.l > 0 ? (histVendasP / histTaxaP.l) * 100 : 0;
+
+            const cardTaxaPacing = (taxa, hist) => {
+                let fmt_ = v => v.toFixed(2) + '%';
+                let p = hist > 0 ? (taxa / hist) * 100 : 0;
+                let barColor = p >= 100 ? 'bg-emerald-500' : p >= 70 ? 'bg-blue-500' : 'bg-amber-400';
+                return `<div class="bg-white p-5 border rounded-xl shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="text-xs font-black text-slate-400 uppercase mb-1">Taxa de Vendas</h4>
+                            <span class="text-2xl font-black text-slate-800">${fmt_(taxa)}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase block">Média Hist.</span>
+                            <span class="text-sm font-bold text-slate-600">${fmt_(hist)}</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div class="${barColor} h-2.5 rounded-full" style="width:${Math.min(p,100)}%"></div>
+                    </div>
+                </div>`;
+            };
+
             document.getElementById('v3_kpiContainer').innerHTML =
                 card("Investimento", tot.g, tot.gp, true) +
                 card("Leads",        tot.l, tot.lp, false) +
                 cardSWRPacing(totSWR.ls, tot.l) +
-                card("Vendas",       tot.v, 0,      false);
+                card("Vendas",       tot.v, 0,      false) +
+                cardTaxaPacing(taxaPacing, histTaxaVal);
         }
 
         function carregarCSVsLocais(files) {
