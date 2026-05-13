@@ -527,7 +527,6 @@
     </main>
 
     <script>
-        Chart.register(ChartDataLabels); // registra plugin globalmente
         window.macroData = []; window.microData = []; window.demoData = []; window.regiaoData = [];
         let v1_ChartObj = null, v2_ChartObj = null;
 
@@ -692,6 +691,7 @@
         }
 
         async function carregarTudo() {
+            try { Chart.register(ChartDataLabels); } catch(e) {}
             const status = document.getElementById('globalStatus');
             const MACRO_URLS = [
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=1227414686&single=true&output=csv",
