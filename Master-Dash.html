@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v34</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v35</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -616,8 +616,8 @@
             // WhatsApp (sempre Meta)
             if (n.includes("whatsapp") || n.includes("wpp") || n.includes("whats"))
                 return "CKB - WhatsApp";
-            // Kawasaki / Consórcio (sempre TikTok)
-            if (n.includes("kawasaki") || (n.includes("consorcio") && n.includes("ckb")))
+            // Kawasaki / Consórcio CKB (sempre TikTok) — exige "ckb" para não capturar outras frentes
+            if (n.includes("kawasaki") || (n.includes("ckb") && n.includes("consorcio")))
                 return "CKB - Consórcio Kawasaki";
             // Ancora|CKB, Ancora-CKB, CKB, etc
             if (n.includes("ckb") || (n.includes("ancora") && n.includes("ckb"))) {
@@ -1313,14 +1313,17 @@
             let vendasPlatFilter = d => platEfetiva0 === null
                 ? d.Plataforma === 'Todas'
                 : platEfetiva0.includes(d.Plataforma);
-            // Vendas e SWR são por frente — quando filtramos por conta,
-            // inferimos a frente dela para filtrar (conta é mais granular que vendas)
-            let frentesDeContas = selConta0.length > 0
-                ? [...new Set(selConta0.map(c => extrairFrente(c)))]
-                : [];
+            // Vendas: filtra por conta exata quando disponível (planilha tem contas específicas)
+            // SWR: agrega por frente+plataforma (não tem conta individual)
             let vendasFrenteFilter = d => {
-                if (selFrente0.length > 0) return selFrente0.includes(d.Frente);
-                if (frentesDeContas.length > 0) return frentesDeContas.includes(d.Frente);
+                if (selFrente0.length > 0 && !selFrente0.includes(d.Frente)) return false;
+                if (selConta0.length > 0) {
+                    // Tenta match exato de conta primeiro
+                    if (d.Conta && selConta0.includes(d.Conta)) return true;
+                    // Fallback: match por frente inferida (para contas sem dados próprios)
+                    let frentesInf = selConta0.map(c => extrairFrente(c));
+                    return frentesInf.includes(d.Frente);
+                }
                 return true;
             };
             let vendasCur = window.macroData.filter(d =>
@@ -1502,12 +1505,12 @@
                 : selContaT.length > 0 ? [...new Set(selContaT.map(c => inferirPlataformaConta(c)))]
                 : null;
             let vendasPlatT = d => platEfetivaT === null ? d.Plataforma === 'Todas' : platEfetivaT.includes(d.Plataforma);
-            let frentesDeContasT = selContaT.length > 0
-                ? [...new Set(selContaT.map(c => extrairFrente(c)))]
-                : [];
             let vendasFrenteT = d => {
-                if (selFrenteT.length > 0) return selFrenteT.includes(d.Frente);
-                if (frentesDeContasT.length > 0) return frentesDeContasT.includes(d.Frente);
+                if (selFrenteT.length > 0 && !selFrenteT.includes(d.Frente)) return false;
+                if (selContaT.length > 0) {
+                    if (d.Conta && selContaT.includes(d.Conta)) return true;
+                    return selContaT.map(c => extrairFrente(c)).includes(d.Frente);
+                }
                 return true;
             };
             let vendasMap = {};
@@ -1606,12 +1609,12 @@
                 : selContaC.length > 0 ? [...new Set(selContaC.map(c => inferirPlataformaConta(c)))]
                 : null;
             let vendasPlatC = d => platEfetivaC === null ? d.Plataforma === 'Todas' : platEfetivaC.includes(d.Plataforma);
-            let frentesDeContasC = selContaC.length > 0
-                ? [...new Set(selContaC.map(c => extrairFrente(c)))]
-                : [];
             let vendasFrenteC = d => {
-                if (selFrenteC.length > 0) return selFrenteC.includes(d.Frente);
-                if (frentesDeContasC.length > 0) return frentesDeContasC.includes(d.Frente);
+                if (selFrenteC.length > 0 && !selFrenteC.includes(d.Frente)) return false;
+                if (selContaC.length > 0) {
+                    if (d.Conta && selContaC.includes(d.Conta)) return true;
+                    return selContaC.map(c => extrairFrente(c)).includes(d.Frente);
+                }
                 return true;
             };
             let vendasMapChart = {};
