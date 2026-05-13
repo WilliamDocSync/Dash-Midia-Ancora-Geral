@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v29</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v30</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -924,7 +924,7 @@
                     Data: dt,
                     Frente: extrairFrente(padronizarConta(c)),
                     Plataforma: plataforma,
-                    Conta: String(c || '').trim(),
+                    Conta: padronizarConta(String(c || '').trim()),
                     Gasto: g, Leads: l, Vendas: 0,
                     GastoPlan: 0, LeadsPlan: 0,
                     Impressoes: parseNum(d.Impressions || d.Impressoes || 0),
@@ -998,7 +998,7 @@
                 // Se a linha tem valor de idade/gênero → demográfico
                 if (ageVal && ageVal !== 'N/A') {
                     window.demoData.push({
-                        Data: dt, Frente: frente, Conta: conta,
+                        Data: dt, Frente: frente, Conta: padronizarConta(conta),
                         Campanha: d['Campaign Name'] || '',
                         Conjunto: d['Adset Name']   || '',
                         Anuncio:  d['Ad Name']       || '',
@@ -1009,7 +1009,7 @@
                 } else if (hashVal || hasAdName) {
                     // Se tem hash de imagem OU Ad Name → criativo (inclui sheets sem hash)
                     window.microData.push({
-                        Data: dt, Frente: frente, Conta: conta,
+                        Data: dt, Frente: frente, Conta: padronizarConta(conta),
                         Campanha:        d['Campaign Name'] || '',
                         Conjunto:        d['Adset Name']   || '',
                         Anuncio:         d['Ad Name']      || '',
@@ -1292,14 +1292,19 @@
             ).reduce((a,d) => a + d.Vendas, 0) : 0;
             cur.v  = vendasCur;
             ant.v  = vendasAnt;
-            // Leads SWR
+            // Leads SWR — respeita filtro de plataforma e frente
+            let selPlat0 = getChecked('v1_plat_');
+            // Se há filtro de plataforma, usa linhas por plataforma; senão usa Todas
+            let swrPlatFilter = d => selPlat0.length === 0
+                ? d.Plataforma === 'Todas'
+                : selPlat0.includes(d.Plataforma);
             let swrCur = window.macroData.filter(d =>
-                d.Plataforma === 'Todas' && (d.LeadsSWR||0) > 0 &&
+                swrPlatFilter(d) && (d.LeadsSWR||0) > 0 &&
                 d.Data >= s0 && d.Data <= e0 &&
                 (selFrente0.length === 0 || selFrente0.includes(d.Frente))
             ).reduce((a,d) => a + (d.LeadsSWR||0), 0);
             let swrAnt = (s2 && e2) ? window.macroData.filter(d =>
-                d.Plataforma === 'Todas' && (d.LeadsSWR||0) > 0 &&
+                swrPlatFilter(d) && (d.LeadsSWR||0) > 0 &&
                 d.Data >= s2 && d.Data <= e2 &&
                 (selFrente0.length === 0 || selFrente0.includes(d.Frente))
             ).reduce((a,d) => a + (d.LeadsSWR||0), 0) : 0;
