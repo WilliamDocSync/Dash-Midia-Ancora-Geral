@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v28</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v29</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -582,20 +582,40 @@
 
         function padronizarConta(nomeBruto) {
             if (!nomeBruto) return "Outros";
-            let n = normStr(nomeBruto);
+            let raw = String(nomeBruto).trim();
+            let n = normStr(raw);
+
+            // Nomes curtos/abreviados comuns nas planilhas de vendas/planejados
+            const shortNames = {
+                'espelho': 'CKB Espelho',
+                'ckb espelho': 'CKB Espelho',
+                'whatsapp': 'CKB - WhatsApp',
+                'wpp': 'CKB - WhatsApp',
+                'ckb whatsapp': 'CKB - WhatsApp',
+                'ckb - whatsapp': 'CKB - WhatsApp',
+                'ancora - ckb': 'Âncora - CKB',
+                'ancora ckb': 'Âncora - CKB',
+                'ancora | ckb': 'Âncora | CKB',
+                'kawasaki': 'CKB - Consórcio Kawasaki',
+                'ckb kawasaki': 'CKB - Consórcio Kawasaki',
+            };
+            if (shortNames[n]) return shortNames[n];
 
             // ── CKB ──────────────────────────────────────────────────────────
-            if (n.includes("ckb") && (n.includes("espelho") || n.includes("mirror")))
+            // Espelho (sempre Meta)
+            if (n.includes("espelho") || (n.includes("ckb") && n.includes("mirror")))
                 return "CKB Espelho";
-            if (n.includes("ckb") && (n.includes("whatsapp") || n.includes("wpp") || n.includes("whats")))
+            // WhatsApp (sempre Meta)
+            if (n.includes("whatsapp") || n.includes("wpp") || n.includes("whats"))
                 return "CKB - WhatsApp";
+            // Kawasaki / Consórcio (sempre TikTok)
             if (n.includes("kawasaki") || (n.includes("consorcio") && n.includes("ckb")))
                 return "CKB - Consórcio Kawasaki";
-            if (n.includes("ckb")) {
-                // Usa o separador original para distinguir Google (|) de Meta (- ou sem separador)
+            // Ancora|CKB, Ancora-CKB, CKB, etc
+            if (n.includes("ckb") || (n.includes("ancora") && n.includes("ckb"))) {
                 let raw = String(nomeBruto || '');
-                if (raw.includes('|')) return "Âncora | CKB";   // Google
-                return "Âncora - CKB";                           // Meta (- ou sem separador)
+                if (raw.includes('|')) return "Âncora | CKB";   // Google (pipe)
+                return "Âncora - CKB";                           // Meta (traço ou sem separador)
             }
 
             // ── Bajaj ────────────────────────────────────────────────────────
@@ -794,19 +814,17 @@
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0Vtd5aW9zKUfOJ2NiaDjKvWYRdte2JlvgIsdmLQVkkQpE7-0uKRrr_d0pqF9GGi16sKR87E8YRCSD/pub?output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHecxbiz4ZwkGzY_sgvjxU_yBaCDyjdeqMb60rd1_5RZRrC5ldMCREAHaHA3lH4FtRStt65ngtlqCF/pub?output=csv"
             ];
-            for (let i = 0; i < REGIAO_URLS.length; i++) {
-                status.innerHTML = `<div class="loader"></div> Regiões (${i+1}/${REGIAO_URLS.length})`;
-                await new Promise(resolve => {
-                    let done = false;
-                    // Timeout de 12s — se não responder, pula e segue
-                    let timer = setTimeout(() => { if (!done) { done = true; resolve(); } }, 12000);
-                    Papa.parse(REGIAO_URLS[i], {
-                        download: true, header: true, skipEmptyLines: true,
-                        complete: res => { if (!done) { done = true; clearTimeout(timer); parseRegiao(res.data); resolve(); } },
-                        error:    ()  => { if (!done) { done = true; clearTimeout(timer); resolve(); } }
-                    });
+            // Carrega regiões em paralelo — todas ao mesmo tempo, timeout de 15s
+            status.innerHTML = `<div class="loader"></div> Regiões (carregando ${REGIAO_URLS.length} fontes...)`;
+            await Promise.all(REGIAO_URLS.map(url => new Promise(resolve => {
+                let done = false;
+                let timer = setTimeout(() => { if (!done) { done = true; resolve(); } }, 15000);
+                Papa.parse(url, {
+                    download: true, header: true, skipEmptyLines: true,
+                    complete: res => { if (!done) { done = true; clearTimeout(timer); parseRegiao(res.data); resolve(); } },
+                    error:    ()  => { if (!done) { done = true; clearTimeout(timer); resolve(); } }
                 });
-            }
+            })));
             initMicro();
         }
 
