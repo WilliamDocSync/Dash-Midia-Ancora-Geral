@@ -699,10 +699,9 @@
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=0&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1254441910&single=true&output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQD7BFtJEHmlibDAonRWfT9InDdbr1jasT2XsB8C8ciUdpy2y5IAtmYfOIS4mz-2C_Da7gPtt5M3BLH/pub?gid=1347821527&single=true&output=csv",
-                // Vendas consolidadas (aba principal)
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?output=csv",
+                // Vendas consolidadas já incluída acima (gid=574214236)
                 // Pastre (Geral)
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwPdfZiZxug-f6BHlAY86GiF_vTgy8NIXsGVczaFsxuxhNhSCZJqWX8xJ9iZEM4OiR-jY_1-u_lyT1/pub?output=csv",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwPdfZiZxug-f6BHlAY86GiF_vTgy8NIXsGVczaFsxuxhNhSCZJqWX8xJ9iZEM4OiR-jY_1-u_lyT1/pub?gid=0&single=true&output=csv",
                 // Leads SWR (CRM)
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQK2RqhEJbaHe_zzWll5xHr3oXny8dyEKtoCN84HWMHPvrKATweIFZHmI8OYIUHg_NC9i_QHz0QXiV1/pub?gid=1730030609&single=true&output=csv"
             ];
@@ -1506,6 +1505,7 @@
             let s0t = document.getElementById('v1_p1Start').value;
             let e0t = document.getElementById('v1_p1End').value;
             let selFrenteT = getChecked('v1_frente_');
+            let selContaT  = getChecked('v1_conta_');
 
             // Vendas — lookup por chave de agrupamento, respeitando filtro de canal e conta
             // Usa filtros já computados por renderMaster (evita recalcular)
