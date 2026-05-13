@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v32</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v34</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -822,17 +822,22 @@
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0Vtd5aW9zKUfOJ2NiaDjKvWYRdte2JlvgIsdmLQVkkQpE7-0uKRrr_d0pqF9GGi16sKR87E8YRCSD/pub?output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHecxbiz4ZwkGzY_sgvjxU_yBaCDyjdeqMb60rd1_5RZRrC5ldMCREAHaHA3lH4FtRStt65ngtlqCF/pub?output=csv"
             ];
-            // Carrega regiões em paralelo — todas ao mesmo tempo, timeout de 15s
-            status.innerHTML = `<div class="loader"></div> Regiões (carregando ${REGIAO_URLS.length} fontes...)`;
-            await Promise.all(REGIAO_URLS.map(url => new Promise(resolve => {
+            // Carrega regiões em lotes de 3 (limite de conexões do browser por domínio)
+            const carregarUrl = url => new Promise(resolve => {
                 let done = false;
-                let timer = setTimeout(() => { if (!done) { done = true; resolve(); } }, 15000);
+                let timer = setTimeout(() => { if (!done) { done = true; resolve(); } }, 20000);
                 Papa.parse(url, {
                     download: true, header: true, skipEmptyLines: true,
                     complete: res => { if (!done) { done = true; clearTimeout(timer); parseRegiao(res.data); resolve(); } },
                     error:    ()  => { if (!done) { done = true; clearTimeout(timer); resolve(); } }
                 });
-            })));
+            });
+            const BATCH = 3;
+            for (let b = 0; b < REGIAO_URLS.length; b += BATCH) {
+                let lote = REGIAO_URLS.slice(b, b + BATCH);
+                status.innerHTML = `<div class="loader"></div> Regiões (${Math.min(b+BATCH, REGIAO_URLS.length)}/${REGIAO_URLS.length})`;
+                await Promise.all(lote.map(carregarUrl));
+            }
             initMicro();
         }
 
@@ -1308,17 +1313,25 @@
             let vendasPlatFilter = d => platEfetiva0 === null
                 ? d.Plataforma === 'Todas'
                 : platEfetiva0.includes(d.Plataforma);
+            // Vendas e SWR são por frente — quando filtramos por conta,
+            // inferimos a frente dela para filtrar (conta é mais granular que vendas)
+            let frentesDeContas = selConta0.length > 0
+                ? [...new Set(selConta0.map(c => extrairFrente(c)))]
+                : [];
+            let vendasFrenteFilter = d => {
+                if (selFrente0.length > 0) return selFrente0.includes(d.Frente);
+                if (frentesDeContas.length > 0) return frentesDeContas.includes(d.Frente);
+                return true;
+            };
             let vendasCur = window.macroData.filter(d =>
                 vendasPlatFilter(d) && d.Vendas > 0 &&
                 d.Data >= s0 && d.Data <= e0 &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
-                (selConta0.length  === 0 || selConta0.includes(d.Conta))
+                vendasFrenteFilter(d)
             ).reduce((a,d) => a + d.Vendas, 0);
             let vendasAnt = (s2 && e2) ? window.macroData.filter(d =>
                 vendasPlatFilter(d) && d.Vendas > 0 &&
                 d.Data >= s2 && d.Data <= e2 &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
-                (selConta0.length  === 0 || selConta0.includes(d.Conta))
+                vendasFrenteFilter(d)
             ).reduce((a,d) => a + d.Vendas, 0) : 0;
             cur.v  = vendasCur;
             ant.v  = vendasAnt;
@@ -1330,14 +1343,12 @@
             let swrCur = window.macroData.filter(d =>
                 swrPlatFilter(d) && (d.LeadsSWR||0) > 0 &&
                 d.Data >= s0 && d.Data <= e0 &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
-                (selConta0.length  === 0 || selConta0.includes(d.Conta))
+                vendasFrenteFilter(d)
             ).reduce((a,d) => a + (d.LeadsSWR||0), 0);
             let swrAnt = (s2 && e2) ? window.macroData.filter(d =>
                 swrPlatFilter(d) && (d.LeadsSWR||0) > 0 &&
                 d.Data >= s2 && d.Data <= e2 &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
-                (selConta0.length  === 0 || selConta0.includes(d.Conta))
+                vendasFrenteFilter(d)
             ).reduce((a,d) => a + (d.LeadsSWR||0), 0) : 0;
             cur.ls = swrCur;
             ant.ls = swrAnt;
@@ -1355,8 +1366,7 @@
             let curMes = sumData(dadosMes);
             let vendasMes = window.macroData.filter(d =>
                 vendasPlatFilter(d) && d.Vendas > 0 && d.Data.startsWith(mesAtual) &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
-                (selConta0.length  === 0 || selConta0.includes(d.Conta))
+                vendasFrenteFilter(d)
             ).reduce((a,d) => a + d.Vendas, 0);
             curMes.v = vendasMes;
             let projFactor = diaHoje > 0 ? diasNoMes / diaHoje : 1;
@@ -1492,12 +1502,19 @@
                 : selContaT.length > 0 ? [...new Set(selContaT.map(c => inferirPlataformaConta(c)))]
                 : null;
             let vendasPlatT = d => platEfetivaT === null ? d.Plataforma === 'Todas' : platEfetivaT.includes(d.Plataforma);
+            let frentesDeContasT = selContaT.length > 0
+                ? [...new Set(selContaT.map(c => extrairFrente(c)))]
+                : [];
+            let vendasFrenteT = d => {
+                if (selFrenteT.length > 0) return selFrenteT.includes(d.Frente);
+                if (frentesDeContasT.length > 0) return frentesDeContasT.includes(d.Frente);
+                return true;
+            };
             let vendasMap = {};
             window.macroData.filter(d =>
                 vendasPlatT(d) && d.Vendas > 0 &&
                 d.Data >= s0t && d.Data <= e0t &&
-                (selFrenteT.length === 0 || selFrenteT.includes(d.Frente)) &&
-                (selContaT.length  === 0 || selContaT.includes(d.Conta))
+                vendasFrenteT(d)
             ).forEach(d => {
                 let k = d[grp] || 'Outros';
                 vendasMap[k] = (vendasMap[k] || 0) + d.Vendas;
@@ -1589,12 +1606,19 @@
                 : selContaC.length > 0 ? [...new Set(selContaC.map(c => inferirPlataformaConta(c)))]
                 : null;
             let vendasPlatC = d => platEfetivaC === null ? d.Plataforma === 'Todas' : platEfetivaC.includes(d.Plataforma);
+            let frentesDeContasC = selContaC.length > 0
+                ? [...new Set(selContaC.map(c => extrairFrente(c)))]
+                : [];
+            let vendasFrenteC = d => {
+                if (selFrenteC.length > 0) return selFrenteC.includes(d.Frente);
+                if (frentesDeContasC.length > 0) return frentesDeContasC.includes(d.Frente);
+                return true;
+            };
             let vendasMapChart = {};
             window.macroData.filter(d =>
                 vendasPlatC(d) && d.Vendas > 0 &&
                 d.Data >= s0c && d.Data <= e0c &&
-                (selFrenteC.length === 0 || selFrenteC.includes(d.Frente)) &&
-                (selContaC.length  === 0 || selContaC.includes(d.Conta))
+                vendasFrenteC(d)
             ).forEach(d => {
                 let gk = grpBy === 'total' ? '__total__' : (d[grpBy] || 'Outros');
                 let key = d.Data + '|' + gk;
