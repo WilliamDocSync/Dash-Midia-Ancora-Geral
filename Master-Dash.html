@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v30</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v32</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -578,6 +578,14 @@
             if (s.includes("espelho")) return "CKB Espelho";
             if (s.includes("pastre")) return "Pastre";
             return s.split(/[\s\-\|]+/)[0].toUpperCase() || "OUTROS";
+        }
+
+        // Infere a plataforma de origem pelo nome padronizado da conta
+        function inferirPlataformaConta(contaPadronizada) {
+            let n = normStr(contaPadronizada || '');
+            if (n.includes('consorcio') || n.includes('kawasaki')) return 'TikTok Ads';
+            if (contaPadronizada && contaPadronizada.includes('|'))  return 'Google Ads';
+            return 'Facebook Ads'; // default Meta
         }
 
         function padronizarConta(nomeBruto) {
@@ -1224,10 +1232,20 @@
             let selPlat   = getChecked('v1_plat_');
             let selFrente = getChecked('v1_frente_');
             let selConta  = getChecked('v1_conta_');
+
+            // Quando conta individual está selecionada, infere a plataforma dela
+            // e adiciona à lista de plataformas permitidas (sem forçar desseleção manual)
+            let platEfetiva = selPlat.length > 0 ? selPlat : null;
+            if (selConta.length > 0 && selPlat.length === 0) {
+                // Infere plataformas das contas selecionadas
+                let platsInferidas = [...new Set(selConta.map(c => inferirPlataformaConta(c)))];
+                platEfetiva = platsInferidas;
+            }
+
             return data.filter(d =>
                 d.Data >= s && d.Data <= e &&
                 d.Plataforma !== 'Todas' &&
-                (selPlat.length === 0   || selPlat.includes(d.Plataforma)) &&
+                (platEfetiva === null || platEfetiva.includes(d.Plataforma)) &&
                 (selFrente.length === 0 || selFrente.includes(d.Frente)) &&
                 (selConta.length === 0  || selConta.includes(d.Conta)) &&
                 (!busca || (d.Frente||'').toLowerCase().includes(busca) || (d.Conta||'').toLowerCase().includes(busca))
@@ -1280,33 +1298,46 @@
             let s2 = document.getElementById('v1_p2Start').value;
             let e2 = document.getElementById('v1_p2End').value;
             let selFrente0 = getChecked('v1_frente_');
+            // Vendas — respeita filtro de plataforma, frente e conta
+            let selPlat0  = getChecked('v1_plat_');
+            let selConta0 = getChecked('v1_conta_');
+            // Infere plataforma das contas selecionadas quando não há filtro de plataforma
+            let platEfetiva0 = selPlat0.length > 0 ? selPlat0
+                : selConta0.length > 0 ? [...new Set(selConta0.map(c => inferirPlataformaConta(c)))]
+                : null;
+            let vendasPlatFilter = d => platEfetiva0 === null
+                ? d.Plataforma === 'Todas'
+                : platEfetiva0.includes(d.Plataforma);
             let vendasCur = window.macroData.filter(d =>
-                d.Plataforma === 'Todas' && d.Vendas > 0 &&
+                vendasPlatFilter(d) && d.Vendas > 0 &&
                 d.Data >= s0 && d.Data <= e0 &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente))
+                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
+                (selConta0.length  === 0 || selConta0.includes(d.Conta))
             ).reduce((a,d) => a + d.Vendas, 0);
             let vendasAnt = (s2 && e2) ? window.macroData.filter(d =>
-                d.Plataforma === 'Todas' && d.Vendas > 0 &&
+                vendasPlatFilter(d) && d.Vendas > 0 &&
                 d.Data >= s2 && d.Data <= e2 &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente))
+                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
+                (selConta0.length  === 0 || selConta0.includes(d.Conta))
             ).reduce((a,d) => a + d.Vendas, 0) : 0;
             cur.v  = vendasCur;
             ant.v  = vendasAnt;
             // Leads SWR — respeita filtro de plataforma e frente
-            let selPlat0 = getChecked('v1_plat_');
-            // Se há filtro de plataforma, usa linhas por plataforma; senão usa Todas
-            let swrPlatFilter = d => selPlat0.length === 0
+            // selPlat0, selConta0, platEfetiva0 já definidos acima
+            let swrPlatFilter = d => platEfetiva0 === null
                 ? d.Plataforma === 'Todas'
                 : selPlat0.includes(d.Plataforma);
             let swrCur = window.macroData.filter(d =>
                 swrPlatFilter(d) && (d.LeadsSWR||0) > 0 &&
                 d.Data >= s0 && d.Data <= e0 &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente))
+                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
+                (selConta0.length  === 0 || selConta0.includes(d.Conta))
             ).reduce((a,d) => a + (d.LeadsSWR||0), 0);
             let swrAnt = (s2 && e2) ? window.macroData.filter(d =>
                 swrPlatFilter(d) && (d.LeadsSWR||0) > 0 &&
                 d.Data >= s2 && d.Data <= e2 &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente))
+                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
+                (selConta0.length  === 0 || selConta0.includes(d.Conta))
             ).reduce((a,d) => a + (d.LeadsSWR||0), 0) : 0;
             cur.ls = swrCur;
             ant.ls = swrAnt;
@@ -1323,8 +1354,9 @@
             let dadosMes = v1_cachedData.filter(d => d.Data.startsWith(mesAtual));
             let curMes = sumData(dadosMes);
             let vendasMes = window.macroData.filter(d =>
-                d.Plataforma === 'Todas' && d.Vendas > 0 && d.Data.startsWith(mesAtual) &&
-                (selFrente0.length === 0 || selFrente0.includes(d.Frente))
+                vendasPlatFilter(d) && d.Vendas > 0 && d.Data.startsWith(mesAtual) &&
+                (selFrente0.length === 0 || selFrente0.includes(d.Frente)) &&
+                (selConta0.length  === 0 || selConta0.includes(d.Conta))
             ).reduce((a,d) => a + d.Vendas, 0);
             curMes.v = vendasMes;
             let projFactor = diaHoje > 0 ? diasNoMes / diaHoje : 1;
@@ -1453,12 +1485,19 @@
             let e0t = document.getElementById('v1_p1End').value;
             let selFrenteT = getChecked('v1_frente_');
 
-            // Vendas ficam em Plataforma='Todas' — construir lookup por chave de agrupamento
+            // Vendas — lookup por chave de agrupamento, respeitando filtro de canal e conta
+            let selPlatT  = getChecked('v1_plat_');
+            let selContaT = getChecked('v1_conta_');
+            let platEfetivaT = selPlatT.length > 0 ? selPlatT
+                : selContaT.length > 0 ? [...new Set(selContaT.map(c => inferirPlataformaConta(c)))]
+                : null;
+            let vendasPlatT = d => platEfetivaT === null ? d.Plataforma === 'Todas' : platEfetivaT.includes(d.Plataforma);
             let vendasMap = {};
             window.macroData.filter(d =>
-                d.Plataforma === 'Todas' && d.Vendas > 0 &&
+                vendasPlatT(d) && d.Vendas > 0 &&
                 d.Data >= s0t && d.Data <= e0t &&
-                (selFrenteT.length === 0 || selFrenteT.includes(d.Frente))
+                (selFrenteT.length === 0 || selFrenteT.includes(d.Frente)) &&
+                (selContaT.length  === 0 || selContaT.includes(d.Conta))
             ).forEach(d => {
                 let k = d[grp] || 'Outros';
                 vendasMap[k] = (vendasMap[k] || 0) + d.Vendas;
@@ -1540,15 +1579,22 @@
             let dates = [...new Set(dataA.map(d => d.Data))].sort();
             let datasets = [];
 
-            // Pre-build vendas map: date+groupKey → total vendas
+            // Pre-build vendas map respeitando filtros de canal e conta
             let s0c = document.getElementById('v1_p1Start').value;
             let e0c = document.getElementById('v1_p1End').value;
             let selFrenteC = getChecked('v1_frente_');
+            let selPlatC   = getChecked('v1_plat_');
+            let selContaC  = getChecked('v1_conta_');
+            let platEfetivaC = selPlatC.length > 0 ? selPlatC
+                : selContaC.length > 0 ? [...new Set(selContaC.map(c => inferirPlataformaConta(c)))]
+                : null;
+            let vendasPlatC = d => platEfetivaC === null ? d.Plataforma === 'Todas' : platEfetivaC.includes(d.Plataforma);
             let vendasMapChart = {};
             window.macroData.filter(d =>
-                d.Plataforma === 'Todas' && d.Vendas > 0 &&
+                vendasPlatC(d) && d.Vendas > 0 &&
                 d.Data >= s0c && d.Data <= e0c &&
-                (selFrenteC.length === 0 || selFrenteC.includes(d.Frente))
+                (selFrenteC.length === 0 || selFrenteC.includes(d.Frente)) &&
+                (selContaC.length  === 0 || selContaC.includes(d.Conta))
             ).forEach(d => {
                 let gk = grpBy === 'total' ? '__total__' : (d[grpBy] || 'Outros');
                 let key = d.Data + '|' + gk;
