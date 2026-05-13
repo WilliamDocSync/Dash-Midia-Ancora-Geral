@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v35</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v36</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -964,7 +964,7 @@
                 window.regiaoData.push({
                     Data: dt,
                     Frente: extrairFrente(padronizarConta(c)),
-                    Conta: String(c || '').trim(),
+                    Conta: padronizarConta(String(c || '').trim()),
                     Regiao: regiao,
                     Campanha: d['Campaign Name'] || '',
                     Gasto: g, Leads: l, Impressoes: imp, Cliques: clk,
@@ -1226,6 +1226,10 @@
         }
 
         let v1_cachedData = [];
+        // Shared filter helpers — set by renderMaster, used by table/chart
+        let v1_vendasPlatFilter  = d => d.Plataforma === 'Todas';
+        let v1_vendasFrenteFilter = d => true;
+        let v1_swrPlatFilter     = d => d.Plataforma === 'Todas';
 
         // Paleta de cores para múltiplos datasets
         const CHART_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
@@ -1326,6 +1330,11 @@
                 }
                 return true;
             };
+            // Publish shared filters for table/chart to use
+            v1_vendasPlatFilter   = vendasPlatFilter;
+            v1_vendasFrenteFilter = vendasFrenteFilter;
+            v1_swrPlatFilter      = swrPlatFilter;
+
             let vendasCur = window.macroData.filter(d =>
                 vendasPlatFilter(d) && d.Vendas > 0 &&
                 d.Data >= s0 && d.Data <= e0 &&
@@ -1499,20 +1508,11 @@
             let selFrenteT = getChecked('v1_frente_');
 
             // Vendas — lookup por chave de agrupamento, respeitando filtro de canal e conta
-            let selPlatT  = getChecked('v1_plat_');
+            // Usa filtros já computados por renderMaster (evita recalcular)
+            let vendasPlatT   = v1_vendasPlatFilter;
+            let vendasFrenteT = v1_vendasFrenteFilter;
             let selContaT = getChecked('v1_conta_');
-            let platEfetivaT = selPlatT.length > 0 ? selPlatT
-                : selContaT.length > 0 ? [...new Set(selContaT.map(c => inferirPlataformaConta(c)))]
-                : null;
-            let vendasPlatT = d => platEfetivaT === null ? d.Plataforma === 'Todas' : platEfetivaT.includes(d.Plataforma);
-            let vendasFrenteT = d => {
-                if (selFrenteT.length > 0 && !selFrenteT.includes(d.Frente)) return false;
-                if (selContaT.length > 0) {
-                    if (d.Conta && selContaT.includes(d.Conta)) return true;
-                    return selContaT.map(c => extrairFrente(c)).includes(d.Frente);
-                }
-                return true;
-            };
+            let selFrenteT = getChecked('v1_frente_');
             let vendasMap = {};
             window.macroData.filter(d =>
                 vendasPlatT(d) && d.Vendas > 0 &&
@@ -1603,20 +1603,11 @@
             let s0c = document.getElementById('v1_p1Start').value;
             let e0c = document.getElementById('v1_p1End').value;
             let selFrenteC = getChecked('v1_frente_');
-            let selPlatC   = getChecked('v1_plat_');
+            // Usa filtros já computados por renderMaster
+            let vendasPlatC   = v1_vendasPlatFilter;
+            let vendasFrenteC = v1_vendasFrenteFilter;
+            let selFrenteC = getChecked('v1_frente_');
             let selContaC  = getChecked('v1_conta_');
-            let platEfetivaC = selPlatC.length > 0 ? selPlatC
-                : selContaC.length > 0 ? [...new Set(selContaC.map(c => inferirPlataformaConta(c)))]
-                : null;
-            let vendasPlatC = d => platEfetivaC === null ? d.Plataforma === 'Todas' : platEfetivaC.includes(d.Plataforma);
-            let vendasFrenteC = d => {
-                if (selFrenteC.length > 0 && !selFrenteC.includes(d.Frente)) return false;
-                if (selContaC.length > 0) {
-                    if (d.Conta && selContaC.includes(d.Conta)) return true;
-                    return selContaC.map(c => extrairFrente(c)).includes(d.Frente);
-                }
-                return true;
-            };
             let vendasMapChart = {};
             window.macroData.filter(d =>
                 vendasPlatC(d) && d.Vendas > 0 &&
