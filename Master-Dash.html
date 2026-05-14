@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v45</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v46</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -246,12 +246,29 @@
                             <div id="dd_v3_conta_items" class="mt-1 space-y-0.5"></div>
                         </div>
                     </div>
+                    <div class="relative no-print">
+                        <button onclick="toggleExportMenu('exportMenuPacing')" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-8 uppercase transition flex items-center gap-1">⬇ Exportar ▾</button>
+                        <div id="exportMenuPacing" class="hidden absolute right-0 mt-1 bg-white border rounded-xl shadow-xl z-50 p-2 min-w-[180px] space-y-1">
+                            <button onclick="exportPacingCards();document.getElementById('exportMenuPacing').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">📊 Cards (CSV)</button>
+                            <button onclick="exportPacingTable();document.getElementById('exportMenuPacing').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">📋 Tabela (CSV)</button>
+                            <hr class="my-1 border-slate-100">
+                            <button onclick="downloadPDF();document.getElementById('exportMenuPacing').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">🖨️ PDF (Print)</button>
+                            <hr class="my-1 border-slate-100">
+                            <button onclick="exportPacingTudo();document.getElementById('exportMenuPacing').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-emerald-50 font-black text-emerald-700">⬇ Tudo de uma vez</button>
+                        </div>
+                    </div>
+                    <button onclick="renderPacing()" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black text-xs px-4 h-8 uppercase transition">↺ Atualizar</button>
                 </div>
             </div>
-            <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8"></div>
+            <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-4"></div>
+            <div class="flex justify-end mb-4 no-print">
+                <button onclick="exportPacingCards()" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📊 Baixar Cards CSV</button>
+            </div>
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-4 bg-slate-50 border-b flex justify-between items-center text-xs font-bold">
                     <span class="text-slate-700 font-black uppercase">📊 Status Meta vs Realizado</span>
+                        <button onclick="exportPacingTable()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📋 Baixar CSV</button>
+                        <button onclick="exportPacingTable()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📋 Baixar CSV</button>
                     <div class="flex gap-4 text-slate-500">
                         <span>📅 Corridos: <span id="v3_lblCorridos" class="text-emerald-600 font-black">0</span></span>
                         <span>⏳ Restantes: <span id="v3_lblRestantes" class="text-orange-500 font-black">0</span></span>
@@ -298,7 +315,22 @@
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Análise de Criativos</h2>
                 <div class="flex items-center gap-3">
                     <span class="text-xs text-slate-400 font-bold" id="v2_countLabel"></span>
-                    <button onclick="downloadPDF()" class="no-print bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition">⬇ PDF</button> <button onclick="renderAnalise()" class="bg-purple-700 hover:bg-purple-900 text-white rounded-lg font-black text-xs px-5 h-9 uppercase transition">↺ Filtrar</button>
+                    <div class="relative no-print">
+                        <button onclick="toggleExportMenu('exportMenuAnalise')" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-1">⬇ Exportar ▾</button>
+                        <div id="exportMenuAnalise" class="hidden absolute right-0 mt-1 bg-white border rounded-xl shadow-xl z-50 p-2 min-w-[200px] space-y-1">
+                            <button onclick="exportAnaliseCards();document.getElementById('exportMenuAnalise').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">📊 Cards KPI (CSV)</button>
+                            <button onclick="exportAnaliseTops();document.getElementById('exportMenuAnalise').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">🏆 Top Rankings (CSV)</button>
+                            <button onclick="exportAnaliseDemo();document.getElementById('exportMenuAnalise').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">👥 Demográfico (PNG)</button>
+                            <button onclick="exportAnaliseRegiao();document.getElementById('exportMenuAnalise').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">🗺️ Regiões (PNG)</button>
+                            <button onclick="exportAnaliseRegiaoCSV();document.getElementById('exportMenuAnalise').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">🗺️ Regiões (CSV)</button>
+                            <button onclick="downloadTabelaCSV();document.getElementById('exportMenuAnalise').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">📋 Tabela Detalhe (CSV)</button>
+                            <hr class="my-1 border-slate-100">
+                            <button onclick="downloadPDF();document.getElementById('exportMenuAnalise').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-slate-50 font-bold text-slate-700">🖨️ PDF (Print)</button>
+                            <hr class="my-1 border-slate-100">
+                            <button onclick="exportAnaliseTudo();document.getElementById('exportMenuAnalise').classList.add('hidden')" class="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-emerald-50 font-black text-emerald-700">⬇ Tudo de uma vez</button>
+                        </div>
+                    </div>
+                    <button onclick="renderAnalise()" class="bg-purple-700 hover:bg-purple-900 text-white rounded-lg font-black text-xs px-5 h-9 uppercase transition">↺ Filtrar</button>
                 </div>
             </div>
 
@@ -384,14 +416,20 @@
             </div>
 
             <!-- KPIs big numbers com delta -->
-            <div id="v2_kpiContainer" class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6"></div>
+            <div id="v2_kpiContainer" class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4"></div>
+            <div class="flex justify-end mb-4 no-print">
+                <button onclick="exportAnaliseCards()" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📊 Baixar Cards CSV</button>
+            </div>
 
             <!-- Tops: 4 cards lado a lado -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <!-- Top Campanhas -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
+                        <div class="flex justify-between items-center w-full">
                         <span class="font-black text-[10px] uppercase text-slate-600">🚀 Top Campanhas</span>
+                        <button onclick="exportAnaliseTops()" class="no-print text-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold px-2 h-6 rounded-lg transition">🏆 CSV</button>
+                    </div>
                     </div>
                     <table class="w-full text-xs">
                         <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
@@ -442,6 +480,7 @@
             <div class="bg-white rounded-xl border p-5 shadow-sm mb-6">
                 <div class="flex justify-between items-center mb-3 border-b pb-2">
                     <h3 class="font-black text-xs uppercase text-slate-700">👥 Demográfico — por Idade e Gênero</h3>
+                        <button onclick="exportAnaliseDemo()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition ml-auto mr-2">📈 PNG</button>
                     <select id="v2_demoMetric" class="text-xs border rounded p-1 bg-slate-50 font-bold" onchange="renderDemoChart()">
                         <option value="leads">Leads</option>
                         <option value="cpl">CPL Médio</option>
@@ -456,7 +495,10 @@
                 <!-- Card Top Regiões -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
-                        <span class="font-black text-[10px] uppercase text-slate-600">🗺️ Top Regiões</span>
+                        <div class="flex justify-between items-center w-full">
+                            <span class="font-black text-[10px] uppercase text-slate-600">🗺️ Top Regiões</span>
+                            <button onclick="exportAnaliseRegiaoCSV()" class="no-print text-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold px-2 h-6 rounded-lg transition">📋 CSV</button>
+                        </div>
                         <select id="v2_regiaoMetric" class="text-xs border rounded p-1 bg-white font-bold" onchange="renderRegioes()">
                             <option value="impressoes">Impressões</option>
                             <option value="cliques">Cliques</option>
@@ -481,6 +523,7 @@
                 <div class="bg-white rounded-xl border p-4 shadow-sm">
                     <div class="flex justify-between items-center mb-2 border-b pb-2">
                         <h3 class="font-black text-[10px] uppercase text-slate-700">🗺️ Distribuição por Estado</h3>
+                        <button onclick="exportAnaliseRegiao()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition ml-auto">📈 PNG</button>
                     </div>
                     <canvas id="v2_regiaoChart" height="120"></canvas>
                 </div>
@@ -1840,6 +1883,13 @@
                         <td class="px-3 py-2 text-violet-600 font-black">${(d.ls||0) > 0 ? ((d.v/(d.ls||1))*100).toFixed(2)+'%' : d.l > 0 ? ((d.v/d.l)*100).toFixed(2)+'%' : '—'}</td>
                     </tr>`;
                 }).join('') || '<tr><td colspan="16" class="text-center p-8 text-slate-400">Nenhum dado para o período selecionado</td></tr>';
+            // Armazena para exportação
+            window._v3TableRows = [['Estrutura','Inv. Ontem','Inv. Real','Inv. Proj','Inv. Meta','Inv. Obj/Dia','Leads Ontem','Leads Real','Leads Proj','Leads Meta','Leads Obj/Dia','Vend. Ontem','Vend. Real','Vend. Meta','Vend. Obj/Dia','Taxa Venda']];
+            Object.values(obj).sort((a,b)=>b.g-a.g).forEach(d => {
+                let pG = dAtual>0?(d.g/dAtual)*dTot:0, pL = dAtual>0?(d.l/dAtual)*dTot:0;
+                let taxa = (d.ls||0)>0?(d.v/(d.ls||1)*100).toFixed(2):d.l>0?(d.v/d.l*100).toFixed(2):0;
+                window._v3TableRows.push([d.n, d.gO.toFixed(2), d.g.toFixed(2), pG.toFixed(2), d.gp.toFixed(2), Math.max((d.gp-d.g)/dRest,0).toFixed(2), d.lO, d.l, Math.round(pL), d.lp, Math.max(Math.round((d.lp-d.l)/dRest),0), d.vO, d.v, 0, 0, taxa+'%']);
+            });
 
             let tot = Object.values(obj).reduce((a, c) => {
                 a.g += c.g; a.gp += c.gp; a.l += c.l; a.lp += c.lp; a.v += c.v;
@@ -1918,12 +1968,20 @@
                 </div>`;
             };
 
+            window._v3Tot    = tot;
+            window._v3TotSWR = totSWR;
+
             document.getElementById('v3_kpiContainer').innerHTML =
                 card("Investimento", tot.g, tot.gp, true) +
                 card("Leads",        tot.l, tot.lp, false) +
                 cardSWRPacing(totSWR.ls, tot.l) +
                 card("Vendas",       tot.v, 0,      false) +
                 cardTaxaPacing(taxaPacing, histTaxaVal);
+            // Store for export
+            window._v3Tot     = tot;
+            window._v3TotSWR  = totSWR;
+            window._v3Taxa    = taxaPacing;
+            window._v3ObjData = Object.values(obj);
         }
 
         function carregarCSVsLocais(files) {
@@ -2347,6 +2405,151 @@
 
         function downloadPDF() { window.print(); }
 
+        // ── Criativos export ─────────────────────────────────────────────────
+        function exportAnaliseFileName(prefix, ext) {
+            let f = getChecked('v2_frente_');
+            let s = document.getElementById('v2_p1Start').value || '';
+            let e = document.getElementById('v2_p1End').value   || '';
+            let parts = [prefix];
+            if (f.length && f.length <= 3) parts.push(f.join('-'));
+            else if (f.length > 3) parts.push(f.length + 'frentes');
+            if (s) parts.push(s + '_' + e);
+            return parts.join('_').replace(/\s+/g,'_') + '.' + ext;
+        }
+
+        function exportAnaliseCards() {
+            let tot  = v2_cachedFiltered.reduce((a,d)=>{a.g+=d.Gasto;a.l+=d.Leads;a.i+=d.Impressoes||0;a.cl+=d.Cliques||0;return a;},{g:0,l:0,i:0,cl:0});
+            let cpl  = tot.l>0?(tot.g/tot.l).toFixed(2):0;
+            let ctr  = tot.i>0?(tot.cl/tot.i*100).toFixed(2):0;
+            let cvr  = tot.cl>0?(tot.l/tot.cl*100).toFixed(2):0;
+            let rows = [
+                ['Métrica','Valor'],
+                ['Investimento (R$)', tot.g.toFixed(2)],
+                ['Impressões', tot.i],
+                ['Leads', tot.l],
+                ['CPL (R$)', cpl],
+                ['CTR (%)', ctr],
+                ['CVR (%)', cvr],
+            ];
+            exportCSV(rows, exportAnaliseFileName('criativos_cards','csv'));
+        }
+
+        function exportAnaliseTops() {
+            let byCam   = calcScore(aggBy(v2_cachedFiltered,'Campanha')).slice(0,10);
+            let byAdset = calcScore(aggBy(v2_cachedFiltered,'Conjunto')).slice(0,10);
+            let byAd    = calcScore(aggBy(v2_cachedFiltered,'Anuncio')).slice(0,10);
+            let header  = ['Nome','Leads','Gasto','CPL','CVR%','Score'];
+            let toRows  = arr => arr.map(i=>[i.n,i.l,i.g.toFixed(2),i.cpl.toFixed(2),i.cvr.toFixed(2),i.score]);
+            let rows = [
+                ['=== TOP CAMPANHAS ==='],
+                header, ...toRows(byCam),
+                [''],
+                ['=== TOP CONJUNTOS ==='],
+                header, ...toRows(byAdset),
+                [''],
+                ['=== TOP CRIATIVOS ==='],
+                header, ...toRows(byAd),
+            ];
+            exportCSV(rows, exportAnaliseFileName('criativos_tops','csv'));
+        }
+
+        function exportAnaliseDemo() {
+            let canvas = document.getElementById('v2_demoChart');
+            let a = document.createElement('a');
+            a.href = canvas.toDataURL('image/png');
+            a.download = exportAnaliseFileName('criativos_demografico','png');
+            a.click();
+        }
+
+        function exportAnaliseRegiao() {
+            let canvas = document.getElementById('v2_regiaoChart');
+            let a = document.createElement('a');
+            a.href = canvas.toDataURL('image/png');
+            a.download = exportAnaliseFileName('criativos_regiao','png');
+            a.click();
+        }
+
+        function exportAnaliseRegiaoCSV() {
+            let f = getChecked('v2_frente_'); let c = getChecked('v2_conta_');
+            let s = document.getElementById('v2_p1Start').value;
+            let e = document.getElementById('v2_p1End').value;
+            let data = window.regiaoData.filter(d =>
+                d.Data>=s && d.Data<=e &&
+                (f.length===0||f.includes(d.Frente)) && (c.length===0||c.includes(d.Conta))
+            );
+            let byE = Object.values(data.reduce((acc,d)=>{
+                if(!acc[d.Regiao]) acc[d.Regiao]={n:d.Regiao,g:0,i:0,cl:0,eng:0};
+                acc[d.Regiao].g+=d.Gasto; acc[d.Regiao].i+=d.Impressoes||0;
+                acc[d.Regiao].cl+=d.Cliques||0; acc[d.Regiao].eng+=d.Engajamento||0;
+                return acc;
+            },{})).sort((a,b)=>b.i-a.i);
+            let totI = byE.reduce((s,i)=>s+i.i,0);
+            let rows = [['Estado','Gasto (R$)','Impressões','Cliques','CTR%','CPM (R$)','CPC (R$)','Engajamento','% Impressões']];
+            byE.forEach(i=>{
+                let ctr=(i.i>0?(i.cl/i.i*100):0).toFixed(2);
+                let cpm=(i.i>0?(i.g/i.i*1000):0).toFixed(2);
+                let cpc=(i.cl>0?(i.g/i.cl):0).toFixed(2);
+                let pct=(totI>0?(i.i/totI*100):0).toFixed(1)+'%';
+                rows.push([i.n,i.g.toFixed(2),i.i,i.cl,ctr,cpm,cpc,i.eng,pct]);
+            });
+            exportCSV(rows, exportAnaliseFileName('criativos_regioes','csv'));
+        }
+
+        function exportAnaliseTudo() {
+            exportAnaliseCards();
+            setTimeout(()=>exportAnaliseTops(),     400);
+            setTimeout(()=>exportAnaliseDemo(),     800);
+            setTimeout(()=>exportAnaliseRegiao(),  1200);
+            setTimeout(()=>exportAnaliseRegiaoCSV(),1600);
+            setTimeout(()=>downloadTabelaCSV(),    2000);
+        }
+
+        // ── Pacing export ────────────────────────────────────────────────────
+        function exportPacingFileName(prefix, ext) {
+            let mo = document.getElementById('v3_month').value || '';
+            let grp = document.getElementById('v3_grouping').value || '';
+            return [prefix, mo, grp].filter(Boolean).join('_') + '.' + ext;
+        }
+
+        function exportPacingCards() {
+            let t = window._v3Tot || {}; let s = window._v3TotSWR || {};
+            let taxa = window._v3Taxa || 0;
+            let rows = [
+                ['Métrica','Realizado','Meta','% Atingido'],
+                ['Investimento', t.g?.toFixed(2)||0, t.gp?.toFixed(2)||0, t.gp>0?((t.g/t.gp)*100).toFixed(1)+'%':'-'],
+                ['Leads', t.l||0, t.lp||0, t.lp>0?((t.l/t.lp)*100).toFixed(1)+'%':'-'],
+                ['Leads SWR (CRM)', s.ls||0, '-', t.l>0?((s.ls/t.l)*100).toFixed(1)+'% vs plat':'-'],
+                ['Vendas', t.v||0, '-', '-'],
+                ['Taxa de Vendas', taxa.toFixed(2)+'%', '-', '-'],
+            ];
+            exportCSV(rows, exportPacingFileName('pacing_cards','csv'));
+        }
+
+        function exportPacingTable() {
+            let obj = window._v3ObjData || [];
+            if (!obj.length) { alert('Aplique um filtro primeiro.'); return; }
+            let mo = document.getElementById('v3_month').value || '';
+            let hoje = new Date(); let dAtual = hoje.getDate();
+            let dTot = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
+            let rows = [['Nome','Inv Ontem','Inv Real','Inv Proj','Inv Meta','Inv Obj/Dia','Leads Ontem','Leads Real','Leads Proj','Leads Meta','Leads Obj/Dia','Vendas Ontem','Vendas Real','Taxa Venda%']];
+            obj.sort((a,b)=>b.g-a.g).forEach(d => {
+                let pG = dAtual>0?(d.g/dAtual)*dTot:0;
+                let pL = dAtual>0?(d.l/dAtual)*dTot:0;
+                let objG = Math.max((d.gp-d.g)/(dTot-dAtual+1),0);
+                let objL = Math.max((d.lp-d.l)/(dTot-dAtual+1),0);
+                let taxa = (d.ls||0)>0?(d.v/(d.ls||1)*100).toFixed(2):d.l>0?(d.v/d.l*100).toFixed(2):0;
+                rows.push([d.n, d.gO?.toFixed(2)||0, d.g.toFixed(2), pG.toFixed(2), d.gp||0, objG.toFixed(2),
+                           d.lO||0, d.l, Math.round(pL), d.lp||0, Math.round(objL),
+                           d.vO||0, d.v, taxa]);
+            });
+            exportCSV(rows, exportPacingFileName('pacing_tabela','csv'));
+        }
+
+        function exportPacingTudo() {
+            exportPacingCards();
+            setTimeout(() => exportPacingTable(), 400);
+        }
+
         // ── Export helpers ────────────────────────────────────────────────────
         function exportFileName(prefix, ext) {
             let frentes = getChecked('v1_frente_');
@@ -2431,6 +2634,42 @@
             exportMacroCards();
             setTimeout(() => exportMacroChart(),  400);
             setTimeout(() => exportMacroTable(),  800);
+        }
+
+        // ── Pacing exports ────────────────────────────────────────────────────
+        function exportPacingCards() {
+            let tot = window._v3Tot || {};
+            let totSWR = window._v3TotSWR || {ls:0};
+            let mo = document.getElementById('v3_month')?.value || '';
+            let disc = tot.l > 0 && totSWR.ls > 0 ? ((tot.l - totSWR.ls)/tot.l*100).toFixed(1) : '-';
+            let taxa = totSWR.ls > 0 ? (tot.v/totSWR.ls*100).toFixed(2) : tot.l > 0 ? (tot.v/tot.l*100).toFixed(2) : '0';
+            let rows = [
+                ['Métrica','Valor','Meta','% Atingido','Mês'],
+                ['Investimento (R$)', (tot.g||0).toFixed(2), (tot.gp||0).toFixed(2), tot.gp>0?((tot.g/tot.gp)*100).toFixed(1)+'%':'-', mo],
+                ['Leads', tot.l||0, tot.lp||0, tot.lp>0?((tot.l/(tot.lp||1))*100).toFixed(1)+'%':'-', ''],
+                ['Leads SWR (CRM)', totSWR.ls||0, '-', disc+'% disc.', ''],
+                ['Vendas', tot.v||0, '-', '-', ''],
+                ['Taxa de Vendas', taxa+'%', '-', '-', ''],
+            ];
+            let fn = 'pacing_cards_' + mo + '.csv';
+            exportCSV(rows, fn);
+        }
+
+        function exportPacingTable() {
+            let rows = window._v3TableRows || [];
+            if (!rows.length) { alert('Aplique os filtros primeiro.'); return; }
+            exportCSV(rows, 'pacing_tabela_' + (document.getElementById('v3_month')?.value||'') + '.csv');
+        }
+
+        function exportPacingTudo() {
+            exportPacingCards();
+            setTimeout(() => exportPacingTable(), 400);
+        }
+
+        function exportPacingFileName(prefix) {
+            let mo = document.getElementById('v3_month')?.value || '';
+            let grp = document.getElementById('v3_grouping')?.value || '';
+            return prefix + '_' + mo + '_' + grp + '.csv';
         }
 
         function toggleExportMenu(id) {
