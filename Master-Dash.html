@@ -36,12 +36,12 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v47</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v48</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
             <button onclick="switchTab('tab-pacing', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>⏱️</span> Controle Pacing</button>
-            <button onclick="switchTab('tab-analise', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>🔬</span> Análise Criativos</button>
+            <button onclick="switchTab('tab-analise', this)" class="menu-btn w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>🔬</span> Análise Detalhada</button>
         </nav>
         <div class="p-4 border-t border-slate-800 bg-slate-950 text-center">
             <span id="globalStatus" class="text-[10px] font-black uppercase text-orange-400 flex items-center justify-center gap-2">
@@ -281,7 +281,7 @@
                             <tr class="text-center">
                                 <th class="text-left p-3 border-r-2 min-w-[140px]">Estrutura</th>
                                 <th colspan="5" class="border-r-2 py-2 bg-emerald-50 text-emerald-800">💰 Investimento (R$)</th>
-                                <th colspan="5" class="border-r-2 py-2 bg-blue-50 text-blue-800">🎯 Leads</th>
+                                <th colspan="7" class="border-r-2 py-2 bg-blue-50 text-blue-800">🎯 Leads</th>
                                 <th colspan="5" class="py-2 bg-green-50 text-green-800">🏆 Vendas</th>
                             </tr>
                             <tr class="bg-slate-50 text-[9px] border-b text-slate-500 text-center">
@@ -293,6 +293,8 @@
                                 <th class="p-2 border-r-2 text-emerald-600">Obj/Dia</th>
                                 <th class="p-2 text-slate-400">Ontem</th>
                                 <th class="p-2 font-black text-slate-700">Real</th>
+                                <th class="p-2 text-cyan-600">SWR</th>
+                                <th class="p-2 text-amber-600">Disc%</th>
                                 <th class="p-2">Proj.</th>
                                 <th class="p-2">Meta</th>
                                 <th class="p-2 border-r-2 text-blue-600">Obj/Dia</th>
@@ -312,7 +314,7 @@
         <section id="tab-analise" class="hidden p-8 max-w-[1600px] mx-auto">
             <!-- Header -->
             <div class="bg-white p-5 rounded-xl border-b-4 border-purple-600 mb-6 flex justify-between items-center shadow-sm">
-                <h2 class="text-2xl font-black text-slate-800 uppercase">Análise de Criativos</h2>
+                <h2 class="text-2xl font-black text-slate-800 uppercase">Análise Detalhada</h2>
                 <div class="flex items-center gap-3">
                     <span class="text-xs text-slate-400 font-bold" id="v2_countLabel"></span>
                     <div class="relative no-print">
@@ -422,12 +424,13 @@
             </div>
 
             <!-- Tops: 4 cards lado a lado -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                 <!-- Top Campanhas -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <div class="flex justify-between items-center w-full">
                         <span class="font-black text-[10px] uppercase text-slate-600">🚀 Top Campanhas</span>
+                        <span class="text-[9px] text-slate-400 ml-1" title="Score = 40% Leads + 40% CPL eficiência + 20% CVR">ℹ️ Score: 40% Leads + 40% CPL + 20% CVR</span>
                         <button onclick="exportAnaliseTops()" class="no-print text-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold px-2 h-6 rounded-lg transition">🏆 CSV</button>
                     </div>
                     </div>
@@ -472,6 +475,19 @@
                             <th class="text-left p-2">Público</th><th class="text-right p-2">Leads</th><th class="text-right p-2">CVR</th><th class="text-right p-2">CPL</th><th class="p-2">Score</th>
                         </tr></thead>
                         <tbody id="v2_topPublico" class="divide-y"></tbody>
+                    </table>
+                </div>
+                <!-- Top Regiões -->
+                <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
+                    <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                        <span class="font-black text-[10px] uppercase text-slate-600">🗺️ Top Regiões</span>
+                        <span class="text-[9px] text-slate-400" title="Score = 40% CTR + 30% CPM eficiência + 30% Engajamento relativo">ℹ️ CTR+CPM+Eng</span>
+                    </div>
+                    <table class="w-full text-xs">
+                        <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
+                            <th class="text-left p-2">Estado</th><th class="text-right p-2">CTR</th><th class="text-right p-2">CPM</th><th class="p-2">Score</th>
+                        </tr></thead>
+                        <tbody id="v2_topRegiaoCard" class="divide-y"></tbody>
                     </table>
                 </div>
             </div>
@@ -519,15 +535,34 @@
                         <tbody id="v2_topRegiao" class="divide-y"></tbody>
                     </table>
                 </div>
-                <!-- Gráfico de Regiões -->
-                <div class="bg-white rounded-xl border p-4 shadow-sm">
-                    <div class="flex justify-between items-center mb-2 border-b pb-2">
-                        <h3 class="font-black text-[10px] uppercase text-slate-700">🗺️ Distribuição por Estado</h3>
-                        <button onclick="exportAnaliseRegiao()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition ml-auto">📈 PNG</button>
-                    </div>
-                    <canvas id="v2_regiaoChart" height="120"></canvas>
+
+            </div>
+            <!-- Tabela Demográfica Completa -->
+            <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <span class="font-black text-xs uppercase">👥 Detalhamento Demográfico</span>
+                    <span class="text-[9px] text-slate-400">Impressões, Cliques, CTR, CPM, Gasto por Idade × Gênero</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="min-w-full text-xs whitespace-nowrap">
+                        <thead class="bg-slate-50 border-b uppercase text-slate-400 font-black text-[9px] tracking-wide">
+                            <tr>
+                                <th class="text-left p-3">Idade</th>
+                                <th class="text-left p-3">Gênero</th>
+                                <th class="text-right p-3">Impressões</th>
+                                <th class="text-right p-3">Cliques</th>
+                                <th class="text-right p-3 text-blue-600">CTR</th>
+                                <th class="text-right p-3 text-orange-600">CPM</th>
+                                <th class="text-right p-3">Gasto</th>
+                                <th class="text-right p-3 text-emerald-600">Leads</th>
+                                <th class="text-right p-3 text-violet-600">CPL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="v2_tabelaDemo" class="divide-y divide-slate-100"></tbody>
+                    </table>
                 </div>
             </div>
+
             <!-- Tabela de Regiões detalhada -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -545,6 +580,7 @@
                                 <th class="text-right p-3 text-orange-600">CPM</th>
                                 <th class="text-right p-3 text-violet-600">CPC</th>
                                 <th class="text-right p-3">% Impr.</th>
+                                <th class="text-right p-3 text-purple-600">Score</th>
                             </tr>
                         </thead>
                         <tbody id="v2_tabelaRegiao" class="divide-y divide-slate-100"></tbody>
@@ -568,6 +604,7 @@
                     <table class="min-w-full text-xs whitespace-nowrap">
                         <thead class="bg-slate-50 border-b uppercase text-slate-400 font-black text-[9px] tracking-wide">
                             <tr>
+                                <th class="text-left p-3">Conta</th>
                                 <th class="text-left p-3">Nome</th>
                                 <th class="text-right p-3">Gasto</th>
                                 <th class="text-right p-3">Impr</th>
@@ -1674,6 +1711,29 @@
                         <td class="text-right p-3 pr-4 text-violet-600 font-black">${i.l > 0 || swr > 0 ? taxa.toFixed(2)+'%' : '<span class="text-slate-300">-</span>'}</td>
                     </tr>`;
                 }).join('');
+            // Total row
+            let _tot={g:0,l:0,v:0,i:0,cl:0,swr:0};
+            Object.values(tb).forEach(i=>{_tot.g+=i.g;_tot.l+=i.l;_tot.v+=i.v;_tot.i+=i.i;_tot.cl+=i.cl;_tot.swr+=i.swr||0;});
+            let _tctr=_tot.i>0?(_tot.cl/_tot.i*100):0, _tcvr=_tot.cl>0?(_tot.l/_tot.cl*100):0;
+            let _tcpl=_tot.l>0?_tot.g/_tot.l:0, _tcpa=_tot.v>0?_tot.g/_tot.v:0;
+            let _tdisc=_tot.l>0&&_tot.swr>0?((_tot.l-_tot.swr)/_tot.l*100):null;
+            let _ttaxa=_tot.swr>0?(_tot.v/_tot.swr*100):_tot.l>0?(_tot.v/_tot.l*100):0;
+            document.getElementById('v1_tableBody').innerHTML +=
+                `<tr class="bg-slate-100 font-black border-t-2 border-slate-300">
+                    <td class="text-left p-3 pl-4 text-slate-800 text-xs uppercase">⬛ Total</td>
+                    <td class="text-right p-3">${fmt.m(_tot.g)}</td>
+                    <td class="text-right p-3">${fmt.n(_tot.i)}</td>
+                    <td class="text-right p-3">${fmt.n(_tot.cl)}</td>
+                    <td class="text-right p-3">${fmt.p(_tctr)}</td>
+                    <td class="text-right p-3 text-blue-700">${fmt.n(_tot.l)}</td>
+                    <td class="text-right p-3 text-cyan-700">${_tot.swr>0?fmt.n(_tot.swr):'—'}</td>
+                    <td class="text-right p-3">${_tdisc!==null?_tdisc.toFixed(1)+'%':'—'}</td>
+                    <td class="text-right p-3">${fmt.p(_tcvr)}</td>
+                    <td class="text-right p-3">${fmt.m(_tcpl)}</td>
+                    <td class="text-right p-3 text-green-800">${fmt.n(_tot.v)}</td>
+                    <td class="text-right p-3 bg-blue-50">${_tcpa>0?fmt.m(_tcpa):'—'}</td>
+                    <td class="text-right p-3 pr-4 text-violet-700">${_ttaxa>0?_ttaxa.toFixed(2)+'%':'—'}</td>
+                </tr>`;
         }
 
         function renderMasterChart(dataA) {
@@ -1773,7 +1833,7 @@
 
             // Mostra labels só quando há poucos pontos/datasets para não poluir
             let totalPontos = dates.length * datasets.length;
-            let showLabels = totalPontos <= 60;
+            let showLabels = totalPontos <= 120;
 
             if (v1_ChartObj) v1_ChartObj.destroy();
             v1_ChartObj = new Chart(document.getElementById('v1_chart'), {
@@ -1802,6 +1862,78 @@
                     layout: { padding: { top: 20 } }
                 }
             });
+        }
+
+        function renderFixedCards(mo, dAtual, dTot) {
+            // Aggregate by Frente and Plataforma independently of conta filter
+            let fixedObj = window.macroData.filter(d => d.Data.startsWith(mo))
+                .reduce((acc, d) => {
+                    if (d.Plataforma !== 'Todas') {
+                        // By frente
+                        let kf = 'f_' + (d.Frente||'Outros');
+                        if (!acc[kf]) acc[kf] = {n:d.Frente||'Outros', type:'frente', g:0,gp:0,l:0,lp:0,v:0,ls:0};
+                        acc[kf].g+=d.Gasto; acc[kf].l+=d.Leads;
+                        // By canal
+                        let kp = 'p_' + d.Plataforma;
+                        if (!acc[kp]) acc[kp] = {n:d.Plataforma, type:'canal', g:0,gp:0,l:0,lp:0,v:0,ls:0};
+                        acc[kp].g+=d.Gasto; acc[kp].l+=d.Leads;
+                    } else {
+                        // Vendas, planejados, SWR from Todas
+                        let kf = 'f_' + (d.Frente||'Outros');
+                        if (!acc[kf]) acc[kf] = {n:d.Frente||'Outros', type:'frente', g:0,gp:0,l:0,lp:0,v:0,ls:0};
+                        acc[kf].gp+=d.GastoPlan||0; acc[kf].lp+=d.LeadsPlan||0;
+                        if (d.Vendas>0) acc[kf].v+=d.Vendas;
+                        if ((d.LeadsSWR||0)>0) acc[kf].ls+=(d.LeadsSWR||0);
+                        // Canal planejado
+                        if ((d.GastoPlan||0)>0 || (d.LeadsPlan||0)>0) {
+                            let kp2 = 'p_' + (d.Plataforma==='Todas'?'Total':d.Plataforma);
+                            if (!acc[kp2]) acc[kp2] = {n:d.Plataforma, type:'canal', g:0,gp:0,l:0,lp:0,v:0,ls:0};
+                            acc[kp2].gp+=d.GastoPlan||0; acc[kp2].lp+=d.LeadsPlan||0;
+                        }
+                    }
+                    return acc;
+                }, {});
+
+            const pctBar2 = (v, m) => {
+                let p = m > 0 ? Math.min((v/m)*100, 100) : 0;
+                let color = p >= 100 ? 'bg-emerald-500' : p >= 70 ? 'bg-blue-500' : 'bg-amber-400';
+                return `<div class="w-full bg-slate-100 h-1.5 rounded-full mt-1"><div class="${color} h-1.5 rounded-full" style="width:${p}%"></div></div>`;
+            };
+
+            const fixedCard = (d) => {
+                let pG = d.gp>0?(d.g/d.gp*100).toFixed(0):0;
+                let pL = d.lp>0?(d.l/d.lp*100).toFixed(0):0;
+                let taxa = d.ls>0?(d.v/d.ls*100).toFixed(1):d.l>0?(d.v/d.l*100).toFixed(1):'—';
+                let discColor = d.l>0&&d.ls>0?(((d.l-d.ls)/d.l*100)>30?'text-red-500':((d.l-d.ls)/d.l*100)>15?'text-amber-500':'text-emerald-600'):'text-slate-300';
+                let disc = d.l>0&&d.ls>0?((d.l-d.ls)/d.l*100).toFixed(1)+'%':'—';
+                let icon = d.type==='canal'?'📡':'🏷️';
+                return `<div class="bg-white border rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black text-slate-500 uppercase">${icon} ${d.n}</span>
+                        <span class="text-[9px] text-slate-400">${d.type==='frente'?'Frente':'Canal'}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                        <div><span class="text-slate-400">Inv.</span> <span class="font-black">${fmt.m(d.g)}</span>
+                            ${d.gp>0?`<span class="text-[9px] ${parseFloat(pG)>=100?'text-emerald-600':'text-orange-500'}">${pG}%</span>`:''}
+                            ${pctBar2(d.g,d.gp)}</div>
+                        <div><span class="text-slate-400">Leads</span> <span class="font-black text-blue-700">${fmt.n(d.l)}</span>
+                            ${d.lp>0?`<span class="text-[9px] ${parseFloat(pL)>=100?'text-emerald-600':'text-blue-500'}">${pL}%</span>`:''}
+                            ${pctBar2(d.l,d.lp)}</div>
+                        <div><span class="text-slate-400">SWR</span> <span class="font-bold text-cyan-600">${d.ls>0?fmt.n(d.ls):'—'}</span>
+                            <span class="${discColor} text-[9px] ml-1">${disc}</span></div>
+                        <div><span class="text-slate-400">Vendas</span> <span class="font-bold text-green-700">${fmt.n(d.v)}</span></div>
+                        <div class="col-span-2"><span class="text-slate-400">Taxa</span> <span class="font-bold text-violet-600">${taxa}%</span></div>
+                    </div>
+                </div>`;
+            };
+
+            let frentes = Object.values(fixedObj).filter(d=>d.type==='frente').sort((a,b)=>b.g-a.g);
+            let canais  = Object.values(fixedObj).filter(d=>d.type==='canal' && d.n!=='Todas').sort((a,b)=>b.g-a.g);
+            let allCards = [...frentes, ...canais];
+            if (allCards.length === 0) { document.getElementById('v3_fixedCards').innerHTML=''; return; }
+            document.getElementById('v3_fixedCards').innerHTML =
+                `<p class="text-[10px] font-black text-slate-400 uppercase mb-2">📌 Visão Geral — fixo (mês selecionado)</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">${allCards.map(fixedCard).join('')}</div>`;
         }
 
         function renderPacing() {
@@ -1835,15 +1967,15 @@
                 if (d.Plataforma !== 'Todas') {
                     acc[k].g += d.Gasto;
                     acc[k].l += d.Leads;
-                    acc[k].v += d.Vendas;
+                    // Vendas NOT added here — only from Plataforma='Todas' to avoid double counting
                     if (d.Data === ontemStr) {
                         acc[k].gO += d.Gasto;
                         acc[k].lO += d.Leads;
-                        acc[k].vO += d.Vendas;
                     }
                 } else {
                     acc[k].gp += d.GastoPlan;
                     acc[k].lp += d.LeadsPlan;
+                    // Vendas from Plataforma='Todas' rows only
                     if (d.Vendas > 0) {
                         acc[k].v += d.Vendas;
                         if (d.Data === ontemStr) acc[k].vO += d.Vendas;
@@ -1887,6 +2019,8 @@
                         <td class="px-3 py-2 border-r-2 text-emerald-600 font-black bg-emerald-50">${fmt.m(objG)}</td>
                         <td class="px-3 py-2 text-slate-400">${d.lO > 0 ? fmt.n(d.lO) : '<span class="text-slate-200">—</span>'}</td>
                         <td class="px-3 py-2 font-black text-blue-700">${fmt.n(d.l)}${pctBar(d.l, d.lp)}</td>
+                        <td class="px-3 py-2 text-cyan-600 font-bold">${(d.ls||0)>0?fmt.n(d.ls):'<span class="text-slate-200">—</span>'}</td>
+                        <td class="px-3 py-2 ${d.l>0&&(d.ls||0)>0?(((d.l-(d.ls||0))/d.l*100)>30?'text-red-500 font-bold':((d.l-(d.ls||0))/d.l*100)>15?'text-amber-500 font-bold':'text-emerald-600 font-bold'):'text-slate-300'}">${d.l>0&&(d.ls||0)>0?((d.l-(d.ls||0))/d.l*100).toFixed(1)+'%':'—'}</td>
                         <td class="px-3 py-2 text-slate-500">${fmt.n(pL)}</td>
                         <td class="px-3 py-2 text-slate-500">${d.lp > 0 ? fmt.n(d.lp) : '—'}</td>
                         <td class="px-3 py-2 border-r-2 text-blue-600 font-black bg-blue-50">${fmt.n(objL)}</td>
@@ -1896,7 +2030,38 @@
                         <td class="px-3 py-2 text-green-600 font-black bg-green-50">—</td>
                         <td class="px-3 py-2 text-violet-600 font-black">${(d.ls||0) > 0 ? ((d.v/(d.ls||1))*100).toFixed(2)+'%' : d.l > 0 ? ((d.v/d.l)*100).toFixed(2)+'%' : '—'}</td>
                     </tr>`;
-                }).join('') || '<tr><td colspan="16" class="text-center p-8 text-slate-400">Nenhum dado para o período selecionado</td></tr>';
+                }).join('') || '<tr><td colspan="18" class="text-center p-8 text-slate-400">Nenhum dado para o período selecionado</td></tr>';
+            // Pacing total row
+            let _pt = Object.values(obj).reduce((a,d)=>{a.g+=d.g;a.gp+=d.gp;a.l+=d.l;a.lp+=d.lp;a.v+=d.v;a.ls+=d.ls||0;return a;},{g:0,gp:0,l:0,lp:0,v:0,ls:0});
+            let _ptGp=_pt.gp>0?(_pt.g/_pt.gp*100).toFixed(0):0;
+            let _ptLp=_pt.lp>0?(_pt.l/_pt.lp*100).toFixed(0):0;
+            let _ptDisc=_pt.l>0&&_pt.ls>0?((_pt.l-_pt.ls)/_pt.l*100).toFixed(1):null;
+            let _ptTaxa=_pt.ls>0?(_pt.v/_pt.ls*100).toFixed(2):_pt.l>0?(_pt.v/_pt.l*100).toFixed(2):0;
+            document.getElementById('v3_tableBody').innerHTML +=
+                `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-right text-xs">
+                    <td class="p-2 pl-3 font-black text-left border-r-2 text-slate-800 uppercase">⬛ Total
+                        <div class="flex gap-2 mt-0.5">
+                            ${_pt.gp>0?`<span class="text-[8px] font-bold ${parseFloat(_ptGp)>=100?'text-emerald-600':'text-orange-500'}">${_ptGp}% inv.</span>`:''}
+                            ${_pt.lp>0?`<span class="text-[8px] font-bold ${parseFloat(_ptLp)>=100?'text-emerald-600':'text-blue-500'}">${_ptLp}% leads</span>`:''}
+                        </div>
+                    </td>
+                    <td class="px-3 py-2">—</td>
+                    <td class="px-3 py-2 text-slate-800">${fmt.m(_pt.g)}</td>
+                    <td class="px-3 py-2 text-slate-500">${_pt.gp>0?fmt.m(_pt.gp):'—'}</td>
+                    <td class="px-3 py-2 border-r-2 text-emerald-600 bg-emerald-50">—</td>
+                    <td class="px-3 py-2">—</td>
+                    <td class="px-3 py-2 text-blue-700">${fmt.n(_pt.l)}</td>
+                    <td class="px-3 py-2 text-cyan-700">${_pt.ls>0?fmt.n(_pt.ls):'—'}</td>
+                    <td class="px-3 py-2">${_ptDisc!==null?_ptDisc+'%':'—'}</td>
+                    <td class="px-3 py-2 text-slate-500">—</td>
+                    <td class="px-3 py-2 text-slate-500">${_pt.lp>0?fmt.n(_pt.lp):'—'}</td>
+                    <td class="px-3 py-2 border-r-2 text-blue-600 bg-blue-50">—</td>
+                    <td class="px-3 py-2">—</td>
+                    <td class="px-3 py-2 text-green-700">${fmt.n(_pt.v)}</td>
+                    <td class="px-3 py-2 text-slate-500">—</td>
+                    <td class="px-3 py-2 text-green-600 bg-green-50">—</td>
+                    <td class="px-3 py-2 text-violet-700">${_ptTaxa>0?_ptTaxa+'%':'—'}</td>
+                </tr>`;
             // Armazena para exportação
             window._v3TableRows = [['Estrutura','Inv. Ontem','Inv. Real','Inv. Proj','Inv. Meta','Inv. Obj/Dia','Leads Ontem','Leads Real','Leads Proj','Leads Meta','Leads Obj/Dia','Vend. Ontem','Vend. Real','Vend. Meta','Vend. Obj/Dia','Taxa Venda']];
             Object.values(obj).sort((a,b)=>b.g-a.g).forEach(d => {
@@ -1996,6 +2161,7 @@
             window._v3TotSWR  = totSWR;
             window._v3Taxa    = taxaPacing;
             window._v3ObjData = Object.values(obj);
+            renderFixedCards(mo, dAtual, dTot);
         }
 
         function carregarCSVsLocais(files) {
@@ -2114,7 +2280,7 @@
         function aggBy(data, field) {
             return Object.values(data.reduce((acc, d) => {
                 let k = d[field] || 'N/A';
-                if (!acc[k]) acc[k] = { n: k, g: 0, l: 0, i: 0, cl: 0, v3s: 0, thr: 0, link: '' };
+                if (!acc[k]) acc[k] = { n: k, conta: d.Conta||'', g: 0, l: 0, i: 0, cl: 0, v3s: 0, thr: 0, link: '' };
                 acc[k].g += d.Gasto; acc[k].l += d.Leads;
                 acc[k].i += d.Impressoes || 0; acc[k].cl += d.Cliques || 0;
                 acc[k].v3s += d.Views3s || 0; acc[k].thr += d.Thruplay || 0;
@@ -2228,6 +2394,7 @@
             document.getElementById('v2_topPublico').innerHTML = topPublico.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados demográficos</td></tr>`;
 
             renderDemoChart();
+            renderTabelaDemo();
             renderRegioes();
             renderTabelaDetalhe();
         }
@@ -2336,7 +2503,18 @@
                 return fmt.n(i.i);
             };
 
-            // Card Top 10
+            // Populate card in tops grid
+            let topR = byEstado.slice(0,6);
+            let elTopCard = document.getElementById('v2_topRegiaoCard');
+            if (elTopCard) elTopCard.innerHTML = topR.map(i=>`
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2 font-bold text-slate-700 truncate max-w-[90px]">${i.n}</td>
+                    <td class="text-right px-2 text-blue-600 font-bold">${i.ctr.toFixed(2)}%</td>
+                    <td class="text-right px-2 text-orange-600 font-bold">${fmt.m(i.cpm)}</td>
+                    <td class="text-center px-2">${scoreBadge(i.score||0)}</td>
+                </tr>`).join('') || '<tr><td colspan="4" class="p-3 text-slate-400 text-center text-xs">Sem dados</td></tr>';
+
+            // Card Top 10 (existing section)
             document.getElementById('v2_topRegiao').innerHTML = byEstado.slice(0, 10).map((i, idx) => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-2 font-bold text-slate-700">${idx+1}. ${i.n}</td>
@@ -2346,10 +2524,21 @@
                     <td class="text-right px-2 text-orange-600 font-bold">${fmt.m(i.cpm)}</td>
                 </tr>`).join('') || '<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados de região</td></tr>';
 
+            // Compute region scores: 40% CTR + 30% inv CPM + 30% engagement rate
+            let maxCtr=Math.max(...byEstado.map(i=>i.ctr),0.001);
+            let minCpm=Math.min(...byEstado.filter(i=>i.cpm>0).map(i=>i.cpm),9999);
+            let maxEng=Math.max(...byEstado.map(i=>i.i>0?i.eng/i.i:0),0.001);
+            byEstado.forEach(i=>{
+                let sCtr=maxCtr>0?i.ctr/maxCtr:0;
+                let sCpm=i.cpm>0&&minCpm<9999?minCpm/i.cpm:0;
+                let sEng=maxEng>0?(i.i>0?i.eng/i.i:0)/maxEng:0;
+                i.score=Math.round((sCtr*40+sCpm*30+sEng*30));
+            });
+            byEstado.sort((a,b)=>b.score-a.score);
             // Tabela completa
-            document.getElementById('v2_tabelaRegiao').innerHTML = byEstado.map(i => `
+            document.getElementById('v2_tabelaRegiao').innerHTML = byEstado.map((i,idx) => `
                 <tr class="hover:bg-slate-50 text-right">
-                    <td class="text-left p-3 font-bold text-slate-800">${i.n}</td>
+                    <td class="text-left p-3 font-bold text-slate-800">${idx+1}. ${i.n}</td>
                     <td class="px-3 font-bold">${fmt.m(i.g)}</td>
                     <td class="px-3 text-slate-600">${fmt.n(i.i)}</td>
                     <td class="px-3 text-slate-600">${fmt.n(i.cl)}</td>
@@ -2357,7 +2546,26 @@
                     <td class="px-3 text-orange-600 font-bold">${fmt.m(i.cpm)}</td>
                     <td class="px-3 text-violet-600 font-bold">${fmt.m(i.cpc)}</td>
                     <td class="px-3 text-slate-400">${totalImpr > 0 ? ((i.i/totalImpr)*100).toFixed(1)+'%' : '-'}</td>
-                </tr>`).join('') || '<tr><td colspan="8" class="text-center p-6 text-slate-400">Sem dados no período</td></tr>';
+                    <td class="px-3 text-center">${scoreBadge(i.score)}</td>
+                </tr>`).join('') || '<tr><td colspan="9" class="text-center p-6 text-slate-400">Sem dados no período</td></tr>';
+            // Region table total
+            if (byEstado.length>0) {
+                let _rt={g:0,i:0,cl:0,eng:0};
+                byEstado.forEach(i=>{_rt.g+=i.g;_rt.i+=i.i;_rt.cl+=i.cl;_rt.eng+=i.eng||0;});
+                let _rctr=_rt.i>0?(_rt.cl/_rt.i*100):0, _rcpm=_rt.i>0?(_rt.g/_rt.i*1000):0, _rcpc=_rt.cl>0?(_rt.g/_rt.cl):0;
+                document.getElementById('v2_tabelaRegiao').innerHTML +=
+                    `<tr class="bg-slate-100 font-black border-t-2 text-right">
+                        <td class="text-left p-3 uppercase text-xs text-slate-700">⬛ Total</td>
+                        <td class="px-3">${fmt.m(_rt.g)}</td>
+                        <td class="px-3">${fmt.n(_rt.i)}</td>
+                        <td class="px-3">${fmt.n(_rt.cl)}</td>
+                        <td class="px-3">${_rctr.toFixed(2)}%</td>
+                        <td class="px-3">${fmt.m(_rcpm)}</td>
+                        <td class="px-3">${fmt.m(_rcpc)}</td>
+                        <td class="px-3">100%</td>
+                        <td class="px-3">—</td>
+                    </tr>`;
+            }
 
             // Gráfico top 15 estados (barras horizontais)
             let top15 = byEstado.slice(0, 15);
@@ -2394,6 +2602,54 @@
             });
         }
 
+        function renderTabelaDemo() {
+            let rows = Object.values(v2_cachedDemo.reduce((acc, d) => {
+                let gen = d.Genero === 'male' ? '♂ Masculino' : d.Genero === 'female' ? '♀ Feminino' : '? ' + (d.Genero||'N/A');
+                let k = (d.Idade||'?') + '|' + gen;
+                if (!acc[k]) acc[k] = {idade:d.Idade||'?', gen, g:0, l:0, i:0, cl:0};
+                acc[k].g+=d.Gasto; acc[k].l+=d.Leads;
+                acc[k].i+=d.Impressoes||0; acc[k].cl+=d.Cliques||0;
+                return acc;
+            }, {})).sort((a,b)=>{
+                if (a.idade < b.idade) return -1;
+                if (a.idade > b.idade) return 1;
+                return a.gen < b.gen ? -1 : 1;
+            }).map(i => {
+                let ctr = i.i>0?(i.cl/i.i*100).toFixed(2)+'%':'—';
+                let cpm = i.i>0?fmt.m(i.g/i.i*1000):'—';
+                let cpl = i.l>0?fmt.m(i.g/i.l):'—';
+                return `<tr class="hover:bg-slate-50 text-right">
+                    <td class="text-left p-3 font-bold text-slate-700">${i.idade}</td>
+                    <td class="text-left p-3 text-slate-600">${i.gen}</td>
+                    <td class="px-3">${fmt.n(i.i)}</td>
+                    <td class="px-3">${fmt.n(i.cl)}</td>
+                    <td class="px-3 text-blue-600 font-bold">${ctr}</td>
+                    <td class="px-3 text-orange-600 font-bold">${cpm}</td>
+                    <td class="px-3">${fmt.m(i.g)}</td>
+                    <td class="px-3 text-emerald-600 font-bold">${fmt.n(i.l)}</td>
+                    <td class="px-3 text-violet-600 font-bold">${cpl}</td>
+                </tr>`;
+            });
+            // total row
+            if (rows.length > 0) {
+                let _dmt={g:0,l:0,i:0,cl:0};
+                v2_cachedDemo.forEach(d=>{_dmt.g+=d.Gasto;_dmt.l+=d.Leads;_dmt.i+=d.Impressoes||0;_dmt.cl+=d.Cliques||0;});
+                let _dctr=_dmt.i>0?(_dmt.cl/_dmt.i*100).toFixed(2)+'%':'—';
+                let _dcpm=_dmt.i>0?fmt.m(_dmt.g/_dmt.i*1000):'—';
+                let _dcpl=_dmt.l>0?fmt.m(_dmt.g/_dmt.l):'—';
+                rows.push(`<tr class="bg-slate-100 font-black border-t-2 text-right">
+                    <td class="text-left p-3 uppercase text-xs" colspan="2">⬛ Total</td>
+                    <td class="px-3">${fmt.n(_dmt.i)}</td><td class="px-3">${fmt.n(_dmt.cl)}</td>
+                    <td class="px-3">${_dctr}</td><td class="px-3">${_dcpm}</td>
+                    <td class="px-3">${fmt.m(_dmt.g)}</td>
+                    <td class="px-3 text-emerald-700">${fmt.n(_dmt.l)}</td>
+                    <td class="px-3 text-violet-700">${_dcpl}</td>
+                </tr>`);
+            }
+            document.getElementById('v2_tabelaDemo').innerHTML = rows.join('') ||
+                '<tr><td colspan="9" class="text-center p-6 text-slate-400">Sem dados demográficos no período</td></tr>';
+        }
+
         function renderTabelaDetalhe() {
             let grp = document.getElementById('v2_detailGroup').value;
             let grouped = calcScore(aggBy(v2_cachedFiltered, grp));
@@ -2401,6 +2657,7 @@
             document.getElementById('v2_tabelaDetalhe').innerHTML = grouped.map(i => {
                 let linkEl = i.link ? `<a href="${i.link}" target="_blank" class="text-purple-500 hover:underline text-[10px]">↗ IG</a>` : '-';
                 return `<tr class="hover:bg-purple-50 text-right">
+                    <td class="text-left p-3 text-slate-500 text-xs max-w-[120px] truncate" title="${i.conta||''}">${i.conta||'—'}</td>
                     <td class="text-left p-3 font-bold max-w-[200px] truncate text-slate-800" title="${i.n}">${i.n}</td>
                     <td class="px-3">${fmt.m(i.g)}</td>
                     <td class="px-3 text-slate-500">${fmt.n(i.i)}</td>
@@ -2414,7 +2671,28 @@
                     <td class="px-3 text-center">${scoreBadge(i.score)}</td>
                     <td class="px-3 text-center">${linkEl}</td>
                 </tr>`;
-            }).join('') || '<tr><td colspan="12" class="text-center p-6 text-slate-400">Nenhum dado no período selecionado</td></tr>';
+            }).join('') || '<tr><td colspan="13" class="text-center p-6 text-slate-400">Nenhum dado no período selecionado</td></tr>';
+            // Total row
+            if (grouped.length > 0) {
+                let _dt={g:0,l:0,i:0,cl:0,v3s:0,thr:0};
+                grouped.forEach(i=>{_dt.g+=i.g;_dt.l+=i.l;_dt.i+=i.i;_dt.cl+=i.cl;_dt.v3s+=i.v3s||0;_dt.thr+=i.thr||0;});
+                let _dcpl=_dt.l>0?_dt.g/_dt.l:0, _dcvr=_dt.cl>0?(_dt.l/_dt.cl*100):0, _dctr=_dt.i>0?(_dt.cl/_dt.i*100):0;
+                document.getElementById('v2_tabelaDetalhe').innerHTML +=
+                    `<tr class="bg-slate-100 font-black border-t-2 text-right">
+                        <td class="text-left p-3 text-xs uppercase text-slate-600" colspan="2">⬛ Total</td>
+                        <td class="px-3">${fmt.m(_dt.g)}</td>
+                        <td class="px-3">${fmt.n(_dt.i)}</td>
+                        <td class="px-3">${fmt.n(_dt.cl)}</td>
+                        <td class="px-3">${fmt.p(_dctr)}</td>
+                        <td class="px-3 text-blue-700">${fmt.n(_dt.l)}</td>
+                        <td class="px-3">${fmt.m(_dcpl)}</td>
+                        <td class="px-3">${fmt.p(_dcvr)}</td>
+                        <td class="px-3">${fmt.n(_dt.v3s)}</td>
+                        <td class="px-3">${fmt.n(_dt.thr)}</td>
+                        <td class="px-3">—</td>
+                        <td class="px-3">—</td>
+                    </tr>`;
+            }
         }
 
         function downloadPDF() { window.print(); }
