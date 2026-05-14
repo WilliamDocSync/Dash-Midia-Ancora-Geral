@@ -875,6 +875,17 @@
             });
         }
 
+        function contaPorPlataforma(contaBase, plataforma, frente) {
+            let n = normStr(contaBase);
+            let isGeneric = !n.includes('whatsapp') && !n.includes('espelho') &&
+                            !n.includes('kawasaki') && !n.includes('consorcio') &&
+                            !contaBase.includes('|');
+            if (!isGeneric) return contaBase;
+            if (plataforma === 'Google Ads') return 'Âncora | ' + frente;
+            if (plataforma === 'TikTok Ads') return frente + ' ckb consorcio kawasaki';
+            return contaBase;
+        }
+
         function parseVendas(data) {
             data.forEach(d => {
                 let dt = normData(d.Data);
