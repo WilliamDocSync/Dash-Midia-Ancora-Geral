@@ -1844,34 +1844,48 @@
 
             let selContas = getChecked('v3_conta_');
             let grp = document.getElementById('v3_grouping').value;
-            let obj = window.macroData.reduce((acc, d) => {
+           let obj = window.macroData.reduce((acc, d) => {
                 if (!d.Data.startsWith(mo)) return acc;
-                // Aplica filtro de conta: para dados reais E planejados (agora planejados têm Conta)
+                // Aplica filtro de conta
                 if (selContas.length > 0 && (d.Conta || '') && !selContas.includes(d.Conta || '')) return acc;
+                
                 let k = d[grp] || 'Outros';
                 if (!acc[k]) acc[k] = { n: k, g:0, gp:0, l:0, lp:0, v:0, gO:0, lO:0, vO:0, ls:0, lsO:0 };
-                if (d.Plataforma !== 'Todas') {
-                    acc[k].g += d.Gasto;
-                    acc[k].l += d.Leads;
-                    acc[k].v += d.Vendas;
-                    if (d.Data === ontemStr) {
-                        acc[k].gO += d.Gasto;
-                        acc[k].lO += d.Leads;
-                        acc[k].vO += d.Vendas;
+
+                if (grp === 'Plataforma') {
+                    // Quando agrupado por Canal, ignoramos a linha "Todas" e somamos das linhas específicas
+                    if (d.Plataforma !== 'Todas') {
+                        acc[k].g += d.Gasto;
+                        acc[k].l += d.Leads;
+                        acc[k].gp += d.GastoPlan || 0;
+                        acc[k].lp += d.LeadsPlan || 0;
+                        acc[k].v += d.Vendas || 0;
+                        acc[k].ls += d.LeadsSWR || 0;
+                        if (d.Data === ontemStr) {
+                            acc[k].gO += d.Gasto;
+                            acc[k].lO += d.Leads;
+                            acc[k].vO += (d.Vendas || 0);
+                            acc[k].lsO += (d.LeadsSWR || 0);
+                        }
                     }
                 } else {
-                    acc[k].gp += d.GastoPlan;
-                    acc[k].lp += d.LeadsPlan;
-                    // Vendas e SWR: só acumula da linha 'Todas' (não das linhas por plataforma)
-                    // para evitar dupla contagem
-                    if (d.Plataforma === 'Todas') {
-                        if (d.Vendas > 0) {
-                            acc[k].v += d.Vendas;
-                            if (d.Data === ontemStr) acc[k].vO += d.Vendas;
+                    // Quando agrupado por Frente ou Conta, evitamos dupla contagem:
+                    // Gasto e Leads vêm das linhas de plataforma; Vendas, SWR e Metas vêm da linha consolidada "Todas"
+                    if (d.Plataforma !== 'Todas') {
+                        acc[k].g += d.Gasto;
+                        acc[k].l += d.Leads;
+                        if (d.Data === ontemStr) {
+                            acc[k].gO += d.Gasto;
+                            acc[k].lO += d.Leads;
                         }
-                        if ((d.LeadsSWR||0) > 0) {
-                            acc[k].ls += (d.LeadsSWR||0);
-                            if (d.Data === ontemStr) acc[k].lsO += (d.LeadsSWR||0);
+                    } else {
+                        acc[k].gp += d.GastoPlan || 0;
+                        acc[k].lp += d.LeadsPlan || 0;
+                        acc[k].v += d.Vendas || 0;
+                        acc[k].ls += d.LeadsSWR || 0;
+                        if (d.Data === ontemStr) {
+                            acc[k].vO += (d.Vendas || 0);
+                            acc[k].lsO += (d.LeadsSWR || 0);
                         }
                     }
                 }
