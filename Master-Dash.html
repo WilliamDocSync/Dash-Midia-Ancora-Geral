@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v41</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v42</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -1536,12 +1536,12 @@
                 let k = d[grp] || 'Outros';
                 vendasMap[k] = (vendasMap[k] || 0) + d.Vendas;
             });
-            // SWR lookup
+            // SWR lookup — usa mesmo filtro de plataforma das vendas
             let swrMap = {};
             window.macroData.filter(d =>
-                d.Plataforma === 'Todas' && (d.LeadsSWR||0) > 0 &&
+                vendasPlatT(d) && (d.LeadsSWR||0) > 0 &&
                 d.Data >= s0t && d.Data <= e0t &&
-                (selFrenteT.length === 0 || selFrenteT.includes(d.Frente))
+                vendasFrenteT(d)
             ).forEach(d => {
                 let k = d[grp] || 'Outros';
                 swrMap[k] = (swrMap[k] || 0) + (d.LeadsSWR||0);
