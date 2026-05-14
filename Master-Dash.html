@@ -2116,14 +2116,27 @@
 
             const badge = (p, good=100, isLarge) => {
                 let cls = p >= good ? 'text-emerald-600 bg-emerald-50' : p >= 70 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50';
-                let txtSize = isLarge ? 'text-xs px-2 py-1' : 'text-[9px] px-1.5 py-0.5';
-                return `<span class="${cls} ${txtSize} font-black rounded-full">${p.toFixed(0)}%</span>`;
+                let txtSize = isLarge ? 'text-[10px] px-1.5 py-0.5' : 'text-[9px] px-1.5 py-0.5';
+                return `<span class="${cls} ${txtSize} ml-2 font-black rounded-full">${p.toFixed(0)}%</span>`;
             };
 
             // Função genérica para construir o HTML de um card
             const generateCard = (d, isLarge) => {
+                // Percentuais totais (básico)
                 let pctG = d.gp > 0 ? ((d.g / d.gp) * 100) : 0;
                 let pctL = d.lp > 0 ? ((d.l / d.lp) * 100) : 0;
+                
+                // Pacing: O quanto deveria ter feito exatamente até o dia de hoje
+                let metaPacG = dTot > 0 ? (d.gp / dTot) * dAtual : 0;
+                let metaPacL = dTot > 0 ? (d.lp / dTot) * dAtual : 0;
+                // Percentual de pacing (o quanto alcançou do ideal até o momento)
+                let pctPacG  = metaPacG > 0 ? (d.g / metaPacG) * 100 : 0;
+                let pctPacL  = metaPacL > 0 ? (d.l / metaPacL) * 100 : 0;
+
+                // Objetivo do dia para bater a meta no restante do mês
+                let objG = Math.max((d.gp - d.g) / dRest, 0);
+                let objL = Math.max((d.lp - d.l) / dRest, 0);
+
                 let disc = d.l > 0 && d.ls > 0 ? ((d.l - d.ls) / d.l * 100).toFixed(1) + '%' : '—';
                 let taxa = d.ls > 0 ? (d.v / d.ls * 100).toFixed(2) + '%' : d.l > 0 ? (d.v / d.l * 100).toFixed(2) + '%' : '—';
 
@@ -2133,42 +2146,69 @@
                 let gridTextClass = isLarge ? 'text-xs' : 'text-[10px]';
                 let valClass = isLarge ? 'text-base' : 'text-sm';
 
-                return `<div class="bg-white border rounded-xl ${pClass} shadow-sm">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="font-black ${titleClass} text-slate-800">${d.n}</span>
-                        <div class="flex gap-1">
-                            ${d.gp > 0 ? badge(pctG, 100, isLarge) : ''}
-                            ${d.lp > 0 ? badge(pctL, 100, isLarge) : ''}
+                return `<div class="bg-white border rounded-xl ${pClass} shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="mb-4">
+                            <span class="font-black ${titleClass} text-slate-800">${d.n}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-4 ${gridTextClass}">
+                            <div>
+                                <div class="flex items-center mb-0.5">
+                                    <span class="text-slate-400 uppercase font-bold">Investimento</span>
+                                    ${d.gp > 0 ? badge(pctG, 100, isLarge) : ''}
+                                </div>
+                                <span class="font-black text-slate-700 ${valClass}">${fmt.m(d.g)}</span>
+                                ${d.gp > 0 ? `<span class="text-slate-400 ml-1">/ ${fmt.m(d.gp)}</span>` : ''}
+                                ${miniBar(d.g, d.gp, 'bg-emerald-500', isLarge)}
+                                <div class="text-[9px] text-slate-500 mt-1.5 leading-tight">
+                                    Pacing (ideal): <b class="text-slate-600">${fmt.m(metaPacG)}</b> 
+                                    <span class="${pctPacG>=100?'text-emerald-600':'text-orange-500'} font-bold">(${pctPacG.toFixed(0)}%)</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center mb-0.5">
+                                    <span class="text-slate-400 uppercase font-bold">Leads</span>
+                                    ${d.lp > 0 ? badge(pctL, 100, isLarge) : ''}
+                                </div>
+                                <span class="font-black text-blue-700 ${valClass}">${fmt.n(d.l)}</span>
+                                ${d.lp > 0 ? `<span class="text-slate-400 ml-1">/ ${fmt.n(d.lp)}</span>` : ''}
+                                ${miniBar(d.l, d.lp, 'bg-blue-500', isLarge)}
+                                <div class="text-[9px] text-slate-500 mt-1.5 leading-tight">
+                                    Pacing (ideal): <b class="text-slate-600">${fmt.n(metaPacL)}</b> 
+                                    <span class="${pctPacL>=100?'text-emerald-600':'text-orange-500'} font-bold">(${pctPacL.toFixed(0)}%)</span>
+                                </div>
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-slate-400 uppercase font-bold block mb-0.5">Leads SWR</span>
+                                <span class="font-black text-cyan-600 ${valClass}">${d.ls > 0 ? fmt.n(d.ls) : '—'}</span>
+                                ${d.ls > 0 ? `<span class="text-amber-500 ml-1 font-bold">${disc} disc.</span>` : ''}
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-slate-400 uppercase font-bold block mb-0.5">Vendas / Taxa</span>
+                                <span class="font-black text-green-700 ${valClass}">${fmt.n(d.v)}</span>
+                                <span class="text-violet-600 ml-1 font-bold">${taxa}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-x-4 gap-y-3 ${gridTextClass} mt-2">
-                        <div>
-                            <span class="text-slate-400 uppercase font-bold block mb-0.5">Investimento</span>
-                            <span class="font-black text-slate-700 ${valClass}">${fmt.m(d.g)}</span>
-                            ${d.gp > 0 ? `<span class="text-slate-400 ml-1">/ ${fmt.m(d.gp)}</span>` : ''}
-                            ${miniBar(d.g, d.gp, 'bg-emerald-500', isLarge)}
-                        </div>
-                        <div>
-                            <span class="text-slate-400 uppercase font-bold block mb-0.5">Leads</span>
-                            <span class="font-black text-blue-700 ${valClass}">${fmt.n(d.l)}</span>
-                            ${d.lp > 0 ? `<span class="text-slate-400 ml-1">/ ${fmt.n(d.lp)}</span>` : ''}
-                            ${miniBar(d.l, d.lp, 'bg-blue-500', isLarge)}
-                        </div>
-                        <div class="mt-1">
-                            <span class="text-slate-400 uppercase font-bold block mb-0.5">Leads SWR</span>
-                            <span class="font-black text-cyan-600 ${valClass}">${d.ls > 0 ? fmt.n(d.ls) : '—'}</span>
-                            ${d.ls > 0 ? `<span class="text-amber-500 ml-1 font-bold">${disc} disc.</span>` : ''}
-                        </div>
-                        <div class="mt-1">
-                            <span class="text-slate-400 uppercase font-bold block mb-0.5">Vendas / Taxa</span>
-                            <span class="font-black text-green-700 ${valClass}">${fmt.n(d.v)}</span>
-                            <span class="text-violet-600 ml-1 font-bold">${taxa}</span>
+
+                    <div class="mt-5 pt-3 border-t border-slate-100 ${gridTextClass} text-slate-500">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-slate-400 uppercase text-[9px]">⏪ Ontem</span>
+                                <div class="space-x-3">
+                                    <span>Inv: <b class="text-slate-600">${fmt.m(d.gO)}</b></span>
+                                    <span>Lds: <b class="text-slate-600">${fmt.n(d.lO)}</b></span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-emerald-50 -mx-2 px-2 py-1.5 rounded border border-emerald-100">
+                                <span class="font-black text-emerald-600 uppercase text-[9px]">🎯 Fazer Hoje</span>
+                                <div class="space-x-3">
+                                    <span>Inv: <b class="text-emerald-700">${fmt.m(objG)}</b></span>
+                                    <span>Lds: <b class="text-blue-700">${fmt.n(objL)}</b></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    ${d.gO > 0 || d.lO > 0 ? `<div class="mt-3 pt-3 border-t ${gridTextClass} text-slate-400 flex gap-4">
-                        ${d.gO > 0 ? `<span>Ontem inv: <b class="text-slate-600">${fmt.m(d.gO)}</b></span>` : ''}
-                        ${d.lO > 0 ? `<span>Ontem leads: <b class="text-slate-600">${fmt.n(d.lO)}</b></span>` : ''}
-                    </div>` : ''}
                 </div>`;
             };
 
