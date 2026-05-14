@@ -54,9 +54,11 @@
         
         <section id="tab-master" class="p-8 max-w-[1600px] mx-auto">
 
+            <!-- Header -->
             <div class="bg-white p-5 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Visão Macro</h2>
                 <div class="flex gap-2 items-center">
+                    <!-- Export menu -->
                     <div class="relative no-print">
                         <button onclick="toggleExportMenu('exportMenuMacro')" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-1">⬇ Exportar ▾</button>
                         <div id="exportMenuMacro" class="hidden absolute right-0 mt-1 bg-white border rounded-xl shadow-xl z-50 p-2 min-w-[180px] space-y-1">
@@ -73,9 +75,11 @@
                 </div>
             </div>
 
+            <!-- Filtros -->
             <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
 
+                    <!-- Período Atual -->
                     <div>
                         <label class="text-[10px] font-black text-blue-600 uppercase block mb-1">📅 Período Atual</label>
                         <div class="flex gap-1">
@@ -84,6 +88,7 @@
                         </div>
                     </div>
 
+                    <!-- Período Anterior -->
                     <div>
                         <label class="text-[10px] font-black text-orange-500 uppercase block mb-1">📅 Período Anterior</label>
                         <div class="flex gap-1">
@@ -92,6 +97,7 @@
                         </div>
                     </div>
 
+                    <!-- Dropdown Plataformas -->
                     <div class="relative" id="dd_plat_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Plataformas</label>
                         <button onclick="toggleDropdown('dd_plat')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -105,6 +111,7 @@
                         </div>
                     </div>
 
+                    <!-- Dropdown Frentes -->
                     <div class="relative" id="dd_frente_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Frentes</label>
                         <button onclick="toggleDropdown('dd_frente')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -118,6 +125,7 @@
                         </div>
                     </div>
 
+                    <!-- Dropdown Contas + Busca -->
                     <div class="relative" id="dd_conta_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Contas / Busca</label>
                         <div class="flex gap-1">
@@ -136,8 +144,10 @@
                 </div>
             </div>
 
+            <!-- KPIs -->
             <div id="v1_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6"></div>
 
+            <!-- Gráfico -->
             <div class="bg-white p-5 rounded-xl border shadow-sm mb-6">
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-2 border-b pb-3">
                     <h3 class="font-black text-xs uppercase text-slate-700">📈 Evolução de Mídia</h3>
@@ -175,6 +185,10 @@
                 <canvas id="v1_chart" height="80"></canvas>
             </div>
 
+            <!-- Cards fixos por Frente (ignoram filtros, apenas período) -->
+            <div id="v3_frenteCards" class="mb-6"></div>
+
+            <!-- Tabela -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
                     <div class="flex items-center gap-2">
@@ -223,6 +237,7 @@
                             <option value="Conta">Por Conta</option>
                         </select>
 
+                    <!-- Contas dropdown -->
                     <div class="relative" id="dd_v3_conta_wrap">
                         <button onclick="toggleDropdown('dd_v3_conta')" class="border rounded p-2 text-xs font-bold text-left bg-white flex items-center gap-2 min-w-[130px]">
                             <span id="dd_v3_conta_label">Todas</span><span class="ml-auto">▾</span>
@@ -248,9 +263,6 @@
                     <button onclick="renderPacing()" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black text-xs px-4 h-8 uppercase transition">↺ Atualizar</button>
                 </div>
             </div>
-            
-            <div id="v3_fixedCards" class="mb-6"></div>
-
             <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-4"></div>
             <div class="flex justify-end mb-4 no-print">
                 <button onclick="exportPacingCards()" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📊 Baixar Cards CSV</button>
@@ -258,6 +270,7 @@
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-4 bg-slate-50 border-b flex justify-between items-center text-xs font-bold">
                     <span class="text-slate-700 font-black uppercase">📊 Status Meta vs Realizado</span>
+                        <button onclick="exportPacingTable()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📋 Baixar CSV</button>
                         <button onclick="exportPacingTable()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📋 Baixar CSV</button>
                     <div class="flex gap-4 text-slate-500">
                         <span>📅 Corridos: <span id="v3_lblCorridos" class="text-emerald-600 font-black">0</span></span>
@@ -302,6 +315,7 @@
         </section>
 
         <section id="tab-analise" class="hidden p-8 max-w-[1600px] mx-auto">
+            <!-- Header -->
             <div class="bg-white p-5 rounded-xl border-b-4 border-purple-600 mb-6 flex justify-between items-center shadow-sm">
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Análise Detalhada</h2>
                 <div class="flex items-center gap-3">
@@ -325,6 +339,7 @@
                 </div>
             </div>
 
+            <!-- Upload CSV local -->
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
                 <div class="flex flex-wrap items-center gap-4">
                     <div>
@@ -339,8 +354,10 @@
                 </div>
             </div>
 
+            <!-- Filtros com checkboxes -->
             <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
                 <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                    <!-- Período atual -->
                     <div>
                         <label class="text-[10px] font-black text-purple-600 uppercase block mb-1">📅 Período Atual</label>
                         <div class="flex gap-1">
@@ -348,6 +365,7 @@
                             <input type="date" id="v2_p1End" class="w-full border rounded p-1.5 text-xs">
                         </div>
                     </div>
+                    <!-- Período anterior -->
                     <div>
                         <label class="text-[10px] font-black text-orange-500 uppercase block mb-1">📅 Período Anterior</label>
                         <div class="flex gap-1">
@@ -355,6 +373,7 @@
                             <input type="date" id="v2_p2End" class="w-full border rounded p-1.5 text-xs">
                         </div>
                     </div>
+                    <!-- Frentes dropdown -->
                     <div class="relative" id="dd_v2_frente_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Frentes</label>
                         <button onclick="toggleDropdown('dd_v2_frente')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -367,6 +386,7 @@
                             <div id="dd_v2_frente_items" class="mt-1 space-y-0.5"></div>
                         </div>
                     </div>
+                    <!-- Contas dropdown -->
                     <div class="relative" id="dd_v2_conta_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Contas</label>
                         <button onclick="toggleDropdown('dd_v2_conta')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -379,6 +399,7 @@
                             <div id="dd_v2_conta_items" class="mt-1 space-y-0.5"></div>
                         </div>
                     </div>
+                    <!-- Campanhas dropdown -->
                     <div class="relative" id="dd_v2_camp_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Campanhas</label>
                         <button onclick="toggleDropdown('dd_v2_camp')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -391,6 +412,7 @@
                             <div id="dd_v2_camp_items" class="mt-1 space-y-0.5"></div>
                         </div>
                     </div>
+                    <!-- Busca -->
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Busca Criativo</label>
                         <input type="text" id="v2_busca" class="w-full border rounded p-1.5 text-xs" placeholder="Nome do ad...">
@@ -398,17 +420,24 @@
                 </div>
             </div>
 
+            <!-- KPIs big numbers com delta -->
             <div id="v2_kpiContainer" class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4"></div>
             <div class="flex justify-end mb-4 no-print">
                 <button onclick="exportAnaliseCards()" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📊 Baixar Cards CSV</button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+            <!-- Score methodology note -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2 mb-4 text-[10px] text-blue-700 font-bold">
+                ℹ️ <b>Score de ranking:</b> 40% Leads + 40% CPL (invertido — menor é melhor) + 20% CVR. Escala 0–100.
+            </div>
+
+            <!-- Tops: 4 cards lado a lado -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <!-- Top Campanhas -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <div class="flex justify-between items-center w-full">
                         <span class="font-black text-[10px] uppercase text-slate-600">🚀 Top Campanhas</span>
-                        <span class="text-[9px] text-slate-400 ml-1" title="Score = 40% Leads + 40% CPL eficiência + 20% CVR">ℹ️ Score: 40% Leads + 40% CPL + 20% CVR</span>
                         <button onclick="exportAnaliseTops()" class="no-print text-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold px-2 h-6 rounded-lg transition">🏆 CSV</button>
                     </div>
                     </div>
@@ -419,6 +448,7 @@
                         <tbody id="v2_topCam" class="divide-y"></tbody>
                     </table>
                 </div>
+                <!-- Top Conjuntos -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">🎯 Top Conjuntos</span>
@@ -430,6 +460,7 @@
                         <tbody id="v2_topAdset" class="divide-y"></tbody>
                     </table>
                 </div>
+                <!-- Top Criativos -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">🖼️ Top Criativos</span>
@@ -441,6 +472,7 @@
                         <tbody id="v2_topAds" class="divide-y"></tbody>
                     </table>
                 </div>
+                <!-- Top Públicos (demográfico) -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">👥 Top Públicos</span>
@@ -452,20 +484,9 @@
                         <tbody id="v2_topPublico" class="divide-y"></tbody>
                     </table>
                 </div>
-                <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
-                    <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
-                        <span class="font-black text-[10px] uppercase text-slate-600">🗺️ Top Regiões</span>
-                        <span class="text-[9px] text-slate-400" title="Score = 40% CTR + 30% CPM eficiência + 30% Engajamento relativo">ℹ️ CTR+CPM+Eng</span>
-                    </div>
-                    <table class="w-full text-xs">
-                        <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
-                            <th class="text-left p-2">Estado</th><th class="text-right p-2">CTR</th><th class="text-right p-2">CPM</th><th class="p-2">Score</th>
-                        </tr></thead>
-                        <tbody id="v2_topRegiaoCard" class="divide-y"></tbody>
-                    </table>
-                </div>
             </div>
 
+            <!-- Demográfico fullwidth -->
             <div class="bg-white rounded-xl border p-5 shadow-sm mb-6">
                 <div class="flex justify-between items-center mb-3 border-b pb-2">
                     <h3 class="font-black text-xs uppercase text-slate-700">👥 Demográfico — por Idade e Gênero</h3>
@@ -479,14 +500,16 @@
                 <canvas id="v2_demoChart" height="60"></canvas>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
-                    <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
-                        <div class="flex justify-between items-center w-full">
-                            <span class="font-black text-[10px] uppercase text-slate-600">🗺️ Top Regiões</span>
-                            <button onclick="exportAnaliseRegiaoCSV()" class="no-print text-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold px-2 h-6 rounded-lg transition">📋 CSV</button>
-                        </div>
+            <!-- Regiões — score cards + metric selector -->
+            <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <span class="font-black text-[10px] uppercase text-slate-600">🗺️ Top Regiões</span>
+                        <span class="text-[9px] text-slate-400 ml-2">Score: 40% CTR + 30% CPM inv. + 30% Engajamento</span>
+                    </div>
+                    <div class="flex items-center gap-2 no-print">
                         <select id="v2_regiaoMetric" class="text-xs border rounded p-1 bg-white font-bold" onchange="renderRegioes()">
+                            <option value="score">Score</option>
                             <option value="impressoes">Impressões</option>
                             <option value="cliques">Cliques</option>
                             <option value="engajamento">Engajamento</option>
@@ -494,24 +517,42 @@
                             <option value="cpm">CPM (R$)</option>
                             <option value="cpc">CPC (R$)</option>
                         </select>
+                        <button onclick="exportAnaliseRegiaoCSV()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📋 CSV</button>
                     </div>
-                    <table class="w-full text-xs">
-                        <thead><tr class="text-[9px] uppercase text-slate-400 border-b bg-white">
-                            <th class="text-left p-2">Estado</th>
-                            <th class="text-right p-2">Impr.</th>
-                            <th class="text-right p-2">Cliques</th>
-                            <th class="text-right p-2 text-blue-600">CTR</th>
-                            <th class="text-right p-2 text-orange-600">CPM</th>
-                        </tr></thead>
-                        <tbody id="v2_topRegiao" class="divide-y"></tbody>
+                </div>
+                <div id="v2_regiaoCards" class="p-4 grid grid-cols-2 md:grid-cols-5 gap-3"></div>
+            </div>
+            <!-- Tabela de Regiões detalhada -->
+            <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <span class="font-black text-xs uppercase">🗺️ Detalhamento por Região</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="min-w-full text-xs whitespace-nowrap">
+                        <thead class="bg-slate-50 border-b uppercase text-slate-400 font-black text-[9px] tracking-wide">
+                            <tr>
+                                <th class="text-left p-3">Estado</th>
+                                <th class="text-center p-3 text-emerald-600">Score</th>
+                                <th class="text-right p-3">Gasto</th>
+                                <th class="text-right p-3">Impressões</th>
+                                <th class="text-right p-3">Cliques</th>
+                                <th class="text-right p-3 text-blue-600">CTR</th>
+                                <th class="text-right p-3 text-orange-600">CPM</th>
+                                <th class="text-right p-3 text-violet-600">CPC</th>
+                                <th class="text-right p-3 text-purple-600">Engajamento</th>
+                                <th class="text-right p-3">% Impr.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="v2_tabelaRegiao" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
-
             </div>
+
+            <!-- Tabela demográfica completa -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
                     <span class="font-black text-xs uppercase">👥 Detalhamento Demográfico</span>
-                    <span class="text-[9px] text-slate-400">Impressões, Cliques, CTR, CPM, Gasto por Idade × Gênero</span>
+                    <button onclick="exportAnaliseDemo()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📋 PNG</button>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="min-w-full text-xs whitespace-nowrap">
@@ -524,8 +565,8 @@
                                 <th class="text-right p-3 text-blue-600">CTR</th>
                                 <th class="text-right p-3 text-orange-600">CPM</th>
                                 <th class="text-right p-3">Gasto</th>
-                                <th class="text-right p-3 text-emerald-600">Leads</th>
-                                <th class="text-right p-3 text-violet-600">CPL</th>
+                                <th class="text-right p-3 text-blue-700">Leads</th>
+                                <th class="text-right p-3 text-orange-600">CPL</th>
                             </tr>
                         </thead>
                         <tbody id="v2_tabelaDemo" class="divide-y divide-slate-100"></tbody>
@@ -533,30 +574,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
-                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
-                    <span class="font-black text-xs uppercase">🗺️ Detalhamento por Região</span>
-                </div>
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="min-w-full text-xs whitespace-nowrap">
-                        <thead class="bg-slate-50 border-b uppercase text-slate-400 font-black text-[9px] tracking-wide">
-                            <tr>
-                                <th class="text-left p-3">Estado</th>
-                                <th class="text-right p-3">Gasto</th>
-                                <th class="text-right p-3">Impressões</th>
-                                <th class="text-right p-3">Cliques</th>
-                                <th class="text-right p-3 text-blue-600">CTR</th>
-                                <th class="text-right p-3 text-orange-600">CPM</th>
-                                <th class="text-right p-3 text-violet-600">CPC</th>
-                                <th class="text-right p-3">% Impr.</th>
-                                <th class="text-right p-3 text-purple-600">Score</th>
-                            </tr>
-                        </thead>
-                        <tbody id="v2_tabelaRegiao" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
-
+            <!-- Tabela detalhada -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
                     <span class="font-black text-xs uppercase">📋 Detalhamento Completo</span>
@@ -1649,8 +1667,13 @@
             window._v1VendasMap = vendasMap;
             window._v1SWRMap    = swrMap;
 
-            document.getElementById('v1_tableBody').innerHTML = Object.values(tb)
-                .sort((a, b) => b.g - a.g)
+            let tbValues = Object.values(tb).sort((a, b) => b.g - a.g);
+            // Pre-compute totals for footer
+            let totV1 = tbValues.reduce((acc, i) => {
+                acc.g+=i.g; acc.l+=i.l; acc.v+=i.v; acc.i+=i.i; acc.cl+=i.cl; acc.swr+=(i.swr||0);
+                return acc;
+            }, {g:0,l:0,v:0,i:0,cl:0,swr:0});
+            document.getElementById('v1_tableBody').innerHTML = tbValues
                 .map(i => {
                     let platLabel = grp !== 'Plataforma' ? `<div class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">${[...i.plats].join(' + ')}</div>` : '';
                     let ctr = i.i > 0 ? (i.cl / i.i) * 100 : 0;
@@ -1678,30 +1701,29 @@
                         <td class="text-right p-3 bg-blue-50 text-blue-700 font-black">${i.v > 0 ? fmt.m(cpa) : '<span class="text-slate-300">-</span>'}</td>
                         <td class="text-right p-3 pr-4 text-violet-600 font-black">${i.l > 0 || swr > 0 ? taxa.toFixed(2)+'%' : '<span class="text-slate-300">-</span>'}</td>
                     </tr>`;
-                }).join('');
-            // Total row
-            let _tot={g:0,l:0,v:0,i:0,cl:0,swr:0};
-            Object.values(tb).forEach(i=>{_tot.g+=i.g;_tot.l+=i.l;_tot.v+=i.v;_tot.i+=i.i;_tot.cl+=i.cl;_tot.swr+=i.swr||0;});
-            let _tctr=_tot.i>0?(_tot.cl/_tot.i*100):0, _tcvr=_tot.cl>0?(_tot.l/_tot.cl*100):0;
-            let _tcpl=_tot.l>0?_tot.g/_tot.l:0, _tcpa=_tot.v>0?_tot.g/_tot.v:0;
-            let _tdisc=_tot.l>0&&_tot.swr>0?((_tot.l-_tot.swr)/_tot.l*100):null;
-            let _ttaxa=_tot.swr>0?(_tot.v/_tot.swr*100):_tot.l>0?(_tot.v/_tot.l*100):0;
-            document.getElementById('v1_tableBody').innerHTML +=
-                `<tr class="bg-slate-100 font-black border-t-2 border-slate-300">
-                    <td class="text-left p-3 pl-4 text-slate-800 text-xs uppercase">⬛ Total</td>
-                    <td class="text-right p-3">${fmt.m(_tot.g)}</td>
-                    <td class="text-right p-3">${fmt.n(_tot.i)}</td>
-                    <td class="text-right p-3">${fmt.n(_tot.cl)}</td>
-                    <td class="text-right p-3">${fmt.p(_tctr)}</td>
-                    <td class="text-right p-3 text-blue-700">${fmt.n(_tot.l)}</td>
-                    <td class="text-right p-3 text-cyan-700">${_tot.swr>0?fmt.n(_tot.swr):'—'}</td>
-                    <td class="text-right p-3">${_tdisc!==null?_tdisc.toFixed(1)+'%':'—'}</td>
-                    <td class="text-right p-3">${fmt.p(_tcvr)}</td>
-                    <td class="text-right p-3">${fmt.m(_tcpl)}</td>
-                    <td class="text-right p-3 text-green-800">${fmt.n(_tot.v)}</td>
-                    <td class="text-right p-3 bg-blue-50">${_tcpa>0?fmt.m(_tcpa):'—'}</td>
-                    <td class="text-right p-3 pr-4 text-violet-700">${_ttaxa>0?_ttaxa.toFixed(2)+'%':'—'}</td>
-                </tr>`;
+                }).join('') + (() => {
+                    let tctr  = totV1.i>0?(totV1.cl/totV1.i*100).toFixed(2):0;
+                    let tcvr  = totV1.cl>0?(totV1.l/totV1.cl*100).toFixed(2):0;
+                    let tcpl  = totV1.l>0?(totV1.g/totV1.l).toFixed(2):0;
+                    let tcpa  = totV1.v>0?(totV1.g/totV1.v).toFixed(2):0;
+                    let tdisc = totV1.l>0&&totV1.swr>0?((totV1.l-totV1.swr)/totV1.l*100).toFixed(1)+'%':'—';
+                    let ttaxa = totV1.swr>0?(totV1.v/totV1.swr*100).toFixed(2)+'%':totV1.l>0?(totV1.v/totV1.l*100).toFixed(2)+'%':'—';
+                    return `<tr class="bg-slate-100 font-black text-slate-800 border-t-2 border-slate-300">
+                        <td class="text-left p-3 pl-4">TOTAL</td>
+                        <td class="text-right p-3">${fmt.m(totV1.g)}</td>
+                        <td class="text-right p-3">${fmt.n(totV1.i)}</td>
+                        <td class="text-right p-3">${fmt.n(totV1.cl)}</td>
+                        <td class="text-right p-3">${tctr}%</td>
+                        <td class="text-right p-3 text-blue-600">${fmt.n(totV1.l)}</td>
+                        <td class="text-right p-3 text-cyan-600">${totV1.swr>0?fmt.n(totV1.swr):'—'}</td>
+                        <td class="text-right p-3">${tdisc}</td>
+                        <td class="text-right p-3">${tcvr}%</td>
+                        <td class="text-right p-3">${fmt.m(parseFloat(tcpl))}</td>
+                        <td class="text-right p-3 text-green-700">${fmt.n(totV1.v)}</td>
+                        <td class="text-right p-3 bg-blue-50 text-blue-700">${totV1.v>0?fmt.m(parseFloat(tcpa)):'—'}</td>
+                        <td class="text-right p-3 pr-4 text-violet-600">${ttaxa}</td>
+                    </tr>`;
+                })();
         }
 
         function renderMasterChart(dataA) {
@@ -1801,7 +1823,7 @@
 
             // Mostra labels só quando há poucos pontos/datasets para não poluir
             let totalPontos = dates.length * datasets.length;
-            let showLabels = totalPontos <= 120;
+            let showLabels = totalPontos <= 120; // mostrar labels em mais cenários
 
             if (v1_ChartObj) v1_ChartObj.destroy();
             v1_ChartObj = new Chart(document.getElementById('v1_chart'), {
@@ -1830,78 +1852,6 @@
                     layout: { padding: { top: 20 } }
                 }
             });
-        }
-
-        function renderFixedCards(mo, dAtual, dTot) {
-            // Aggregate by Frente and Plataforma independently of conta filter
-            let fixedObj = window.macroData.filter(d => d.Data.startsWith(mo))
-                .reduce((acc, d) => {
-                    if (d.Plataforma !== 'Todas') {
-                        // By frente
-                        let kf = 'f_' + (d.Frente||'Outros');
-                        if (!acc[kf]) acc[kf] = {n:d.Frente||'Outros', type:'frente', g:0,gp:0,l:0,lp:0,v:0,ls:0};
-                        acc[kf].g+=d.Gasto; acc[kf].l+=d.Leads;
-                        // By canal
-                        let kp = 'p_' + d.Plataforma;
-                        if (!acc[kp]) acc[kp] = {n:d.Plataforma, type:'canal', g:0,gp:0,l:0,lp:0,v:0,ls:0};
-                        acc[kp].g+=d.Gasto; acc[kp].l+=d.Leads;
-                    } else {
-                        // Vendas, planejados, SWR from Todas
-                        let kf = 'f_' + (d.Frente||'Outros');
-                        if (!acc[kf]) acc[kf] = {n:d.Frente||'Outros', type:'frente', g:0,gp:0,l:0,lp:0,v:0,ls:0};
-                        acc[kf].gp+=d.GastoPlan||0; acc[kf].lp+=d.LeadsPlan||0;
-                        if (d.Vendas>0) acc[kf].v+=d.Vendas;
-                        if ((d.LeadsSWR||0)>0) acc[kf].ls+=(d.LeadsSWR||0);
-                        // Canal planejado
-                        if ((d.GastoPlan||0)>0 || (d.LeadsPlan||0)>0) {
-                            let kp2 = 'p_' + (d.Plataforma==='Todas'?'Total':d.Plataforma);
-                            if (!acc[kp2]) acc[kp2] = {n:d.Plataforma, type:'canal', g:0,gp:0,l:0,lp:0,v:0,ls:0};
-                            acc[kp2].gp+=d.GastoPlan||0; acc[kp2].lp+=d.LeadsPlan||0;
-                        }
-                    }
-                    return acc;
-                }, {});
-
-            const pctBar2 = (v, m) => {
-                let p = m > 0 ? Math.min((v/m)*100, 100) : 0;
-                let color = p >= 100 ? 'bg-emerald-500' : p >= 70 ? 'bg-blue-500' : 'bg-amber-400';
-                return `<div class="w-full bg-slate-100 h-1.5 rounded-full mt-1"><div class="${color} h-1.5 rounded-full" style="width:${p}%"></div></div>`;
-            };
-
-            const fixedCard = (d) => {
-                let pG = d.gp>0?(d.g/d.gp*100).toFixed(0):0;
-                let pL = d.lp>0?(d.l/d.lp*100).toFixed(0):0;
-                let taxa = d.ls>0?(d.v/d.ls*100).toFixed(1):d.l>0?(d.v/d.l*100).toFixed(1):'—';
-                let discColor = d.l>0&&d.ls>0?(((d.l-d.ls)/d.l*100)>30?'text-red-500':((d.l-d.ls)/d.l*100)>15?'text-amber-500':'text-emerald-600'):'text-slate-300';
-                let disc = d.l>0&&d.ls>0?((d.l-d.ls)/d.l*100).toFixed(1)+'%':'—';
-                let icon = d.type==='canal'?'📡':'🏷️';
-                return `<div class="bg-white border rounded-xl p-4 shadow-sm">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-black text-slate-500 uppercase">${icon} ${d.n}</span>
-                        <span class="text-[9px] text-slate-400">${d.type==='frente'?'Frente':'Canal'}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                        <div><span class="text-slate-400">Inv.</span> <span class="font-black">${fmt.m(d.g)}</span>
-                            ${d.gp>0?`<span class="text-[9px] ${parseFloat(pG)>=100?'text-emerald-600':'text-orange-500'}">${pG}%</span>`:''}
-                            ${pctBar2(d.g,d.gp)}</div>
-                        <div><span class="text-slate-400">Leads</span> <span class="font-black text-blue-700">${fmt.n(d.l)}</span>
-                            ${d.lp>0?`<span class="text-[9px] ${parseFloat(pL)>=100?'text-emerald-600':'text-blue-500'}">${pL}%</span>`:''}
-                            ${pctBar2(d.l,d.lp)}</div>
-                        <div><span class="text-slate-400">SWR</span> <span class="font-bold text-cyan-600">${d.ls>0?fmt.n(d.ls):'—'}</span>
-                            <span class="${discColor} text-[9px] ml-1">${disc}</span></div>
-                        <div><span class="text-slate-400">Vendas</span> <span class="font-bold text-green-700">${fmt.n(d.v)}</span></div>
-                        <div class="col-span-2"><span class="text-slate-400">Taxa</span> <span class="font-bold text-violet-600">${taxa}%</span></div>
-                    </div>
-                </div>`;
-            };
-
-            let frentes = Object.values(fixedObj).filter(d=>d.type==='frente').sort((a,b)=>b.g-a.g);
-            let canais  = Object.values(fixedObj).filter(d=>d.type==='canal' && d.n!=='Todas').sort((a,b)=>b.g-a.g);
-            let allCards = [...frentes, ...canais];
-            if (allCards.length === 0) { document.getElementById('v3_fixedCards').innerHTML=''; return; }
-            document.getElementById('v3_fixedCards').innerHTML =
-                `<p class="text-[10px] font-black text-slate-400 uppercase mb-2">📌 Visão Geral — fixo (mês selecionado)</p>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">${allCards.map(fixedCard).join('')}</div>`;
         }
 
         function renderPacing() {
@@ -1935,22 +1885,26 @@
                 if (d.Plataforma !== 'Todas') {
                     acc[k].g += d.Gasto;
                     acc[k].l += d.Leads;
-                    // Vendas NOT added here — only from Plataforma='Todas' to avoid double counting
+                    acc[k].v += d.Vendas;
                     if (d.Data === ontemStr) {
                         acc[k].gO += d.Gasto;
                         acc[k].lO += d.Leads;
+                        acc[k].vO += d.Vendas;
                     }
                 } else {
                     acc[k].gp += d.GastoPlan;
                     acc[k].lp += d.LeadsPlan;
-                    // Vendas from Plataforma='Todas' rows only
-                    if (d.Vendas > 0) {
-                        acc[k].v += d.Vendas;
-                        if (d.Data === ontemStr) acc[k].vO += d.Vendas;
-                    }
-                    if ((d.LeadsSWR||0) > 0) {
-                        acc[k].ls += (d.LeadsSWR||0);
-                        if (d.Data === ontemStr) acc[k].lsO += (d.LeadsSWR||0);
+                    // Vendas e SWR: só acumula da linha 'Todas' (não das linhas por plataforma)
+                    // para evitar dupla contagem
+                    if (d.Plataforma === 'Todas') {
+                        if (d.Vendas > 0) {
+                            acc[k].v += d.Vendas;
+                            if (d.Data === ontemStr) acc[k].vO += d.Vendas;
+                        }
+                        if ((d.LeadsSWR||0) > 0) {
+                            acc[k].ls += (d.LeadsSWR||0);
+                            if (d.Data === ontemStr) acc[k].lsO += (d.LeadsSWR||0);
+                        }
                     }
                 }
                 return acc;
@@ -1988,7 +1942,7 @@
                         <td class="px-3 py-2 text-slate-400">${d.lO > 0 ? fmt.n(d.lO) : '<span class="text-slate-200">—</span>'}</td>
                         <td class="px-3 py-2 font-black text-blue-700">${fmt.n(d.l)}${pctBar(d.l, d.lp)}</td>
                         <td class="px-3 py-2 text-cyan-600 font-bold">${(d.ls||0)>0?fmt.n(d.ls):'<span class="text-slate-200">—</span>'}</td>
-                        <td class="px-3 py-2 ${d.l>0&&(d.ls||0)>0?(((d.l-(d.ls||0))/d.l*100)>30?'text-red-500 font-bold':((d.l-(d.ls||0))/d.l*100)>15?'text-amber-500 font-bold':'text-emerald-600 font-bold'):'text-slate-300'}">${d.l>0&&(d.ls||0)>0?((d.l-(d.ls||0))/d.l*100).toFixed(1)+'%':'—'}</td>
+                        <td class="px-3 py-2 text-amber-600 font-bold">${d.l>0&&(d.ls||0)>0?((d.l-d.ls)/d.l*100).toFixed(1)+'%':'—'}</td>
                         <td class="px-3 py-2 text-slate-500">${fmt.n(pL)}</td>
                         <td class="px-3 py-2 text-slate-500">${d.lp > 0 ? fmt.n(d.lp) : '—'}</td>
                         <td class="px-3 py-2 border-r-2 text-blue-600 font-black bg-blue-50">${fmt.n(objL)}</td>
@@ -1998,38 +1952,38 @@
                         <td class="px-3 py-2 text-green-600 font-black bg-green-50">—</td>
                         <td class="px-3 py-2 text-violet-600 font-black">${(d.ls||0) > 0 ? ((d.v/(d.ls||1))*100).toFixed(2)+'%' : d.l > 0 ? ((d.v/d.l)*100).toFixed(2)+'%' : '—'}</td>
                     </tr>`;
-                }).join('') || '<tr><td colspan="18" class="text-center p-8 text-slate-400">Nenhum dado para o período selecionado</td></tr>';
-            // Pacing total row
-            let _pt = Object.values(obj).reduce((a,d)=>{a.g+=d.g;a.gp+=d.gp;a.l+=d.l;a.lp+=d.lp;a.v+=d.v;a.ls+=d.ls||0;return a;},{g:0,gp:0,l:0,lp:0,v:0,ls:0});
-            let _ptGp=_pt.gp>0?(_pt.g/_pt.gp*100).toFixed(0):0;
-            let _ptLp=_pt.lp>0?(_pt.l/_pt.lp*100).toFixed(0):0;
-            let _ptDisc=_pt.l>0&&_pt.ls>0?((_pt.l-_pt.ls)/_pt.l*100).toFixed(1):null;
-            let _ptTaxa=_pt.ls>0?(_pt.v/_pt.ls*100).toFixed(2):_pt.l>0?(_pt.v/_pt.l*100).toFixed(2):0;
-            document.getElementById('v3_tableBody').innerHTML +=
-                `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-right text-xs">
-                    <td class="p-2 pl-3 font-black text-left border-r-2 text-slate-800 uppercase">⬛ Total
-                        <div class="flex gap-2 mt-0.5">
-                            ${_pt.gp>0?`<span class="text-[8px] font-bold ${parseFloat(_ptGp)>=100?'text-emerald-600':'text-orange-500'}">${_ptGp}% inv.</span>`:''}
-                            ${_pt.lp>0?`<span class="text-[8px] font-bold ${parseFloat(_ptLp)>=100?'text-emerald-600':'text-blue-500'}">${_ptLp}% leads</span>`:''}
-                        </div>
-                    </td>
-                    <td class="px-3 py-2">—</td>
-                    <td class="px-3 py-2 text-slate-800">${fmt.m(_pt.g)}</td>
-                    <td class="px-3 py-2 text-slate-500">${_pt.gp>0?fmt.m(_pt.gp):'—'}</td>
-                    <td class="px-3 py-2 border-r-2 text-emerald-600 bg-emerald-50">—</td>
-                    <td class="px-3 py-2">—</td>
-                    <td class="px-3 py-2 text-blue-700">${fmt.n(_pt.l)}</td>
-                    <td class="px-3 py-2 text-cyan-700">${_pt.ls>0?fmt.n(_pt.ls):'—'}</td>
-                    <td class="px-3 py-2">${_ptDisc!==null?_ptDisc+'%':'—'}</td>
-                    <td class="px-3 py-2 text-slate-500">—</td>
-                    <td class="px-3 py-2 text-slate-500">${_pt.lp>0?fmt.n(_pt.lp):'—'}</td>
-                    <td class="px-3 py-2 border-r-2 text-blue-600 bg-blue-50">—</td>
-                    <td class="px-3 py-2">—</td>
-                    <td class="px-3 py-2 text-green-700">${fmt.n(_pt.v)}</td>
-                    <td class="px-3 py-2 text-slate-500">—</td>
-                    <td class="px-3 py-2 text-green-600 bg-green-50">—</td>
-                    <td class="px-3 py-2 text-violet-700">${_ptTaxa>0?_ptTaxa+'%':'—'}</td>
-                </tr>`;
+                }).join('') + (() => {
+                    let totP = Object.values(obj).reduce((a,d)=>{
+                        a.g+=d.g;a.gp+=d.gp;a.l+=d.l;a.lp+=d.lp;a.v+=d.v;
+                        a.ls+=(d.ls||0);a.gO+=d.gO;a.lO+=d.lO;a.vO+=d.vO;
+                        return a;
+                    },{g:0,gp:0,l:0,lp:0,v:0,ls:0,gO:0,lO:0,vO:0});
+                    let pGt=dAtual>0?(totP.g/dAtual)*dTot:0;
+                    let pLt=dAtual>0?(totP.l/dAtual)*dTot:0;
+                    let objGt=Math.max((totP.gp-totP.g)/dRest,0);
+                    let objLt=Math.max((totP.lp-totP.l)/dRest,0);
+                    let discT=totP.l>0&&totP.ls>0?((totP.l-totP.ls)/totP.l*100).toFixed(1)+'%':'—';
+                    let taxaT=totP.ls>0?(totP.v/totP.ls*100).toFixed(2)+'%':totP.l>0?(totP.v/totP.l*100).toFixed(2)+'%':'—';
+                    return `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-right">
+                        <td class="p-2 pl-3 text-left border-r-2">TOTAL</td>
+                        <td class="px-3 py-2 text-slate-400">${totP.gO>0?fmt.m(totP.gO):'—'}</td>
+                        <td class="px-3 py-2">${fmt.m(totP.g)}</td>
+                        <td class="px-3 py-2">${fmt.m(pGt)}</td>
+                        <td class="px-3 py-2">${totP.gp>0?fmt.m(totP.gp):'—'}</td>
+                        <td class="px-3 py-2 border-r-2 text-emerald-600">${fmt.m(objGt)}</td>
+                        <td class="px-3 py-2 text-slate-400">${totP.lO>0?fmt.n(totP.lO):'—'}</td>
+                        <td class="px-3 py-2 text-blue-700">${fmt.n(totP.l)}</td>
+                        <td class="px-3 py-2 text-cyan-600">${totP.ls>0?fmt.n(totP.ls):'—'}</td>
+                        <td class="px-3 py-2 text-amber-600">${discT}</td>
+                        <td class="px-3 py-2">${fmt.n(pLt)}</td>
+                        <td class="px-3 py-2">${totP.lp>0?fmt.n(totP.lp):'—'}</td>
+                        <td class="px-3 py-2 border-r-2 text-blue-600">${fmt.n(objLt)}</td>
+                        <td class="px-3 py-2 text-slate-400">${totP.vO>0?fmt.n(totP.vO):'—'}</td>
+                        <td class="px-3 py-2 text-green-700">${fmt.n(totP.v)}</td>
+                        <td class="px-3 py-2">—</td>
+                        <td class="px-3 py-2 text-violet-600">${taxaT}</td>
+                    </tr>`;
+                })() || '<tr><td colspan="17" class="text-center p-8 text-slate-400">Nenhum dado para o período selecionado</td></tr>';
             // Armazena para exportação
             window._v3TableRows = [['Estrutura','Inv. Ontem','Inv. Real','Inv. Proj','Inv. Meta','Inv. Obj/Dia','Leads Ontem','Leads Real','Leads Proj','Leads Meta','Leads Obj/Dia','Vend. Ontem','Vend. Real','Vend. Meta','Vend. Obj/Dia','Taxa Venda']];
             Object.values(obj).sort((a,b)=>b.g-a.g).forEach(d => {
@@ -2129,7 +2083,86 @@
             window._v3TotSWR  = totSWR;
             window._v3Taxa    = taxaPacing;
             window._v3ObjData = Object.values(obj);
-            renderFixedCards(mo, dAtual, dTot);
+
+            // Fixed cards by frente and canal (ignore filters, only period)
+            renderPacingFrenteCards(mo, dTot, dAtual, dRest, ontemStr);
+        }
+
+        function renderPacingFrenteCards(mo, dTot, dAtual, dRest, ontemStr) {
+            // Builds cards from ALL macroData for the month (ignores filters)
+            let allObj = window.macroData.reduce((acc, d) => {
+                if (!d.Data.startsWith(mo)) return acc;
+                let k = d.Frente || 'Outros';
+                if (!acc[k]) acc[k] = {n:k,g:0,gp:0,l:0,lp:0,v:0,ls:0,gO:0,lO:0,vO:0};
+                if (d.Plataforma !== 'Todas') {
+                    acc[k].g+=d.Gasto; acc[k].l+=d.Leads;
+                    if(d.Data===ontemStr){acc[k].gO+=d.Gasto;acc[k].lO+=d.Leads;}
+                } else {
+                    acc[k].gp+=d.GastoPlan; acc[k].lp+=d.LeadsPlan;
+                    if(d.Vendas>0){acc[k].v+=d.Vendas;if(d.Data===ontemStr)acc[k].vO+=d.Vendas;}
+                    if((d.LeadsSWR||0)>0){acc[k].ls+=(d.LeadsSWR||0);}
+                }
+                return acc;
+            }, {});
+
+            const miniBar = (v,m,color) => {
+                let p=m>0?Math.min((v/m)*100,100):0;
+                return `<div class="w-full bg-slate-100 h-1.5 rounded-full mt-1"><div class="${color} h-1.5 rounded-full" style="width:${p}%"></div></div>`;
+            };
+            const badge = (p,good=100) => {
+                let cls=p>=good?'text-emerald-600 bg-emerald-50':p>=70?'text-blue-600 bg-blue-50':'text-amber-600 bg-amber-50';
+                return `<span class="${cls} text-[9px] font-black px-1.5 py-0.5 rounded-full">${p.toFixed(0)}%</span>`;
+            };
+
+            let cards = Object.values(allObj).sort((a,b)=>b.g-a.g).map(d => {
+                let pctG = d.gp>0?((d.g/d.gp)*100):0;
+                let pctL = d.lp>0?((d.l/d.lp)*100):0;
+                let pL   = dAtual>0?(d.l/dAtual)*dTot:0;
+                let disc = d.l>0&&d.ls>0?((d.l-d.ls)/d.l*100).toFixed(1)+'%':'—';
+                let taxa = d.ls>0?(d.v/d.ls*100).toFixed(2)+'%':d.l>0?(d.v/d.l*100).toFixed(2)+'%':'—';
+                return `<div class="bg-white border rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-black text-sm text-slate-800">${d.n}</span>
+                        <div class="flex gap-1">
+                            ${d.gp>0?badge(pctG):''}
+                            ${d.lp>0?badge(pctL):''}
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] mt-2">
+                        <div>
+                            <span class="text-slate-400 uppercase font-bold block">Investimento</span>
+                            <span class="font-black text-slate-700">${fmt.m(d.g)}</span>
+                            ${d.gp>0?`<span class="text-slate-400 ml-1">/ ${fmt.m(d.gp)}</span>`:''}
+                            ${miniBar(d.g,d.gp,'bg-emerald-500')}
+                        </div>
+                        <div>
+                            <span class="text-slate-400 uppercase font-bold block">Leads</span>
+                            <span class="font-black text-blue-700">${fmt.n(d.l)}</span>
+                            ${d.lp>0?`<span class="text-slate-400 ml-1">/ ${fmt.n(d.lp)}</span>`:''}
+                            ${miniBar(d.l,d.lp,'bg-blue-500')}
+                        </div>
+                        <div class="mt-1">
+                            <span class="text-slate-400 uppercase font-bold block">Leads SWR</span>
+                            <span class="font-black text-cyan-600">${d.ls>0?fmt.n(d.ls):'—'}</span>
+                            ${d.ls>0?`<span class="text-amber-500 ml-1 font-bold">${disc} disc.</span>`:''}
+                        </div>
+                        <div class="mt-1">
+                            <span class="text-slate-400 uppercase font-bold block">Vendas / Taxa</span>
+                            <span class="font-black text-green-700">${fmt.n(d.v)}</span>
+                            <span class="text-violet-600 ml-1 font-bold">${taxa}</span>
+                        </div>
+                    </div>
+                    ${d.gO>0||d.lO>0?`<div class="mt-2 pt-2 border-t text-[9px] text-slate-400 flex gap-3">
+                        ${d.gO>0?'<span>Ontem inv: <b>'+fmt.m(d.gO)+'</b></span>':''}
+                        ${d.lO>0?'<span>Ontem leads: <b>'+fmt.n(d.lO)+'</b></span>':''}
+                    </div>`:''}
+                </div>`;
+            }).join('');
+
+            document.getElementById('v3_frenteCards').innerHTML = cards
+                ? `<h3 class="font-black text-xs uppercase text-slate-500 mb-3">📊 Por Frente (período completo)</h3>
+                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">${cards}</div>`
+                : '';
         }
 
         function carregarCSVsLocais(files) {
@@ -2248,7 +2281,7 @@
         function aggBy(data, field) {
             return Object.values(data.reduce((acc, d) => {
                 let k = d[field] || 'N/A';
-                if (!acc[k]) acc[k] = { n: k, conta: d.Conta||'', g: 0, l: 0, i: 0, cl: 0, v3s: 0, thr: 0, link: '' };
+                if (!acc[k]) acc[k] = { n: k, g: 0, l: 0, i: 0, cl: 0, v3s: 0, thr: 0, link: '' };
                 acc[k].g += d.Gasto; acc[k].l += d.Leads;
                 acc[k].i += d.Impressoes || 0; acc[k].cl += d.Cliques || 0;
                 acc[k].v3s += d.Views3s || 0; acc[k].thr += d.Thruplay || 0;
@@ -2362,8 +2395,8 @@
             document.getElementById('v2_topPublico').innerHTML = topPublico.slice(0,6).map(topRow).join('') || `<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados demográficos</td></tr>`;
 
             renderDemoChart();
-            renderTabelaDemo();
             renderRegioes();
+            renderTabelaDemo();
             renderTabelaDetalhe();
         }
 
@@ -2435,7 +2468,7 @@
                 (f.contas.length  === 0 || f.contas.includes(d.Conta))
             );
 
-            // Agrupa por estado — sem leads/CPL, foco em métricas de entrega
+            // Agrupa por estado
             let byEstado = Object.values(data.reduce((acc, d) => {
                 let k = d.Regiao;
                 if (!acc[k]) acc[k] = { n: k, g: 0, i: 0, cl: 0, eng: 0 };
@@ -2451,218 +2484,153 @@
                 return i;
             });
 
+            // Score: 40% CTR + 30% CPM invertido + 30% Engajamento relativo
+            let maxCTR = Math.max(...byEstado.map(i=>i.ctr), 0.001);
+            let maxEng = Math.max(...byEstado.map(i=>i.i>0?i.eng/i.i:0), 0.001);
+            let minCPM = Math.min(...byEstado.filter(i=>i.cpm>0).map(i=>i.cpm), 999);
+            let maxCPM = Math.max(...byEstado.map(i=>i.cpm), 0.001);
+            byEstado.forEach(i => {
+                let ctrScore = maxCTR > 0 ? (i.ctr / maxCTR) * 100 : 0;
+                let cpmScore = maxCPM > minCPM ? ((maxCPM - i.cpm) / (maxCPM - minCPM)) * 100 : 50;
+                let engScore = maxEng > 0 ? ((i.i>0?i.eng/i.i:0) / maxEng) * 100 : 0;
+                i.score = Math.round(ctrScore * 0.4 + cpmScore * 0.3 + engScore * 0.3);
+            });
+
             let met = document.getElementById('v2_regiaoMetric').value;
-            // Ordenação: CPM e CPC crescente (menor = melhor), demais decrescente
-            if (met === 'cpm' || met === 'cpc') byEstado.sort((a, b) => a[met] - b[met]);
-            else if (met === 'ctr')              byEstado.sort((a, b) => b.ctr - a.ctr);
-            else if (met === 'cliques')          byEstado.sort((a, b) => b.cl - a.cl);
-            else if (met === 'engajamento')      byEstado.sort((a, b) => b.eng - a.eng);
-            else                                  byEstado.sort((a, b) => b.i - a.i);
+            if (met === 'score' || met === 'impressoes') byEstado.sort((a,b) => met==='score' ? b.score-a.score : b.i-a.i);
+            else if (met === 'cliques')     byEstado.sort((a,b) => b.cl-a.cl);
+            else if (met === 'engajamento') byEstado.sort((a,b) => b.eng-a.eng);
+            else if (met === 'ctr')         byEstado.sort((a,b) => b.ctr-a.ctr);
+            else if (met === 'cpm' || met === 'cpc') byEstado.sort((a,b) => a[met==='cpm'?'cpm':'cpc']-b[met==='cpm'?'cpm':'cpc']);
 
             let totalImpr = byEstado.reduce((s, i) => s + i.i, 0);
+            let top10 = byEstado.slice(0, 10);
 
-            const fmtMet = (i) => {
-                if (met === 'impressoes')   return fmt.n(i.i);
-                if (met === 'cliques')      return fmt.n(i.cl);
-                if (met === 'engajamento')  return fmt.n(i.eng);
-                if (met === 'ctr')          return i.ctr.toFixed(2) + '%';
-                if (met === 'cpm')          return fmt.m(i.cpm);
-                if (met === 'cpc')          return fmt.m(i.cpc);
-                return fmt.n(i.i);
+            // Score cards (top 10)
+            const scoreBadgeR = s => {
+                let cls = s>=70?'bg-emerald-500':s>=40?'bg-amber-400':'bg-red-400';
+                return `<span class="${cls} text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">${s}</span>`;
             };
+            document.getElementById('v2_regiaoCards').innerHTML = top10.map((i,idx) => `
+                <div class="bg-slate-50 rounded-xl p-3 border">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-black text-[10px] text-slate-700">${idx+1}. ${i.n}</span>
+                        ${scoreBadgeR(i.score)}
+                    </div>
+                    <div class="text-[9px] text-slate-500 space-y-0.5 mt-1">
+                        <div>Impr: <b class="text-slate-700">${fmt.n(i.i)}</b></div>
+                        <div>CTR: <b class="text-blue-600">${i.ctr.toFixed(2)}%</b>  CPM: <b class="text-orange-600">${fmt.m(i.cpm)}</b></div>
+                        <div>Eng: <b class="text-purple-600">${fmt.n(i.eng)}</b></div>
+                    </div>
+                </div>`).join('') || '<p class="text-slate-400 text-xs p-4">Sem dados de região</p>';
 
-            // Populate card in tops grid
-            let topR = byEstado.slice(0,6);
-            let elTopCard = document.getElementById('v2_topRegiaoCard');
-            if (elTopCard) elTopCard.innerHTML = topR.map(i=>`
-                <tr class="hover:bg-slate-50">
-                    <td class="p-2 font-bold text-slate-700 truncate max-w-[90px]">${i.n}</td>
-                    <td class="text-right px-2 text-blue-600 font-bold">${i.ctr.toFixed(2)}%</td>
-                    <td class="text-right px-2 text-orange-600 font-bold">${fmt.m(i.cpm)}</td>
-                    <td class="text-center px-2">${scoreBadge(i.score||0)}</td>
-                </tr>`).join('') || '<tr><td colspan="4" class="p-3 text-slate-400 text-center text-xs">Sem dados</td></tr>';
-
-            // Card Top 10 (existing section)
-            document.getElementById('v2_topRegiao').innerHTML = byEstado.slice(0, 10).map((i, idx) => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-2 font-bold text-slate-700">${idx+1}. ${i.n}</td>
-                    <td class="text-right px-2 text-slate-600">${fmt.n(i.i)}</td>
-                    <td class="text-right px-2 text-slate-600">${fmt.n(i.cl)}</td>
-                    <td class="text-right px-2 text-blue-600 font-bold">${i.ctr.toFixed(2)}%</td>
-                    <td class="text-right px-2 text-orange-600 font-bold">${fmt.m(i.cpm)}</td>
-                </tr>`).join('') || '<tr><td colspan="5" class="p-3 text-slate-400 text-center text-xs">Sem dados de região</td></tr>';
-
-            // Compute region scores: 40% CTR + 30% inv CPM + 30% engagement rate
-            let maxCtr=Math.max(...byEstado.map(i=>i.ctr),0.001);
-            let minCpm=Math.min(...byEstado.filter(i=>i.cpm>0).map(i=>i.cpm),9999);
-            let maxEng=Math.max(...byEstado.map(i=>i.i>0?i.eng/i.i:0),0.001);
-            byEstado.forEach(i=>{
-                let sCtr=maxCtr>0?i.ctr/maxCtr:0;
-                let sCpm=i.cpm>0&&minCpm<9999?minCpm/i.cpm:0;
-                let sEng=maxEng>0?(i.i>0?i.eng/i.i:0)/maxEng:0;
-                i.score=Math.round((sCtr*40+sCpm*30+sEng*30));
-            });
-            byEstado.sort((a,b)=>b.score-a.score);
             // Tabela completa
             document.getElementById('v2_tabelaRegiao').innerHTML = byEstado.map((i,idx) => `
-                <tr class="hover:bg-slate-50 text-right">
+                <tr class="hover:bg-purple-50 text-right">
                     <td class="text-left p-3 font-bold text-slate-800">${idx+1}. ${i.n}</td>
+                    <td class="px-3 text-center">${scoreBadgeR(i.score)}</td>
                     <td class="px-3 font-bold">${fmt.m(i.g)}</td>
                     <td class="px-3 text-slate-600">${fmt.n(i.i)}</td>
                     <td class="px-3 text-slate-600">${fmt.n(i.cl)}</td>
                     <td class="px-3 text-blue-600 font-bold">${i.ctr.toFixed(2)}%</td>
                     <td class="px-3 text-orange-600 font-bold">${fmt.m(i.cpm)}</td>
                     <td class="px-3 text-violet-600 font-bold">${fmt.m(i.cpc)}</td>
+                    <td class="px-3 text-purple-600">${fmt.n(i.eng)}</td>
                     <td class="px-3 text-slate-400">${totalImpr > 0 ? ((i.i/totalImpr)*100).toFixed(1)+'%' : '-'}</td>
-                    <td class="px-3 text-center">${scoreBadge(i.score)}</td>
-                </tr>`).join('') || '<tr><td colspan="9" class="text-center p-6 text-slate-400">Sem dados no período</td></tr>';
-            // Region table total
-            if (byEstado.length>0) {
-                let _rt={g:0,i:0,cl:0,eng:0};
-                byEstado.forEach(i=>{_rt.g+=i.g;_rt.i+=i.i;_rt.cl+=i.cl;_rt.eng+=i.eng||0;});
-                let _rctr=_rt.i>0?(_rt.cl/_rt.i*100):0, _rcpm=_rt.i>0?(_rt.g/_rt.i*1000):0, _rcpc=_rt.cl>0?(_rt.g/_rt.cl):0;
-                document.getElementById('v2_tabelaRegiao').innerHTML +=
-                    `<tr class="bg-slate-100 font-black border-t-2 text-right">
-                        <td class="text-left p-3 uppercase text-xs text-slate-700">⬛ Total</td>
-                        <td class="px-3">${fmt.m(_rt.g)}</td>
-                        <td class="px-3">${fmt.n(_rt.i)}</td>
-                        <td class="px-3">${fmt.n(_rt.cl)}</td>
-                        <td class="px-3">${_rctr.toFixed(2)}%</td>
-                        <td class="px-3">${fmt.m(_rcpm)}</td>
-                        <td class="px-3">${fmt.m(_rcpc)}</td>
-                        <td class="px-3">100%</td>
-                        <td class="px-3">—</td>
-                    </tr>`;
-            }
-
-            // Gráfico top 15 estados (barras horizontais)
-            let top15 = byEstado.slice(0, 15);
-            let metLabel = { impressoes:'Impressões', cliques:'Cliques', engajamento:'Engajamento', ctr:'CTR (%)', cpm:'CPM (R$)', cpc:'CPC (R$)' }[met] || 'Impressões';
-            let metData  = top15.map(i => met==='impressoes'?i.i : met==='cliques'?i.cl : met==='engajamento'?i.eng : met==='ctr'?i.ctr : met==='cpm'?i.cpm : i.cpc);
-            let isMoney  = met === 'cpm' || met === 'cpc';
-            let isPct    = met === 'ctr';
-
-            if (v2_RegiaoChart) v2_RegiaoChart.destroy();
-            v2_RegiaoChart = new Chart(document.getElementById('v2_regiaoChart'), {
-                type: 'bar',
-                data: {
-                    labels: top15.map(i => i.n),
-                    datasets: [{ label: metLabel, data: metData, backgroundColor: '#8b5cf6bb', borderColor: '#7c3aed', borderWidth: 1 }]
-                },
-                options: {
-                    indexAxis: 'y', responsive: true,
-                    plugins: {
-                        datalabels: {
-                            display: true, anchor: 'end', align: 'end',
-                            font: { size: 8, weight: 'bold' }, color: '#7c3aed',
-                            formatter: v => isMoney ? 'R$' + new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0}).format(v)
-                                         : isPct   ? v.toFixed(2)+'%'
-                                         : fmt.n(v)
-                        },
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: { beginAtZero: true, ticks: { font: { size: 9 } } },
-                        y: { ticks: { font: { size: 9 } }, grid: { display: false } }
-                    },
-                    layout: { padding: { right: 50 } }
-                }
-            });
+                </tr>`).join('') + `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-right">
+                    <td class="text-left p-3">TOTAL</td><td></td>
+                    <td class="px-3">${fmt.m(byEstado.reduce((s,i)=>s+i.g,0))}</td>
+                    <td class="px-3">${fmt.n(totalImpr)}</td>
+                    <td class="px-3">${fmt.n(byEstado.reduce((s,i)=>s+i.cl,0))}</td>
+                    <td class="px-3">${totalImpr>0?((byEstado.reduce((s,i)=>s+i.cl,0)/totalImpr)*100).toFixed(2)+'%':'—'}</td>
+                    <td class="px-3">—</td><td class="px-3">—</td>
+                    <td class="px-3">${fmt.n(byEstado.reduce((s,i)=>s+i.eng,0))}</td>
+                    <td class="px-3">100%</td>
+                </tr>` || '<tr><td colspan="10" class="text-center p-6 text-slate-400">Sem dados no período</td></tr>';
         }
 
+        
         function renderTabelaDemo() {
-            let rows = Object.values(v2_cachedDemo.reduce((acc, d) => {
-                let gen = d.Genero === 'male' ? '♂ Masculino' : d.Genero === 'female' ? '♀ Feminino' : '? ' + (d.Genero||'N/A');
-                let k = (d.Idade||'?') + '|' + gen;
-                if (!acc[k]) acc[k] = {idade:d.Idade||'?', gen, g:0, l:0, i:0, cl:0};
-                acc[k].g+=d.Gasto; acc[k].l+=d.Leads;
+            let demoAgg = Object.values(v2_cachedDemo.reduce((acc, d) => {
+                let k = d.Idade + '|' + d.Genero;
+                if (!acc[k]) acc[k] = {idade:d.Idade, genero:d.Genero, i:0, cl:0, g:0, l:0};
                 acc[k].i+=d.Impressoes||0; acc[k].cl+=d.Cliques||0;
+                acc[k].g+=d.Gasto; acc[k].l+=d.Leads;
                 return acc;
             }, {})).sort((a,b)=>{
-                if (a.idade < b.idade) return -1;
-                if (a.idade > b.idade) return 1;
-                return a.gen < b.gen ? -1 : 1;
-            }).map(i => {
-                let ctr = i.i>0?(i.cl/i.i*100).toFixed(2)+'%':'—';
-                let cpm = i.i>0?fmt.m(i.g/i.i*1000):'—';
-                let cpl = i.l>0?fmt.m(i.g/i.l):'—';
-                return `<tr class="hover:bg-slate-50 text-right">
-                    <td class="text-left p-3 font-bold text-slate-700">${i.idade}</td>
-                    <td class="text-left p-3 text-slate-600">${i.gen}</td>
-                    <td class="px-3">${fmt.n(i.i)}</td>
-                    <td class="px-3">${fmt.n(i.cl)}</td>
-                    <td class="px-3 text-blue-600 font-bold">${ctr}</td>
-                    <td class="px-3 text-orange-600 font-bold">${cpm}</td>
-                    <td class="px-3">${fmt.m(i.g)}</td>
-                    <td class="px-3 text-emerald-600 font-bold">${fmt.n(i.l)}</td>
-                    <td class="px-3 text-violet-600 font-bold">${cpl}</td>
-                </tr>`;
+                let ia=parseInt(a.idade)||0, ib=parseInt(b.idade)||0;
+                return ia!==ib ? ia-ib : a.genero.localeCompare(b.genero);
             });
-            // total row
-            if (rows.length > 0) {
-                let _dmt={g:0,l:0,i:0,cl:0};
-                v2_cachedDemo.forEach(d=>{_dmt.g+=d.Gasto;_dmt.l+=d.Leads;_dmt.i+=d.Impressoes||0;_dmt.cl+=d.Cliques||0;});
-                let _dctr=_dmt.i>0?(_dmt.cl/_dmt.i*100).toFixed(2)+'%':'—';
-                let _dcpm=_dmt.i>0?fmt.m(_dmt.g/_dmt.i*1000):'—';
-                let _dcpl=_dmt.l>0?fmt.m(_dmt.g/_dmt.l):'—';
-                rows.push(`<tr class="bg-slate-100 font-black border-t-2 text-right">
-                    <td class="text-left p-3 uppercase text-xs" colspan="2">⬛ Total</td>
-                    <td class="px-3">${fmt.n(_dmt.i)}</td><td class="px-3">${fmt.n(_dmt.cl)}</td>
-                    <td class="px-3">${_dctr}</td><td class="px-3">${_dcpm}</td>
-                    <td class="px-3">${fmt.m(_dmt.g)}</td>
-                    <td class="px-3 text-emerald-700">${fmt.n(_dmt.l)}</td>
-                    <td class="px-3 text-violet-700">${_dcpl}</td>
-                </tr>`);
-            }
-            document.getElementById('v2_tabelaDemo').innerHTML = rows.join('') ||
-                '<tr><td colspan="9" class="text-center p-6 text-slate-400">Sem dados demográficos no período</td></tr>';
+            let totD = demoAgg.reduce((a,i)=>{a.i+=i.i;a.cl+=i.cl;a.g+=i.g;a.l+=i.l;return a;},{i:0,cl:0,g:0,l:0});
+            let gLabel = g => g==='male'?'♂ Masc':g==='female'?'♀ Fem':g;
+            document.getElementById('v2_tabelaDemo').innerHTML = demoAgg.map(i => {
+                let ctr=i.i>0?(i.cl/i.i*100).toFixed(2):0;
+                let cpm=i.i>0?(i.g/i.i*1000).toFixed(2):0;
+                let cpl=i.l>0?(i.g/i.l).toFixed(2):0;
+                return `<tr class="hover:bg-purple-50 text-right">
+                    <td class="text-left p-3 font-bold text-slate-700">${i.idade}</td>
+                    <td class="text-left p-3 text-slate-600">${gLabel(i.genero)}</td>
+                    <td class="px-3 text-slate-600">${fmt.n(i.i)}</td>
+                    <td class="px-3 text-slate-600">${fmt.n(i.cl)}</td>
+                    <td class="px-3 text-blue-600 font-bold">${ctr}%</td>
+                    <td class="px-3 text-orange-600 font-bold">R$${cpm}</td>
+                    <td class="px-3">${fmt.m(i.g)}</td>
+                    <td class="px-3 text-blue-700 font-black">${fmt.n(i.l)}</td>
+                    <td class="px-3 text-orange-600 font-bold">${i.l>0?'R$'+cpl:'—'}</td>
+                </tr>`;
+            }).join('') + `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-right">
+                <td class="text-left p-3">TOTAL</td><td></td>
+                <td class="px-3">${fmt.n(totD.i)}</td>
+                <td class="px-3">${fmt.n(totD.cl)}</td>
+                <td class="px-3">${totD.i>0?(totD.cl/totD.i*100).toFixed(2)+'%':'—'}</td>
+                <td class="px-3">${totD.i>0?'R$'+(totD.g/totD.i*1000).toFixed(2):'—'}</td>
+                <td class="px-3">${fmt.m(totD.g)}</td>
+                <td class="px-3 text-blue-700">${fmt.n(totD.l)}</td>
+                <td class="px-3">${totD.l>0?fmt.m(totD.g/totD.l):'—'}</td>
+            </tr>` || '<tr><td colspan="9" class="text-center p-6 text-slate-400">Sem dados demográficos</td></tr>';
         }
 
         function renderTabelaDetalhe() {
             let grp = document.getElementById('v2_detailGroup').value;
             let grouped = calcScore(aggBy(v2_cachedFiltered, grp));
             window._v2Grouped = grouped;
+            let totTD = grouped.reduce((a,i)=>{a.g+=i.g;a.l+=i.l;a.i+=i.i;a.cl+=i.cl;a.v3s+=i.v3s||0;a.thr+=i.thr||0;return a;},{g:0,l:0,i:0,cl:0,v3s:0,thr:0});
             document.getElementById('v2_tabelaDetalhe').innerHTML = grouped.map(i => {
-                let linkEl = i.link ? `<a href="${i.link}" target="_blank" class="text-purple-500 hover:underline text-[10px]">↗ IG</a>` : '-';
-                return `<tr class="hover:bg-purple-50 text-right">
-                    <td class="text-left p-3 text-slate-500 text-xs max-w-[120px] truncate" title="${i.conta||''}">${i.conta||'—'}</td>
-                    <td class="text-left p-3 font-bold max-w-[200px] truncate text-slate-800" title="${i.n}">${i.n}</td>
-                    <td class="px-3">${fmt.m(i.g)}</td>
-                    <td class="px-3 text-slate-500">${fmt.n(i.i)}</td>
-                    <td class="px-3 text-slate-500">${fmt.n(i.cl)}</td>
-                    <td class="px-3">${fmt.p(i.ctr)}</td>
-                    <td class="px-3 text-blue-600 font-black">${fmt.n(i.l)}</td>
-                    <td class="px-3 text-orange-600 font-bold">${fmt.m(i.cpl)}</td>
-                    <td class="px-3 text-emerald-600 font-bold">${fmt.p(i.cvr)}</td>
-                    <td class="px-3 text-slate-400">${fmt.n(i.v3s)}</td>
-                    <td class="px-3 text-slate-400">${fmt.n(i.thr)}</td>
-                    <td class="px-3 text-center">${scoreBadge(i.score)}</td>
-                    <td class="px-3 text-center">${linkEl}</td>
-                </tr>`;
-            }).join('') || '<tr><td colspan="13" class="text-center p-6 text-slate-400">Nenhum dado no período selecionado</td></tr>';
-            // Total row
-            if (grouped.length > 0) {
-                let _dt={g:0,l:0,i:0,cl:0,v3s:0,thr:0};
-                grouped.forEach(i=>{_dt.g+=i.g;_dt.l+=i.l;_dt.i+=i.i;_dt.cl+=i.cl;_dt.v3s+=i.v3s||0;_dt.thr+=i.thr||0;});
-                let _dcpl=_dt.l>0?_dt.g/_dt.l:0, _dcvr=_dt.cl>0?(_dt.l/_dt.cl*100):0, _dctr=_dt.i>0?(_dt.cl/_dt.i*100):0;
-                document.getElementById('v2_tabelaDetalhe').innerHTML +=
-                    `<tr class="bg-slate-100 font-black border-t-2 text-right">
-                        <td class="text-left p-3 text-xs uppercase text-slate-600" colspan="2">⬛ Total</td>
-                        <td class="px-3">${fmt.m(_dt.g)}</td>
-                        <td class="px-3">${fmt.n(_dt.i)}</td>
-                        <td class="px-3">${fmt.n(_dt.cl)}</td>
-                        <td class="px-3">${fmt.p(_dctr)}</td>
-                        <td class="px-3 text-blue-700">${fmt.n(_dt.l)}</td>
-                        <td class="px-3">${fmt.m(_dcpl)}</td>
-                        <td class="px-3">${fmt.p(_dcvr)}</td>
-                        <td class="px-3">${fmt.n(_dt.v3s)}</td>
-                        <td class="px-3">${fmt.n(_dt.thr)}</td>
-                        <td class="px-3">—</td>
-                        <td class="px-3">—</td>
-                    </tr>`;
-            }
+                let linkEl = i.link ? '<a href="'+i.link+'" target="_blank" class="text-purple-500 hover:underline text-[10px]">↗ IG</a>' : '-';
+                let contaStr = (() => { let r = v2_cachedFiltered.find(d => (d[grp]||'N/A') === i.n); return r ? (r.Conta||'') : ''; })();
+                return '<tr class="hover:bg-purple-50 text-right">'
+                    + '<td class="text-left p-3 text-slate-400 text-[10px]">'+contaStr+'</td>'
+                    + '<td class="text-left p-3 font-bold max-w-[200px] truncate text-slate-800" title="'+i.n+'">'+i.n+'</td>'
+                    + '<td class="px-3">'+fmt.m(i.g)+'</td>'
+                    + '<td class="px-3 text-slate-500">'+fmt.n(i.i)+'</td>'
+                    + '<td class="px-3 text-slate-500">'+fmt.n(i.cl)+'</td>'
+                    + '<td class="px-3">'+fmt.p(i.ctr)+'</td>'
+                    + '<td class="px-3 text-blue-600 font-black">'+fmt.n(i.l)+'</td>'
+                    + '<td class="px-3 text-orange-600 font-bold">'+fmt.m(i.cpl)+'</td>'
+                    + '<td class="px-3 text-emerald-600 font-bold">'+fmt.p(i.cvr)+'</td>'
+                    + '<td class="px-3 text-slate-400">'+fmt.n(i.v3s)+'</td>'
+                    + '<td class="px-3 text-slate-400">'+fmt.n(i.thr)+'</td>'
+                    + '<td class="px-3 text-center">'+scoreBadge(i.score)+'</td>'
+                    + '<td class="px-3 text-center">'+linkEl+'</td>'
+                    + '</tr>';
+            }).join('')
+            + '<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-right">'
+            + '<td class="text-left p-3">—</td>'
+            + '<td class="text-left p-3">TOTAL</td>'
+            + '<td class="px-3">'+fmt.m(totTD.g)+'</td>'
+            + '<td class="px-3">'+fmt.n(totTD.i)+'</td>'
+            + '<td class="px-3">'+fmt.n(totTD.cl)+'</td>'
+            + '<td class="px-3">'+(totTD.i>0?(totTD.cl/totTD.i*100).toFixed(2)+'%':'—')+'</td>'
+            + '<td class="px-3 text-blue-600">'+fmt.n(totTD.l)+'</td>'
+            + '<td class="px-3">'+(totTD.l>0?fmt.m(totTD.g/totTD.l):'—')+'</td>'
+            + '<td class="px-3">'+(totTD.cl>0?(totTD.l/totTD.cl*100).toFixed(2)+'%':'—')+'</td>'
+            + '<td class="px-3">'+fmt.n(totTD.v3s)+'</td>'
+            + '<td class="px-3">'+fmt.n(totTD.thr)+'</td>'
+            + '<td class="px-3">—</td><td class="px-3">—</td>'
+            + '</tr>'
+            || '<tr><td colspan="13" class="text-center p-6 text-slate-400">Nenhum dado no período selecionado</td></tr>';
         }
-
+        
         function downloadPDF() { window.print(); }
 
         // ── Criativos export ─────────────────────────────────────────────────
@@ -2906,7 +2874,7 @@
             let rows = [
                 ['Métrica','Valor','Meta','% Atingido','Mês'],
                 ['Investimento (R$)', (tot.g||0).toFixed(2), (tot.gp||0).toFixed(2), tot.gp>0?((tot.g/tot.gp)*100).toFixed(1)+'%':'-', mo],
-                ['Leads', tot.l||0, tot.lp||0, t.lp>0?((t.l/(t.lp||1))*100).toFixed(1)+'%':'-', ''],
+                ['Leads', tot.l||0, tot.lp||0, tot.lp>0?((tot.l/(tot.lp||1))*100).toFixed(1)+'%':'-', ''],
                 ['Leads SWR (CRM)', totSWR.ls||0, '-', disc+'% disc.', ''],
                 ['Vendas', tot.v||0, '-', '-', ''],
                 ['Taxa de Vendas', taxa+'%', '-', '-', ''],
