@@ -54,11 +54,9 @@
         
         <section id="tab-master" class="p-8 max-w-[1600px] mx-auto">
 
-            <!-- Header -->
             <div class="bg-white p-5 rounded-xl shadow-sm border-b-4 border-blue-600 mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Visão Macro</h2>
                 <div class="flex gap-2 items-center">
-                    <!-- Export menu -->
                     <div class="relative no-print">
                         <button onclick="toggleExportMenu('exportMenuMacro')" class="bg-slate-700 hover:bg-slate-900 text-white rounded-lg font-black text-xs px-4 h-9 uppercase transition flex items-center gap-1">⬇ Exportar ▾</button>
                         <div id="exportMenuMacro" class="hidden absolute right-0 mt-1 bg-white border rounded-xl shadow-xl z-50 p-2 min-w-[180px] space-y-1">
@@ -75,11 +73,9 @@
                 </div>
             </div>
 
-            <!-- Filtros -->
             <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
 
-                    <!-- Período Atual -->
                     <div>
                         <label class="text-[10px] font-black text-blue-600 uppercase block mb-1">📅 Período Atual</label>
                         <div class="flex gap-1">
@@ -88,7 +84,6 @@
                         </div>
                     </div>
 
-                    <!-- Período Anterior -->
                     <div>
                         <label class="text-[10px] font-black text-orange-500 uppercase block mb-1">📅 Período Anterior</label>
                         <div class="flex gap-1">
@@ -97,7 +92,6 @@
                         </div>
                     </div>
 
-                    <!-- Dropdown Plataformas -->
                     <div class="relative" id="dd_plat_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Plataformas</label>
                         <button onclick="toggleDropdown('dd_plat')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -111,7 +105,6 @@
                         </div>
                     </div>
 
-                    <!-- Dropdown Frentes -->
                     <div class="relative" id="dd_frente_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Frentes</label>
                         <button onclick="toggleDropdown('dd_frente')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -125,7 +118,6 @@
                         </div>
                     </div>
 
-                    <!-- Dropdown Contas + Busca -->
                     <div class="relative" id="dd_conta_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Contas / Busca</label>
                         <div class="flex gap-1">
@@ -144,10 +136,8 @@
                 </div>
             </div>
 
-            <!-- KPIs -->
             <div id="v1_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6"></div>
 
-            <!-- Gráfico -->
             <div class="bg-white p-5 rounded-xl border shadow-sm mb-6">
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-2 border-b pb-3">
                     <h3 class="font-black text-xs uppercase text-slate-700">📈 Evolução de Mídia</h3>
@@ -185,10 +175,6 @@
                 <canvas id="v1_chart" height="80"></canvas>
             </div>
 
-            <!-- Cards fixos por Frente (ignoram filtros, apenas período) -->
-            <div id="v3_frenteCards" class="mb-6"></div>
-
-            <!-- Tabela -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
                     <div class="flex items-center gap-2">
@@ -237,7 +223,6 @@
                             <option value="Conta">Por Conta</option>
                         </select>
 
-                    <!-- Contas dropdown -->
                     <div class="relative" id="dd_v3_conta_wrap">
                         <button onclick="toggleDropdown('dd_v3_conta')" class="border rounded p-2 text-xs font-bold text-left bg-white flex items-center gap-2 min-w-[130px]">
                             <span id="dd_v3_conta_label">Todas</span><span class="ml-auto">▾</span>
@@ -263,7 +248,11 @@
                     <button onclick="renderPacing()" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black text-xs px-4 h-8 uppercase transition">↺ Atualizar</button>
                 </div>
             </div>
+            
             <div id="v3_kpiContainer" class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-4"></div>
+            
+            <div id="v3_frenteCards" class="mb-6"></div>
+            <div id="v3_canalCards" class="mb-8 border-b-2 border-slate-200 pb-8"></div>
             <div class="flex justify-end mb-4 no-print">
                 <button onclick="exportPacingCards()" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📊 Baixar Cards CSV</button>
             </div>
@@ -315,7 +304,6 @@
         </section>
 
         <section id="tab-analise" class="hidden p-8 max-w-[1600px] mx-auto">
-            <!-- Header -->
             <div class="bg-white p-5 rounded-xl border-b-4 border-purple-600 mb-6 flex justify-between items-center shadow-sm">
                 <h2 class="text-2xl font-black text-slate-800 uppercase">Análise Detalhada</h2>
                 <div class="flex items-center gap-3">
@@ -339,7 +327,6 @@
                 </div>
             </div>
 
-            <!-- Upload CSV local -->
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
                 <div class="flex flex-wrap items-center gap-4">
                     <div>
@@ -354,10 +341,8 @@
                 </div>
             </div>
 
-            <!-- Filtros com checkboxes -->
             <div class="bg-white rounded-xl border shadow-sm mb-6 p-5">
                 <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-                    <!-- Período atual -->
                     <div>
                         <label class="text-[10px] font-black text-purple-600 uppercase block mb-1">📅 Período Atual</label>
                         <div class="flex gap-1">
@@ -365,7 +350,6 @@
                             <input type="date" id="v2_p1End" class="w-full border rounded p-1.5 text-xs">
                         </div>
                     </div>
-                    <!-- Período anterior -->
                     <div>
                         <label class="text-[10px] font-black text-orange-500 uppercase block mb-1">📅 Período Anterior</label>
                         <div class="flex gap-1">
@@ -373,7 +357,6 @@
                             <input type="date" id="v2_p2End" class="w-full border rounded p-1.5 text-xs">
                         </div>
                     </div>
-                    <!-- Frentes dropdown -->
                     <div class="relative" id="dd_v2_frente_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Frentes</label>
                         <button onclick="toggleDropdown('dd_v2_frente')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -386,7 +369,6 @@
                             <div id="dd_v2_frente_items" class="mt-1 space-y-0.5"></div>
                         </div>
                     </div>
-                    <!-- Contas dropdown -->
                     <div class="relative" id="dd_v2_conta_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Contas</label>
                         <button onclick="toggleDropdown('dd_v2_conta')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -399,7 +381,6 @@
                             <div id="dd_v2_conta_items" class="mt-1 space-y-0.5"></div>
                         </div>
                     </div>
-                    <!-- Campanhas dropdown -->
                     <div class="relative" id="dd_v2_camp_wrap">
                         <label class="text-[10px] font-black text-slate-500 uppercase block mb-1">Campanhas</label>
                         <button onclick="toggleDropdown('dd_v2_camp')" class="w-full border rounded p-1.5 text-xs text-left bg-slate-50 flex justify-between items-center">
@@ -412,7 +393,6 @@
                             <div id="dd_v2_camp_items" class="mt-1 space-y-0.5"></div>
                         </div>
                     </div>
-                    <!-- Busca -->
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Busca Criativo</label>
                         <input type="text" id="v2_busca" class="w-full border rounded p-1.5 text-xs" placeholder="Nome do ad...">
@@ -420,20 +400,16 @@
                 </div>
             </div>
 
-            <!-- KPIs big numbers com delta -->
             <div id="v2_kpiContainer" class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4"></div>
             <div class="flex justify-end mb-4 no-print">
                 <button onclick="exportAnaliseCards()" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📊 Baixar Cards CSV</button>
             </div>
 
-            <!-- Score methodology note -->
             <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2 mb-4 text-[10px] text-blue-700 font-bold">
                 ℹ️ <b>Score de ranking:</b> 40% Leads + 40% CPL (invertido — menor é melhor) + 20% CVR. Escala 0–100.
             </div>
 
-            <!-- Tops: 4 cards lado a lado -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <!-- Top Campanhas -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <div class="flex justify-between items-center w-full">
@@ -448,7 +424,6 @@
                         <tbody id="v2_topCam" class="divide-y"></tbody>
                     </table>
                 </div>
-                <!-- Top Conjuntos -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">🎯 Top Conjuntos</span>
@@ -460,7 +435,6 @@
                         <tbody id="v2_topAdset" class="divide-y"></tbody>
                     </table>
                 </div>
-                <!-- Top Criativos -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">🖼️ Top Criativos</span>
@@ -472,7 +446,6 @@
                         <tbody id="v2_topAds" class="divide-y"></tbody>
                     </table>
                 </div>
-                <!-- Top Públicos (demográfico) -->
                 <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                     <div class="p-3 bg-slate-50 border-b">
                         <span class="font-black text-[10px] uppercase text-slate-600">👥 Top Públicos</span>
@@ -486,7 +459,6 @@
                 </div>
             </div>
 
-            <!-- Demográfico fullwidth -->
             <div class="bg-white rounded-xl border p-5 shadow-sm mb-6">
                 <div class="flex justify-between items-center mb-3 border-b pb-2">
                     <h3 class="font-black text-xs uppercase text-slate-700">👥 Demográfico — por Idade e Gênero</h3>
@@ -500,7 +472,6 @@
                 <canvas id="v2_demoChart" height="60"></canvas>
             </div>
 
-            <!-- Regiões — score cards + metric selector -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center flex-wrap gap-2">
                     <div>
@@ -522,7 +493,6 @@
                 </div>
                 <div id="v2_regiaoCards" class="p-4 grid grid-cols-2 md:grid-cols-5 gap-3"></div>
             </div>
-            <!-- Tabela de Regiões detalhada -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
                     <span class="font-black text-xs uppercase">🗺️ Detalhamento por Região</span>
@@ -548,7 +518,6 @@
                 </div>
             </div>
 
-            <!-- Tabela demográfica completa -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm mb-6">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
                     <span class="font-black text-xs uppercase">👥 Detalhamento Demográfico</span>
@@ -574,7 +543,6 @@
                 </div>
             </div>
 
-            <!-- Tabela detalhada -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
                     <span class="font-black text-xs uppercase">📋 Detalhamento Completo</span>
@@ -2069,99 +2037,141 @@
                 </div>`;
             };
 
-            window._v3Tot    = tot;
-            window._v3TotSWR = totSWR;
-
             document.getElementById('v3_kpiContainer').innerHTML =
                 card("Investimento", tot.g, tot.gp, true) +
                 card("Leads",        tot.l, tot.lp, false) +
                 cardSWRPacing(totSWR.ls, tot.l) +
                 card("Vendas",       tot.v, 0,      false) +
                 cardTaxaPacing(taxaPacing, histTaxaVal);
+
             // Store for export
             window._v3Tot     = tot;
             window._v3TotSWR  = totSWR;
             window._v3Taxa    = taxaPacing;
             window._v3ObjData = Object.values(obj);
 
-            // Fixed cards by frente and canal (ignore filters, only period)
-            renderPacingFrenteCards(mo, dTot, dAtual, dRest, ontemStr);
+            // Cards fixos por frente e canal (ignoram filtros de conta, apenas período)
+            renderPacingFixedCards(mo, dTot, dAtual, dRest, ontemStr);
         }
 
-        function renderPacingFrenteCards(mo, dTot, dAtual, dRest, ontemStr) {
-            // Builds cards from ALL macroData for the month (ignores filters)
-            let allObj = window.macroData.reduce((acc, d) => {
-                if (!d.Data.startsWith(mo)) return acc;
-                let k = d.Frente || 'Outros';
-                if (!acc[k]) acc[k] = {n:k,g:0,gp:0,l:0,lp:0,v:0,ls:0,gO:0,lO:0,vO:0};
+        function renderPacingFixedCards(mo, dTot, dAtual, dRest, ontemStr) {
+            let objFrente = {};
+            let objCanal = {};
+
+            // Constrói os dados de Frentes e Canais numa única varredura
+            window.macroData.forEach(d => {
+                if (!d.Data.startsWith(mo)) return;
+
+                // --- Lógica para Frentes ---
+                let kF = d.Frente || 'Outros';
+                if (!objFrente[kF]) objFrente[kF] = {n:kF,g:0,gp:0,l:0,lp:0,v:0,ls:0,gO:0,lO:0,vO:0};
                 if (d.Plataforma !== 'Todas') {
-                    acc[k].g+=d.Gasto; acc[k].l+=d.Leads;
-                    if(d.Data===ontemStr){acc[k].gO+=d.Gasto;acc[k].lO+=d.Leads;}
+                    objFrente[kF].g += d.Gasto; objFrente[kF].l += d.Leads;
+                    if(d.Data === ontemStr) { objFrente[kF].gO += d.Gasto; objFrente[kF].lO += d.Leads; }
                 } else {
-                    acc[k].gp+=d.GastoPlan; acc[k].lp+=d.LeadsPlan;
-                    if(d.Vendas>0){acc[k].v+=d.Vendas;if(d.Data===ontemStr)acc[k].vO+=d.Vendas;}
-                    if((d.LeadsSWR||0)>0){acc[k].ls+=(d.LeadsSWR||0);}
+                    objFrente[kF].gp += d.GastoPlan; objFrente[kF].lp += d.LeadsPlan;
+                    if(d.Vendas > 0) { objFrente[kF].v += d.Vendas; if(d.Data === ontemStr) objFrente[kF].vO += d.Vendas; }
+                    if((d.LeadsSWR||0) > 0) { objFrente[kF].ls += (d.LeadsSWR||0); }
                 }
-                return acc;
-            }, {});
 
-            const miniBar = (v,m,color) => {
-                let p=m>0?Math.min((v/m)*100,100):0;
-                return `<div class="w-full bg-slate-100 h-1.5 rounded-full mt-1"><div class="${color} h-1.5 rounded-full" style="width:${p}%"></div></div>`;
-            };
-            const badge = (p,good=100) => {
-                let cls=p>=good?'text-emerald-600 bg-emerald-50':p>=70?'text-blue-600 bg-blue-50':'text-amber-600 bg-amber-50';
-                return `<span class="${cls} text-[9px] font-black px-1.5 py-0.5 rounded-full">${p.toFixed(0)}%</span>`;
+                // --- Lógica para Canais (Ignora "Todas" para usar as metas/dados específicos da plataforma) ---
+                let kC = d.Plataforma;
+                if (kC && kC !== 'Todas') {
+                    if (!objCanal[kC]) objCanal[kC] = {n:kC,g:0,gp:0,l:0,lp:0,v:0,ls:0,gO:0,lO:0,vO:0};
+                    objCanal[kC].g += d.Gasto;
+                    objCanal[kC].l += d.Leads;
+                    objCanal[kC].gp += d.GastoPlan || 0;
+                    objCanal[kC].lp += d.LeadsPlan || 0;
+                    objCanal[kC].v += d.Vendas || 0;
+                    objCanal[kC].ls += d.LeadsSWR || 0;
+
+                    if (d.Data === ontemStr) {
+                        objCanal[kC].gO += d.Gasto;
+                        objCanal[kC].lO += d.Leads;
+                        objCanal[kC].vO += (d.Vendas || 0);
+                    }
+                }
+            });
+
+            // Componentes Visuais com controle de tamanho (isLarge)
+            const miniBar = (v, m, color, isLarge) => {
+                let p = m > 0 ? Math.min((v / m) * 100, 100) : 0;
+                let h = isLarge ? 'h-2' : 'h-1.5';
+                return `<div class="w-full bg-slate-100 ${h} rounded-full mt-1.5"><div class="${color} ${h} rounded-full" style="width:${p}%"></div></div>`;
             };
 
-            let cards = Object.values(allObj).sort((a,b)=>b.g-a.g).map(d => {
-                let pctG = d.gp>0?((d.g/d.gp)*100):0;
-                let pctL = d.lp>0?((d.l/d.lp)*100):0;
-                let pL   = dAtual>0?(d.l/dAtual)*dTot:0;
-                let disc = d.l>0&&d.ls>0?((d.l-d.ls)/d.l*100).toFixed(1)+'%':'—';
-                let taxa = d.ls>0?(d.v/d.ls*100).toFixed(2)+'%':d.l>0?(d.v/d.l*100).toFixed(2)+'%':'—';
-                return `<div class="bg-white border rounded-xl p-4 shadow-sm">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="font-black text-sm text-slate-800">${d.n}</span>
+            const badge = (p, good=100, isLarge) => {
+                let cls = p >= good ? 'text-emerald-600 bg-emerald-50' : p >= 70 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50';
+                let txtSize = isLarge ? 'text-xs px-2 py-1' : 'text-[9px] px-1.5 py-0.5';
+                return `<span class="${cls} ${txtSize} font-black rounded-full">${p.toFixed(0)}%</span>`;
+            };
+
+            // Função genérica para construir o HTML de um card
+            const generateCard = (d, isLarge) => {
+                let pctG = d.gp > 0 ? ((d.g / d.gp) * 100) : 0;
+                let pctL = d.lp > 0 ? ((d.l / d.lp) * 100) : 0;
+                let disc = d.l > 0 && d.ls > 0 ? ((d.l - d.ls) / d.l * 100).toFixed(1) + '%' : '—';
+                let taxa = d.ls > 0 ? (d.v / d.ls * 100).toFixed(2) + '%' : d.l > 0 ? (d.v / d.l * 100).toFixed(2) + '%' : '—';
+
+                // Classes baseadas no parâmetro isLarge (Frente = maior, Canal = menor)
+                let pClass = isLarge ? 'p-6' : 'p-4';
+                let titleClass = isLarge ? 'text-lg' : 'text-sm';
+                let gridTextClass = isLarge ? 'text-xs' : 'text-[10px]';
+                let valClass = isLarge ? 'text-base' : 'text-sm';
+
+                return `<div class="bg-white border rounded-xl ${pClass} shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="font-black ${titleClass} text-slate-800">${d.n}</span>
                         <div class="flex gap-1">
-                            ${d.gp>0?badge(pctG):''}
-                            ${d.lp>0?badge(pctL):''}
+                            ${d.gp > 0 ? badge(pctG, 100, isLarge) : ''}
+                            ${d.lp > 0 ? badge(pctL, 100, isLarge) : ''}
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] mt-2">
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-3 ${gridTextClass} mt-2">
                         <div>
-                            <span class="text-slate-400 uppercase font-bold block">Investimento</span>
-                            <span class="font-black text-slate-700">${fmt.m(d.g)}</span>
-                            ${d.gp>0?`<span class="text-slate-400 ml-1">/ ${fmt.m(d.gp)}</span>`:''}
-                            ${miniBar(d.g,d.gp,'bg-emerald-500')}
+                            <span class="text-slate-400 uppercase font-bold block mb-0.5">Investimento</span>
+                            <span class="font-black text-slate-700 ${valClass}">${fmt.m(d.g)}</span>
+                            ${d.gp > 0 ? `<span class="text-slate-400 ml-1">/ ${fmt.m(d.gp)}</span>` : ''}
+                            ${miniBar(d.g, d.gp, 'bg-emerald-500', isLarge)}
                         </div>
                         <div>
-                            <span class="text-slate-400 uppercase font-bold block">Leads</span>
-                            <span class="font-black text-blue-700">${fmt.n(d.l)}</span>
-                            ${d.lp>0?`<span class="text-slate-400 ml-1">/ ${fmt.n(d.lp)}</span>`:''}
-                            ${miniBar(d.l,d.lp,'bg-blue-500')}
+                            <span class="text-slate-400 uppercase font-bold block mb-0.5">Leads</span>
+                            <span class="font-black text-blue-700 ${valClass}">${fmt.n(d.l)}</span>
+                            ${d.lp > 0 ? `<span class="text-slate-400 ml-1">/ ${fmt.n(d.lp)}</span>` : ''}
+                            ${miniBar(d.l, d.lp, 'bg-blue-500', isLarge)}
                         </div>
                         <div class="mt-1">
-                            <span class="text-slate-400 uppercase font-bold block">Leads SWR</span>
-                            <span class="font-black text-cyan-600">${d.ls>0?fmt.n(d.ls):'—'}</span>
-                            ${d.ls>0?`<span class="text-amber-500 ml-1 font-bold">${disc} disc.</span>`:''}
+                            <span class="text-slate-400 uppercase font-bold block mb-0.5">Leads SWR</span>
+                            <span class="font-black text-cyan-600 ${valClass}">${d.ls > 0 ? fmt.n(d.ls) : '—'}</span>
+                            ${d.ls > 0 ? `<span class="text-amber-500 ml-1 font-bold">${disc} disc.</span>` : ''}
                         </div>
                         <div class="mt-1">
-                            <span class="text-slate-400 uppercase font-bold block">Vendas / Taxa</span>
-                            <span class="font-black text-green-700">${fmt.n(d.v)}</span>
+                            <span class="text-slate-400 uppercase font-bold block mb-0.5">Vendas / Taxa</span>
+                            <span class="font-black text-green-700 ${valClass}">${fmt.n(d.v)}</span>
                             <span class="text-violet-600 ml-1 font-bold">${taxa}</span>
                         </div>
                     </div>
-                    ${d.gO>0||d.lO>0?`<div class="mt-2 pt-2 border-t text-[9px] text-slate-400 flex gap-3">
-                        ${d.gO>0?'<span>Ontem inv: <b>'+fmt.m(d.gO)+'</b></span>':''}
-                        ${d.lO>0?'<span>Ontem leads: <b>'+fmt.n(d.lO)+'</b></span>':''}
-                    </div>`:''}
+                    ${d.gO > 0 || d.lO > 0 ? `<div class="mt-3 pt-3 border-t ${gridTextClass} text-slate-400 flex gap-4">
+                        ${d.gO > 0 ? `<span>Ontem inv: <b class="text-slate-600">${fmt.m(d.gO)}</b></span>` : ''}
+                        ${d.lO > 0 ? `<span>Ontem leads: <b class="text-slate-600">${fmt.n(d.lO)}</b></span>` : ''}
+                    </div>` : ''}
                 </div>`;
-            }).join('');
+            };
 
-            document.getElementById('v3_frenteCards').innerHTML = cards
-                ? `<h3 class="font-black text-xs uppercase text-slate-500 mb-3">📊 Por Frente (período completo)</h3>
-                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">${cards}</div>`
+            // Gera o HTML chamando true para Frente (maior) e false para Canal (menor)
+            let cardsFrente = Object.values(objFrente).sort((a,b) => b.g - a.g).map(d => generateCard(d, true)).join('');
+            let cardsCanal  = Object.values(objCanal).sort((a,b) => b.g - a.g).map(d => generateCard(d, false)).join('');
+
+            // Injeta Frentes (Grid de 3)
+            document.getElementById('v3_frenteCards').innerHTML = cardsFrente
+                ? `<h3 class="font-black text-xs uppercase text-slate-500 mb-3">🏢 Por Frente (Período Completo)</h3>
+                   <div class="grid grid-cols-1 md:grid-cols-3 gap-5">${cardsFrente}</div>`
+                : '';
+
+            // Injeta Canais (Grid de 3 ou 4 dependendo da quantidade)
+            document.getElementById('v3_canalCards').innerHTML = cardsCanal
+                ? `<h3 class="font-black text-xs uppercase text-slate-500 mb-3 mt-6">📢 Por Canal (Período Completo)</h3>
+                   <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">${cardsCanal}</div>`
                 : '';
         }
 
