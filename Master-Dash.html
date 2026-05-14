@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v44</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v45</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -151,6 +151,7 @@
             <div class="bg-white p-5 rounded-xl border shadow-sm mb-6">
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-2 border-b pb-3">
                     <h3 class="font-black text-xs uppercase text-slate-700">📈 Evolução de Mídia</h3>
+                    <button onclick="exportMacroChart()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition ml-auto">📈 Baixar PNG</button>
                     <div class="flex gap-2 flex-wrap">
                         <div>
                             <label class="text-[9px] font-bold text-slate-400 uppercase block">Métrica</label>
@@ -187,7 +188,10 @@
             <!-- Tabela -->
             <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
                 <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
-                    <h3 class="font-black text-xs uppercase">Detalhamento</h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-black text-xs uppercase">Detalhamento</h3>
+                        <button onclick="exportMacroTable()" class="no-print text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold px-3 h-7 rounded-lg transition">📋 Baixar CSV</button>
+                    </div>
                     <select id="v1_grouping" class="text-xs border rounded p-1.5 bg-white font-bold" onchange="renderMasterTable()">
                         <option value="Frente">Por Frente (Marca)</option>
                         <option value="Plataforma">Por Canal</option>
@@ -2399,7 +2403,6 @@
         }
 
         function exportMacroTable() {
-            // Reuse v1_cachedData to build CSV from rendered table
             let grp = document.getElementById('v1_grouping').value;
             let tb = v1_cachedData.reduce((acc, d) => {
                 let k = d[grp] || 'Outros';
@@ -2408,17 +2411,18 @@
                 acc[k].i+=d.Impressoes||0; acc[k].cl+=d.Cliques||0;
                 return acc;
             }, {});
-            Object.keys(tb).forEach(k => { tb[k].v = window._v1VendasMap?.[k] || 0; });
-            let rows = [['Nome','Investimento','Impressões','Cliques','CTR%','Leads','SWR','Disc%','CVR%','CPL','Vendas','CPA','Taxa Venda%']];
+            let vm = window._v1VendasMap || {};
+            let sm = window._v1SWRMap    || {};
+            Object.keys(tb).forEach(k => { tb[k].v = vm[k] || 0; tb[k].swr = sm[k] || 0; });
+            let rows = [['Nome','Investimento (R$)','Impressões','Cliques','CTR%','Leads','Leads SWR','Disc%','CVR%','CPL (R$)','Vendas','CPA (R$)','Taxa Venda%']];
             Object.values(tb).sort((a,b)=>b.g-a.g).forEach(i => {
                 let ctr  = i.i>0?(i.cl/i.i*100).toFixed(2):0;
                 let cvr  = i.cl>0?(i.l/i.cl*100).toFixed(2):0;
                 let cpl  = i.l>0?(i.g/i.l).toFixed(2):0;
                 let cpa  = i.v>0?(i.g/i.v).toFixed(2):0;
-                let swr  = window._v1SWRMap?.[k] || 0;
-                let disc = i.l>0&&swr>0?((i.l-swr)/i.l*100).toFixed(1):0;
-                let taxa = swr>0?(i.v/swr*100).toFixed(2):i.l>0?(i.v/i.l*100).toFixed(2):0;
-                rows.push([i.n, i.g.toFixed(2), i.i, i.cl, ctr, i.l, swr, disc, cvr, cpl, i.v, cpa, taxa]);
+                let disc = i.l>0&&i.swr>0?((i.l-i.swr)/i.l*100).toFixed(1):'-';
+                let taxa = i.swr>0?(i.v/i.swr*100).toFixed(2):i.l>0?(i.v/i.l*100).toFixed(2):0;
+                rows.push([i.n, i.g.toFixed(2), i.i, i.cl, ctr, i.l, i.swr, disc, cvr, cpl, i.v, cpa, taxa]);
             });
             exportCSV(rows, exportFileName('macro_tabela','csv'));
         }
