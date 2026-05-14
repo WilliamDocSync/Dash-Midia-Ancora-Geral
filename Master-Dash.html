@@ -36,7 +36,7 @@
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-black text-white tracking-tight uppercase">Master <span class="text-blue-500">OS</span></h1>
             <p class="text-[10px] uppercase font-bold text-slate-500 mt-1 tracking-widest">Gestão Integrada</p>
-            <p class="text-[9px] font-bold text-slate-600 mt-1">v46</p>
+            <p class="text-[9px] font-bold text-slate-600 mt-1">v47</p>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-master', this)" class="menu-btn active w-full text-left px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800 flex items-center gap-3"><span>📊</span> Visão Macro</button>
@@ -883,7 +883,21 @@
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQByobfNwuQZyBs0K9BM_g794uZqUfbqjZ6fejlghm57qIXcKlBDgNGjcv5QmTaaogpiniNST7Fu0Up/pub?output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQJwP_YbDSAdoPyGHRhsTGI211xZU9mZl8KLBu5yV1nmF89jS73lT48E38iVwXymYAuN43fzMr_u_9y/pub?output=csv",
                 "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0Vtd5aW9zKUfOJ2NiaDjKvWYRdte2JlvgIsdmLQVkkQpE7-0uKRrr_d0pqF9GGi16sKR87E8YRCSD/pub?output=csv",
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHecxbiz4ZwkGzY_sgvjxU_yBaCDyjdeqMb60rd1_5RZRrC5ldMCREAHaHA3lH4FtRStt65ngtlqCF/pub?output=csv"
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHecxbiz4ZwkGzY_sgvjxU_yBaCDyjdeqMb60rd1_5RZRrC5ldMCREAHaHA3lH4FtRStt65ngtlqCF/pub?output=csv",
+                // Imóveis
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQmgSwngB5ztDraIPmFkM6fBJZ7bnnOrFJMEPIpwHsYTxN-rs8hddUrIvdK5UN91tpVhqOR8eaBTt7R/pub?gid=0&single=true&output=csv",
+                // Kobe
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vSE_V0xPXVg9PN2LmZxmpBacY8v5MEYg1NHIbBxCg9sax5iixyIlDyJh0im-TFWkzMeYuGiwN71gFI8/pub?gid=0&single=true&output=csv",
+                // Dafra
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQJ7yyUkIKzK8XvXpguG9usVwgU0PLNWQRcz8k9lroFe1c4_z8ur498is-Smx66zm5qDmqYdsUOUTpO/pub?gid=0&single=true&output=csv",
+                // BMW
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_l4o81f2blB-WhM85KzNyx1aVJW2uULKs1UB-tS8tzOla6jePyIgKcFrS2Enxl32Wr-7JwxLFvyqy/pub?gid=0&single=true&output=csv",
+                // Beija Flor
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6iZWG2omjv2crxSn8KdwUDG_t85RsROm6anBwQaXkJWVFI6LX7SOQXmQx1fiY9QivPcx8pWE47ptZ/pub?gid=0&single=true&output=csv",
+                // Avelloz
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7L2N9n9mTOXn1sKMCidyQwIUHKEYDwh76ONwDa-xxyDN_nUi4M-O8WbZiH6CoqwgSfIajzizXF0OB/pub?gid=0&single=true&output=csv",
+                // São Pedro
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vTio3GW71jX9hGt6Zvy8iXjBYOAfGr1izHA2xQLN12s9TI8PbPx4xAQIG_55ZJtHt4XRqrb6JED6DAw/pub?gid=0&single=true&output=csv"
             ];
             // Carrega regiões em lotes de 3 (limite de conexões do browser por domínio)
             const carregarUrl = url => new Promise(resolve => {
